@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace SubastaAutos.Infraestructure.Models;
 
-public partial class RolUsuario
+public partial class Categorium
 {
-    public int IdRol { get; set; }
+    public int IdCategoria { get; set; }
 
     public string Nombre { get; set; } = null!;
 
-    public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+    public virtual ICollection<Auto> IdAutos { get; set; } = new List<Auto>();
 }

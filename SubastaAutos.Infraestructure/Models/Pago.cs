@@ -17,5 +17,5 @@ public partial class Pago
 
     public virtual EstadoPago IdEstadoPagoNavigation { get; set; } = null!;
 
-    public virtual Subasta IdSubastaNavigation { get; set; } = null!;
+    public virtual Subastum IdSubastaNavigation { get; set; } = null!;
 }

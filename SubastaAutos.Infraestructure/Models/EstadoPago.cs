@@ -9,5 +9,5 @@ public partial class EstadoPago
 
     public string Nombre { get; set; } = null!;
 
-    public virtual ICollection<Pago> Pago { get; set; } = new List<Pago>();
+    public virtual ICollection<Pago> Pagos { get; set; } = new List<Pago>();
 }

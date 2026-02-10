@@ -9,5 +9,5 @@ public partial class EstadoAuto
 
     public string Nombre { get; set; } = null!;
 
-    public virtual ICollection<Auto> Auto { get; set; } = new List<Auto>();
+    public virtual ICollection<Auto> Autos { get; set; } = new List<Auto>();
 }

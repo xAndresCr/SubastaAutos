@@ -15,19 +15,17 @@ public partial class Usuario
 
     public int IdRol { get; set; }
 
-    public int IdEstadoUsuario { get; set; }
-
     public DateTime FechaRegistro { get; set; }
 
     public bool EstadoUsuario { get; set; }
 
-    public virtual ICollection<Auto> Auto { get; set; } = new List<Auto>();
+    public virtual ICollection<Auto> Autos { get; set; } = new List<Auto>();
 
     public virtual RolUsuario IdRolNavigation { get; set; } = null!;
 
-    public virtual ICollection<Puja> Puja { get; set; } = new List<Puja>();
+    public virtual ICollection<Puja> Pujas { get; set; } = new List<Puja>();
 
-    public virtual ICollection<ResultadoSubasta> ResultadoSubasta { get; set; } = new List<ResultadoSubasta>();
+    public virtual ICollection<ResultadoSubastum> ResultadoSubasta { get; set; } = new List<ResultadoSubastum>();
 
-    public virtual ICollection<Subasta> Subasta { get; set; } = new List<Subasta>();
+    public virtual ICollection<Subastum> Subasta { get; set; } = new List<Subastum>();
 }
