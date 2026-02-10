@@ -5,9 +5,9 @@ using SubastaAutos.Infraestructure.Models;
 
 namespace SubastaAutos.Infraestructure.Data;
 
-public partial class LibreriaContext : DbContext
+public partial class SubastaAutosContext : DbContext
 {
-    public LibreriaContext(DbContextOptions<LibreriaContext> options)
+    public SubastaAutosContext(DbContextOptions<SubastaAutosContext> options)
         : base(options)
     {
     }
@@ -42,9 +42,9 @@ public partial class LibreriaContext : DbContext
     {
         modelBuilder.Entity<Auto>(entity =>
         {
-            entity.HasKey(e => e.IdAuto).HasName("PK__Auto__2C8AA82C6B96CF35");
+            entity.HasKey(e => e.IdAuto).HasName("PK__Auto__2C8AA82C8583FE16");
 
-            entity.HasIndex(e => e.Vin, "UQ__Auto__C5DF234C485BF78F").IsUnique();
+            entity.HasIndex(e => e.Vin, "UQ__Auto__C5DF234CBF7E71EB").IsUnique();
 
             entity.Property(e => e.Descripcion)
                 .HasMaxLength(500)
@@ -89,13 +89,13 @@ public partial class LibreriaContext : DbContext
                         .HasConstraintName("FK_AC_Auto"),
                     j =>
                     {
-                        j.HasKey("IdAuto", "IdCategoria").HasName("PK__AutoCate__36B6AA8D38EE87B9");
+                        j.HasKey("IdAuto", "IdCategoria").HasName("PK__AutoCate__36B6AA8D15281105");
                     });
         });
 
         modelBuilder.Entity<AutoImagen>(entity =>
         {
-            entity.HasKey(e => e.IdImagen).HasName("PK__AutoImag__B42D8F2A59685E7A");
+            entity.HasKey(e => e.IdImagen).HasName("PK__AutoImag__B42D8F2A3CA22E9D");
 
             entity.Property(e => e.EsPrincipal).HasDefaultValue(false);
             entity.Property(e => e.UrlImagen)
@@ -110,9 +110,9 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<Categoria>(entity =>
         {
-            entity.HasKey(e => e.IdCategoria).HasName("PK__Categori__A3C02A107601B1A9");
+            entity.HasKey(e => e.IdCategoria).HasName("PK__Categori__A3C02A103C4C952A");
 
-            entity.HasIndex(e => e.Nombre, "UQ__Categori__75E3EFCF5703D4FA").IsUnique();
+            entity.HasIndex(e => e.Nombre, "UQ__Categori__75E3EFCFE2C70FA8").IsUnique();
 
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
@@ -121,9 +121,9 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<CondicionAuto>(entity =>
         {
-            entity.HasKey(e => e.IdCondicionAuto).HasName("PK__Condicio__95F21F923E92337D");
+            entity.HasKey(e => e.IdCondicionAuto).HasName("PK__Condicio__95F21F92BCF63C64");
 
-            entity.HasIndex(e => e.Nombre, "UQ__Condicio__75E3EFCFC16EA6E9").IsUnique();
+            entity.HasIndex(e => e.Nombre, "UQ__Condicio__75E3EFCF3B376473").IsUnique();
 
             entity.Property(e => e.IdCondicionAuto).ValueGeneratedNever();
             entity.Property(e => e.Nombre)
@@ -133,9 +133,9 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<EstadoAuto>(entity =>
         {
-            entity.HasKey(e => e.IdEstadoAuto).HasName("PK__EstadoAu__DBA193E5D045E8B9");
+            entity.HasKey(e => e.IdEstadoAuto).HasName("PK__EstadoAu__DBA193E5DDB4AD8E");
 
-            entity.HasIndex(e => e.Nombre, "UQ__EstadoAu__75E3EFCFF8797A77").IsUnique();
+            entity.HasIndex(e => e.Nombre, "UQ__EstadoAu__75E3EFCFE54585B6").IsUnique();
 
             entity.Property(e => e.IdEstadoAuto).ValueGeneratedNever();
             entity.Property(e => e.Nombre)
@@ -145,9 +145,9 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<EstadoPago>(entity =>
         {
-            entity.HasKey(e => e.IdEstadoPago).HasName("PK__EstadoPa__540F03E9EF3DD3D9");
+            entity.HasKey(e => e.IdEstadoPago).HasName("PK__EstadoPa__540F03E9D2ADA4F1");
 
-            entity.HasIndex(e => e.Nombre, "UQ__EstadoPa__75E3EFCF6FB54231").IsUnique();
+            entity.HasIndex(e => e.Nombre, "UQ__EstadoPa__75E3EFCF6B1F9D1E").IsUnique();
 
             entity.Property(e => e.IdEstadoPago).ValueGeneratedNever();
             entity.Property(e => e.Nombre)
@@ -157,9 +157,9 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<EstadoSubasta>(entity =>
         {
-            entity.HasKey(e => e.IdEstadoSubasta).HasName("PK__EstadoSu__4F0A9413992C5838");
+            entity.HasKey(e => e.IdEstadoSubasta).HasName("PK__EstadoSu__4F0A9413BEF04A2A");
 
-            entity.HasIndex(e => e.Nombre, "UQ__EstadoSu__75E3EFCF1D776306").IsUnique();
+            entity.HasIndex(e => e.Nombre, "UQ__EstadoSu__75E3EFCF9E685F0B").IsUnique();
 
             entity.Property(e => e.IdEstadoSubasta).ValueGeneratedNever();
             entity.Property(e => e.Nombre)
@@ -169,9 +169,9 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<Pago>(entity =>
         {
-            entity.HasKey(e => e.IdPago).HasName("PK__Pago__FC851A3A821AEAEA");
+            entity.HasKey(e => e.IdPago).HasName("PK__Pago__FC851A3A8925B3A3");
 
-            entity.HasIndex(e => e.IdSubasta, "UQ__Pago__AA418F72151EF1B8").IsUnique();
+            entity.HasIndex(e => e.IdSubasta, "UQ__Pago__AA418F72D5455505").IsUnique();
 
             entity.Property(e => e.FechaRegistro).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.Monto).HasColumnType("decimal(12, 2)");
@@ -189,7 +189,7 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<Puja>(entity =>
         {
-            entity.HasKey(e => e.IdPuja).HasName("PK__Puja__F986B2D4BA7D8345");
+            entity.HasKey(e => e.IdPuja).HasName("PK__Puja__F986B2D402C0AE1B");
 
             entity.Property(e => e.FechaHora).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.Monto).HasColumnType("decimal(12, 2)");
@@ -207,7 +207,7 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<ResultadoSubasta>(entity =>
         {
-            entity.HasKey(e => e.IdSubasta).HasName("PK__Resultad__AA418F73A3B43E7A");
+            entity.HasKey(e => e.IdSubasta).HasName("PK__Resultad__AA418F73480F43C9");
 
             entity.Property(e => e.IdSubasta).ValueGeneratedNever();
             entity.Property(e => e.MontoFinal).HasColumnType("decimal(12, 2)");
@@ -225,9 +225,9 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<RolUsuario>(entity =>
         {
-            entity.HasKey(e => e.IdRol).HasName("PK__RolUsuar__2A49584C92F9B950");
+            entity.HasKey(e => e.IdRol).HasName("PK__RolUsuar__2A49584C962E9E46");
 
-            entity.HasIndex(e => e.Nombre, "UQ__RolUsuar__75E3EFCF7DA15FB2").IsUnique();
+            entity.HasIndex(e => e.Nombre, "UQ__RolUsuar__75E3EFCF338D47F7").IsUnique();
 
             entity.Property(e => e.IdRol).ValueGeneratedNever();
             entity.Property(e => e.Nombre)
@@ -237,7 +237,7 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<Subasta>(entity =>
         {
-            entity.HasKey(e => e.IdSubasta).HasName("PK__Subasta__AA418F738793D57C");
+            entity.HasKey(e => e.IdSubasta).HasName("PK__Subasta__AA418F73445298BB");
 
             entity.Property(e => e.FechaCreacion).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.IncrementoMinimo).HasColumnType("decimal(12, 2)");
@@ -261,9 +261,9 @@ public partial class LibreriaContext : DbContext
 
         modelBuilder.Entity<Usuario>(entity =>
         {
-            entity.HasKey(e => e.IdUsuario).HasName("PK__Usuario__5B65BF970C075087");
+            entity.HasKey(e => e.IdUsuario).HasName("PK__Usuario__5B65BF973022BA6E");
 
-            entity.HasIndex(e => e.Correo, "UQ__Usuario__60695A191DDFF5AE").IsUnique();
+            entity.HasIndex(e => e.Correo, "UQ__Usuario__60695A19238EABF3").IsUnique();
 
             entity.Property(e => e.Correo)
                 .HasMaxLength(150)

@@ -1,7 +1,52 @@
+using Microsoft.EntityFrameworkCore;
+using SubastaAutos.Application.Profiles;
+using SubastaAutos.Application.Services.Implementations;
+using SubastaAutos.Application.Services.Interfaces;
+using SubastaAutos.Infraestructure.Data;
+using SubastaAutos.Infraestructure.Repository.Implementations;
+using SubastaAutos.Infraestructure.Repository.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+//***********
+// =======================
+// Configurar Dependency Injection
+// =======================
+//*** Repositories
+builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();
+//*** Services
+builder.Services.AddTransient<IServiceRolUsuario, ServiceRolUsuario>();
+// =======================
+// Configurar AutoMapper
+// =======================
+builder.Services.AddAutoMapper(config =>
+{
+    //*** Profiles
+    config.AddProfile<RolUsuarioProfile>();
+});
+// =======================
+// Configurar SQL Server DbContext
+// =======================
+var connectionString = builder.Configuration.GetConnectionString("SqlServerDataBase");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+    "No se encontró la cadena de conexión 'SqlServerDataBase' en appsettings.json /appsettings.Development.json." );
+}
+builder.Services.AddDbContext<SubastaAutosContext>(options =>
+{
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        // Reintentos ante fallos transitorios (recomendado)
+        sqlOptions.EnableRetryOnFailure();
+    });
+    if (builder.Environment.IsDevelopment())
+        options.EnableSensitiveDataLogging();
+});
+//**********
 
 var app = builder.Build();
 
