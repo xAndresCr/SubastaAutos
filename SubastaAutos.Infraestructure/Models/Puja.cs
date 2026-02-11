@@ -15,7 +15,7 @@ public partial class Puja
 
     public DateTime? FechaHora { get; set; }
 
-    public virtual Subastum IdSubastaNavigation { get; set; } = null!;
+    public virtual Subasta IdSubastaNavigation { get; set; } = null!;
 
     public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
 }

@@ -25,7 +25,7 @@ public partial class Auto
 
     public DateTime? FechaRegistro { get; set; }
 
-    public virtual ICollection<AutoImagen> AutoImagens { get; set; } = new List<AutoImagen>();
+    public virtual ICollection<AutoImagen> AutoImagen { get; set; } = new List<AutoImagen>();
 
     public virtual CondicionAuto IdCondicionAutoNavigation { get; set; } = null!;
 
@@ -33,7 +33,7 @@ public partial class Auto
 
     public virtual Usuario IdVendedorNavigation { get; set; } = null!;
 
-    public virtual ICollection<Subastum> Subasta { get; set; } = new List<Subastum>();
+    public virtual ICollection<Subasta> Subasta { get; set; } = new List<Subasta>();
 
-    public virtual ICollection<Categorium> IdCategoria { get; set; } = new List<Categorium>();
+    public virtual ICollection<Categoria> IdCategoria { get; set; } = new List<Categoria>();
 }
