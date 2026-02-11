@@ -21,7 +21,7 @@ namespace SubastaAutos.Application.Services.Implementations
             _repository = repository;
             _mapper = mapper;
         }
-        //Se implementa el Automapper safisfactoriamnete para el mapeo entre el profile y el DTO
+        //Se implementa el Automapper
         public async Task<ICollection<RolUsuarioDTO>> ListAsync()
         {
             var list = await _repository.ListAsync();
