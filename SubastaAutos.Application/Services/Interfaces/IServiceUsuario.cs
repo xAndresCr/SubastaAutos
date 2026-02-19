@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace SubastaAutos.Application.Services.Interfaces
 {
-    public interface IServiceRolUsuario
+    public interface IServiceUsuario
     {
-        Task<ICollection<RolUsuarioDTO>> ListAsync();
+        //Método para obtener
+        Task<ICollection<UsuarioDTO>> ListAsync();
 
-        
+        Task<UsuarioDTO> GetByIdAsync(int id);
     }
 }

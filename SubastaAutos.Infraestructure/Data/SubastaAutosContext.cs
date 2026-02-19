@@ -98,9 +98,6 @@ public partial class SubastaAutosContext : DbContext
             entity.HasKey(e => e.IdImagen).HasName("PK__AutoImag__B42D8F2A3CA22E9D");
 
             entity.Property(e => e.EsPrincipal).HasDefaultValue(false);
-            entity.Property(e => e.UrlImagen)
-                .HasMaxLength(300)
-                .IsUnicode(false);
 
             entity.HasOne(d => d.IdAutoNavigation).WithMany(p => p.AutoImagen)
                 .HasForeignKey(d => d.IdAuto)

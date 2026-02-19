@@ -17,8 +17,10 @@ builder.Services.AddControllersWithViews();
 // =======================
 //*** Repositories
 builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();
+builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
 //*** Services
 builder.Services.AddTransient<IServiceRolUsuario, ServiceRolUsuario>();
+builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
 // =======================
 // Configurar AutoMapper
 // =======================
@@ -26,6 +28,7 @@ builder.Services.AddAutoMapper(config =>
 {
     //*** Profiles
     config.AddProfile<RolUsuarioProfile>();
+    config.AddProfile<UsuarioProfile>();
 });
 // =======================
 // Configurar SQL Server DbContext

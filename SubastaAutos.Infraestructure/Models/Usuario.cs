@@ -15,8 +15,6 @@ public partial class Usuario
 
     public int IdRol { get; set; }
 
-    public int IdEstadoUsuario { get; set; }
-
     public DateTime FechaRegistro { get; set; }
 
     public bool EstadoUsuario { get; set; }

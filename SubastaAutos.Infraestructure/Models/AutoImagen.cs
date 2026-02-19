@@ -9,7 +9,7 @@ public partial class AutoImagen
 
     public int IdAuto { get; set; }
 
-    public string UrlImagen { get; set; } = null!;
+    public byte[]? UrlImagen { get; set; }
 
     public bool? EsPrincipal { get; set; }
 
