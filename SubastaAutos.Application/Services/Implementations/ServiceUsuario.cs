@@ -34,8 +34,10 @@ namespace SubastaAutos.Application.Services.Implementations
         //Metodo que retorna la coleccion de usuarios mapeada hacia el DTO por medio del AutoMapper
         public async Task<ICollection<UsuarioDTO>> ListAsync()
         {
-            var collection = await repositoryUsuario.ListAsync();
-            return _mapper.Map<ICollection<UsuarioDTO>>(collection);
+           
+            var list = await repositoryUsuario.ListAsync();
+            var collection = _mapper.Map<ICollection<UsuarioDTO>>(list);
+            return collection;
         }
     }
 }

@@ -33,6 +33,8 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
         public async Task<ICollection<Usuario>> ListAsync()
         {
             var collecton = await _context.Set<Usuario>()
+                .Include(x => x.IdRolNavigation)
+                .OrderBy(x => x.NombreCompleto)
                 .AsNoTracking()
                 .ToListAsync();
             return collecton;
