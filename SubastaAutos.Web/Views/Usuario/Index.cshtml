@@ -1,45 +1,66 @@
 ﻿@model IEnumerable<SubastaAutos.Application.DTOs.UsuarioDTO>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Listado de usuarios";
 }
 
-<h1>Lista de Usuarios</h1>
+<div class="table-responsive border rounded p-3 mt-4 shadow-sm">
+    <table class="table caption-top table-bordered">
+        <caption>Lista de usuarios</caption>
+        <thead class="table-light position-sticky top-0" style="z-index:1;">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.NombreCompleto)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.IdRolNavigation.Nombre)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EstadoUsuario)
+                </th>
+                <th scope="col" class="text-end pe-3" style="width: 260px;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <span>@item.NombreCompleto</span>
+                    </td>
+                    <td>
+                        <span>@item.IdRolNavigation.Nombre</span>
+                    </td>
+                    <td>
+                        @(item.EstadoUsuario ? "Activo" : "Deshabilitado")
+                    </td>
+                    <td class="text-end pe-3">
+                        <div class="btn-group" role="group" aria-label="Acciones del autor ">
+                            <a asp-action="Details" asp-route-id="@item.IdUsuario"
+                               class="btn btn-outline-secondary btn-sm"
+                               title="Ver detalle">
+                                <i class="bi bi-eye"></i>
+                                <span class="d-none d-lg-inline ms-1">Detalle</span>
+                            </a>
 
+                            <a asp-action="Edit"
+                               class="btn btn-outline-primary btn-sm"
+                               title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                                <span class="d-none d-lg-inline ms-1">Editar</span>
+                            </a>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NombreCompleto)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdRolNavigation.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EstadoUsuario)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.NombreCompleto)
-            </td>
-            <td>
-                    @Html.DisplayFor(modelItem => item.IdRolNavigation.Nombre)
-            </td>
-            <td>
-                    @(item.EstadoUsuario ? "Activo" : "Deshabilitado")
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                            <a asp-action="Delete"
+                               class="btn btn-outline-danger btn-sm"
+                               title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                                <span class="d-none d-lg-inline ms-1">Eliminar</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+

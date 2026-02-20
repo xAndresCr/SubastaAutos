@@ -1,0 +1,160 @@
+﻿@* Footer responsivo y compacto *@
+@{
+    // No model
+}
+<style>
+    :root {
+        --footer-bg: #343434;
+        --accent: #f18930;
+        --text: #ffffff;
+        --muted: #dcdcdc;
+    }
+
+    /* Scopeado al footer para no afectar al resto de la página */
+    .site-footer {
+        background: var(--footer-bg);
+        color: var(--text);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        padding: 14px 0; /* reducido para ocupar menos alto */
+    }
+
+    .site-footer .container {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0 1rem 8px; /* menos padding inferior */
+        display: flex;
+        gap: 1rem; /* menos separación horizontal */
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: center;
+    }
+
+    .site-footer .footer-column {
+        flex: 1 1 240px;
+        min-width: 200px;
+        box-sizing: border-box;
+    }
+
+    .site-footer h3 {
+        font-size: 16px; /* más pequeño */
+        margin: 0 0 6px 0; /* menos espacio debajo */
+        text-align: center;
+    }
+
+    .site-footer .contact-line {
+        color: var(--muted);
+        margin: 2px 0; /* reducir separación entre líneas */
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .site-footer .list {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        text-align: center;
+    }
+
+    .site-footer .list li {
+        padding: 4px 0; /* menos padding vertical */
+        position: relative;
+        color: var(--muted);
+    }
+
+    .site-footer .list li::before {
+        content: '';
+        position: absolute;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 100%;
+        width: 0;
+        height: 2px;
+        background: var(--accent);
+        transition: width .35s ease;
+    }
+
+    .site-footer .list li:hover::before {
+        width: 70px;
+    }
+
+    .site-footer .social-icons {
+        padding: 0;
+        margin: 0;
+        text-align: center;
+    }
+
+    .site-footer .social-icons li {
+        display: inline-block;
+        padding: 4px;
+    }
+
+    .site-footer .social-icons i {
+        color: var(--text);
+        font-size: 18px; /* iconos más pequeños */
+        transition: color .2s ease;
+    }
+
+    .site-footer a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .site-footer a:hover,
+    .site-footer .social-icons i:hover {
+        color: var(--accent);
+    }
+
+    .site-footer .bottom-bar {
+        background: var(--accent);
+        text-align: center;
+        padding: 8px 0; /* menos alto */
+        margin-top: 10px; /* menos separación desde contenido */
+    }
+
+    .site-footer .bottom-bar p {
+        color: var(--footer-bg);
+        margin: 0;
+        font-size: 13px;
+    }
+
+
+</style>
+
+<script src="https://kit.fontawesome.com/1165876da6.js" crossorigin="anonymous"></script>
+
+<footer class="site-footer" role="contentinfo">
+    <div class="container">
+        <div class="footer-column">
+            <h3>Contact Us</h3>
+            <div class="contact-line">Email: info@example.com</div>
+            <div class="contact-line">Phone: +121 56556 565556</div>
+            <div class="contact-line">Address: Your Address 123 street</div>
+        </div>
+
+        <div class="footer-column">
+            <h3>Quick Links</h3>
+            <ul class="list" aria-label="Quick links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Services</a></li>
+                <li><a href="#">Products</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-column">
+            <h3>Follow Us</h3>
+            <ul class="social-icons" aria-label="Social media">
+                <li><a href=""><i class="fab fa-facebook" aria-hidden="true"></i><span class="visually-hidden">Facebook</span></a></li>
+                <li><a href=""><i class="fab fa-twitter" aria-hidden="true"></i><span class="visually-hidden">Twitter</span></a></li>
+                <li><a href=""><i class="fab fa-instagram" aria-hidden="true"></i><span class="visually-hidden">Instagram</span></a></li>
+                <li><a href=""><i class="fab fa-linkedin" aria-hidden="true"></i><span class="visually-hidden">LinkedIn</span></a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <p>&copy; 2023 your company. All rights reserved</p>
+    </div>
+</footer>

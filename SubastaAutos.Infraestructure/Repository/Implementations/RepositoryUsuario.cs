@@ -25,8 +25,9 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
         //Metodo para obtnener el detalle de un usuario por su id
         public async Task<Usuario?> GetByIdAsync(int id)
         {
-            return await _context.Set<Usuario>().
-                AsNoTracking()
+            return await _context.Set<Usuario>()
+                .Include(x => x.IdRolNavigation)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.IdUsuario == id);
         }
         //Metodo para obtener la lista de usuarios

@@ -32,11 +32,19 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - SubastaAutos.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="mt-auto border-top">
+        <div class="container py-3 small text-muted d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center">
+            <div>
+                &copy; @DateTime.Now.Year - Subasta
+            </div>
+            <div>
+                <a class="link-secondary text-decoration-none" asp-area="" asp-controller="Home" asp-action="Privacy">
+                    Privacidad
+                </a>
+            </div>
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
