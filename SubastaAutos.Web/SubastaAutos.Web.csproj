@@ -23,4 +23,8 @@
     <ProjectReference Include="..\SubastaAutos.Infraestructure\SubastaAutos.Infraestructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\Auto\" />
+  </ItemGroup>
+
 </Project>
