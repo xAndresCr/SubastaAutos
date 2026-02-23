@@ -40,7 +40,7 @@ namespace SubastaAutos.Application.DTOs
         // EstadoAuto (string) NO existe en la BD. Viene de EstadoAuto.Nombre
 
         [DisplayName("Imagen Principal")]
-        public string ImagenPrincipalUrl { get; set; } = string.Empty;
+        public string ImagenPrincipal { get; set; } = string.Empty;
         // Campo CALCULADO: se busca la imagen con EsPrincipal=true en la colección
 
         [DisplayName("Categorías")]

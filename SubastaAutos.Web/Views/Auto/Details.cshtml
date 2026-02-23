@@ -42,7 +42,7 @@
 
 @* ════════════════════════════════════════════════════════════════════════════
    SECCIÓN 1: Galería de imágenes
-   VS no generó esto. Solo mostró ImagenPrincipalUrl como texto.
+   VS no generó esto. Solo mostró ImagenPrincipal como texto.
    Aquí se muestran TODAS las imágenes de Model.AutoImagen como galería.
    ════════════════════════════════════════════════════════════════════════════ *@
 <div class="card shadow-sm border-0 mb-4">
@@ -60,14 +60,21 @@
                 @foreach (var img in Model.AutoImagen)
                 {
                     <div class="col-6 col-md-4 col-lg-3">
-                        @* ratio ratio-4x3 mantiene proporción de la imagen sin deformarse *@
                         <div class="ratio ratio-4x3 rounded overflow-hidden border">
-                            <img src="@img.UrlImagen"
-                                 alt="Imagen del auto"
-                                 class="object-fit-cover"
-                                 loading="lazy" />
+                            @if (img.Imagen != null && img.Imagen.Length > 0)
+                            {
+                                <img src="data:image/jpeg;base64,@Convert.ToBase64String(img.Imagen)"
+                                     alt="Imagen del auto"
+                                     class="object-fit-cover"
+                                     loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                                    <i class="bi bi-image fs-2"></i>
+                                </div>
+                            }
                         </div>
-                        @* Marca la imagen principal con una etiqueta dorada *@
                         @if (img.EsPrincipal == true)
                         {
                             <span class="badge text-bg-warning mt-1">

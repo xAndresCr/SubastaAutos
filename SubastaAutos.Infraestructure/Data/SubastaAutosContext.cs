@@ -95,9 +95,12 @@ public partial class SubastaAutosContext : DbContext
 
         modelBuilder.Entity<AutoImagen>(entity =>
         {
-            entity.HasKey(e => e.IdImagen).HasName("PK__AutoImag__B42D8F2A3CA22E9D");
+            entity.HasKey(e => new {e.IdImagen, e.IdAuto })
+                  .HasName("PK__AutoImag__B42D8F2A3CA22E9D");
 
             entity.Property(e => e.EsPrincipal).HasDefaultValue(false);
+
+            entity.Property(e => e.Imagen).HasColumnType("varbinary(max)");
 
             entity.HasOne(d => d.IdAutoNavigation).WithMany(p => p.AutoImagen)
                 .HasForeignKey(d => d.IdAuto)
@@ -186,7 +189,8 @@ public partial class SubastaAutosContext : DbContext
 
         modelBuilder.Entity<Puja>(entity =>
         {
-            entity.HasKey(e => e.IdPuja).HasName("PK__Puja__F986B2D402C0AE1B");
+            entity.HasKey(e => new { e.IdPuja, e.IdSubasta })
+                  .HasName("PK__Puja__F986B2D42FBBA596");
 
             entity.Property(e => e.FechaHora).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.Monto).HasColumnType("decimal(12, 2)");

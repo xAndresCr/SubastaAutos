@@ -53,14 +53,14 @@ else
                 <article class="card h-100 shadow-sm border-0">
 
                     @* ── Campo 1 (obligatorio): Imagen principal ──────────── *@
-                    @* NUEVO: VS no generó imagen porque ImagenPrincipalUrl
+                    @* NUEVO: VS no generó imagen porque ImagenPrincipal
                        lo trató como texto. Aquí se convierte en <img> real. *@
                     <div class="overflow-hidden bg-body-tertiary rounded-top"
                          style="height:220px;">
-                        @if (!string.IsNullOrWhiteSpace(item.ImagenPrincipalUrl))
+                        @if (!string.IsNullOrWhiteSpace(item.ImagenPrincipal))
                         {
                             <img class="w-100 h-100 object-fit-cover"
-                                 src="@item.ImagenPrincipalUrl"
+                                 src="@item.ImagenPrincipal"
                                  alt="Imagen de @item.NombreAuto"
                                  loading="lazy" />
                         }

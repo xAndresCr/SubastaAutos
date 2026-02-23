@@ -9,7 +9,7 @@ public partial class AutoImagen
 
     public int IdAuto { get; set; }
 
-    public byte[]? UrlImagen { get; set; }
+    public byte[]? Imagen { get; set; } //Eliminar el null cuando se haga el mantenimiento
 
     public bool? EsPrincipal { get; set; }
 

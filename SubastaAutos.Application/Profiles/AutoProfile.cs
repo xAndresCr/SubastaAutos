@@ -41,18 +41,22 @@ namespace SubastaAutos.Application.Profiles
                     dest => dest.EstadoAuto,
                     opt => opt.MapFrom(src => src.IdEstadoAutoNavigation.Nombre)
                 )
-                // ImagenPrincipalUrl: CAMPO CALCULADO con LINQ
+                // ImagenPrincipal: CAMPO CALCULADO con LINQ
                 // Busca la imagen con EsPrincipal=true.
                 // Si no hay ninguna marcada, toma la primera de la lista.
                 // Si no hay imágenes, devuelve string vacío.
                 .ForMember(
-                    dest => dest.ImagenPrincipalUrl,
+                    dest => dest.ImagenPrincipal,
                     opt => opt.MapFrom((src, dest) =>
-                        src.AutoImagen.FirstOrDefault(i => i.EsPrincipal == true) != null
-                            ? src.AutoImagen.First(i => i.EsPrincipal == true).UrlImagen?.ToString() ?? string.Empty
-                            : src.AutoImagen.FirstOrDefault() != null
-                                ? src.AutoImagen.First().UrlImagen?.ToString() ?? string.Empty
-                                : string.Empty)
+                    {
+                        var img = src.AutoImagen.FirstOrDefault(i => i.EsPrincipal == true)
+                                  ?? src.AutoImagen.FirstOrDefault();
+
+                        if (img?.Imagen != null && img.Imagen.Length > 0)
+                            return $"data:image/jpeg;base64,{Convert.ToBase64String(img.Imagen)}";
+
+                        return string.Empty;
+                    })
 )
                 // IdCategoria: AutoMapper mapea la lista usando CategoriaProfile
                 .ForMember(

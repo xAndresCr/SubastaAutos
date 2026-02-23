@@ -10,7 +10,7 @@ namespace SubastaAutos.Application.DTOs
     {
         public int IdAutoImagen { get; set; }
         public int IdAuto { get; set; }
-        public string UrlImagen { get; set; } = string.Empty;
+        public byte[]? Imagen { get; set; }
         public bool EsPrincipal { get; set; }
     }
 }
