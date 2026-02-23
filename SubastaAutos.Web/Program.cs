@@ -18,9 +18,11 @@ builder.Services.AddControllersWithViews();
 //*** Repositories
 builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();
 builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
+builder.Services.AddTransient<IRepositoryAuto, RepositoryAuto>();
 //*** Services
 builder.Services.AddTransient<IServiceRolUsuario, ServiceRolUsuario>();
 builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
+builder.Services.AddTransient<IServiceAuto, ServiceAuto>();
 // =======================
 // Configurar AutoMapper
 // =======================
@@ -29,6 +31,11 @@ builder.Services.AddAutoMapper(config =>
     //*** Profiles
     config.AddProfile<RolUsuarioProfile>();
     config.AddProfile<UsuarioProfile>();
+    config.AddProfile<CategoriaProfile>();
+    config.AddProfile<CondicionAutoProfile>();
+    config.AddProfile<EstadoAutoProfile>();
+    config.AddProfile<AutoImagenProfile>();
+    config.AddProfile<AutoProfile>();
 });
 // =======================
 // Configurar SQL Server DbContext
@@ -62,17 +69,14 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
-app.UseStaticFiles();
 
 app.Run();

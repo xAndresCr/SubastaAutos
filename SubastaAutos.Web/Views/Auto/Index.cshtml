@@ -1,0 +1,131 @@
+﻿@model IEnumerable<SubastaAutos.Application.DTOs.AutoDTO>
+@* Visual Studio generó esta línea correctamente. No se toca. *@
+
+@{
+    ViewData["Title"] = "Autos";
+    @* Cambio: de "Index" a "Autos". Esto aparece en la pestaña del navegador. *@
+
+    var total = Model?.Count() ?? 0;
+    @* NUEVO: variable que cuenta cuántos autos hay en la lista.
+       Model?.Count() → el ? evita error si Model fuera null.
+       ?? 0 → si fuera null devuelve 0 en vez de explotar. *@
+}
+
+@* ── Encabezado de la página ──────────────────────────────────────────────── *@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">Autos Subastables</h1>
+        @* Cambio: era <h1>Index</h1>, ahora tiene título descriptivo *@
+        <p class="text-muted mb-0">
+            Total registrado: <strong>@total</strong>
+        </p>
+    </div>
+</div>
+@* ELIMINADO: el enlace "Create New" que generó VS, porque el avance
+   solo pide lectura, no crear registros. *@
+
+@* ── Mensaje cuando no hay datos ─────────────────────────────────────────── *@
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">
+        No hay autos registrados en este momento.
+    </div>
+}
+else
+{
+    @* ── Cuadrícula de tarjetas ───────────────────────────────────────────── *@
+    @* CAMBIO TOTAL: VS generó una <table> con todas las columnas.
+       Se reemplaza por tarjetas (cards) porque el avance pide
+       máximo 4 campos en el listado y una imagen. Una tabla con imagen
+       no tiene sentido visual. *@
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        @* row-cols-1 → 1 tarjeta por fila en móvil
+       row-cols-sm-2 → 2 tarjetas en tablet
+       row-cols-lg-3 → 3 tarjetas en escritorio
+       row-cols-xl-4 → 4 tarjetas en pantallas grandes
+       g-4 → espacio entre tarjetas *@
+
+        @foreach (var item in Model)
+        @* VS generó este foreach. Se mantiene pero se cambia lo de adentro. *@
+        {
+            <div class="col">
+                <article class="card h-100 shadow-sm border-0">
+
+                    @* ── Campo 1 (obligatorio): Imagen principal ──────────── *@
+                    @* NUEVO: VS no generó imagen porque ImagenPrincipalUrl
+                       lo trató como texto. Aquí se convierte en <img> real. *@
+                    <div class="overflow-hidden bg-body-tertiary rounded-top"
+                         style="height:220px;">
+                        @if (!string.IsNullOrWhiteSpace(item.ImagenPrincipalUrl))
+                        {
+                            <img class="w-100 h-100 object-fit-cover"
+                                 src="@item.ImagenPrincipalUrl"
+                                 alt="Imagen de @item.NombreAuto"
+                                 loading="lazy" />
+                        }
+                        else
+                        {
+                            @* Placeholder cuando no hay imagen registrada *@
+                            <div class="d-flex flex-column justify-content-center
+                                                    align-items-center h-100 text-muted">
+                                <i class="bi bi-car-front fs-1"></i>
+                                <span class="small">Sin imagen</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card-body">
+                        @* ── Campo 2: Nombre del auto (Marca + Modelo + Año) ─ *@
+                        <h2 class="h6 fw-semibold mb-2 text-truncate"
+                            title="@item.NombreAuto">
+                            @item.NombreAuto
+                            @* VS generó @Html.DisplayFor(modelItem => item.NombreAuto)
+                               Se simplifica a @item.NombreAuto directamente.
+                               DisplayFor es útil para tipos complejos; para un string
+                               simple es innecesario. *@
+                        </h2>
+
+                        <div class="d-flex flex-wrap gap-1">
+                            @* ── Campo 3: Condición ─────────────────────────── *@
+                            <span class="badge text-bg-light border">
+                                <i class="bi bi-tools me-1"></i>@item.Condicion
+                            </span>
+
+                            @* ── Campo 4: Estado ────────────────────────────── *@
+                            <span class="badge text-bg-secondary">
+                                @item.EstadoAuto
+                            </span>
+                        </div>
+                    </div>
+
+                    @* ── Botón de acción ─────────────────────────────────── *@
+                    <div class="card-footer bg-body border-0 pb-3">
+                        <div class="d-grid">
+                            <a asp-action="Details" asp-route-id="@item.IdAuto"
+                               class="btn btn-primary btn-sm">
+                                <i class="bi bi-eye me-1"></i>Ver detalle
+                            </a>
+                            @* CAMBIO: VS generó tres enlaces Edit | Details | Delete
+                               Se reemplaza por un solo botón "Ver detalle".
+                               asp-action="Details" genera la URL /Auto/Details/5
+                               asp-route-id="@item.IdAuto" pone el ID en la URL *@
+                        </div>
+                    </div>
+
+                </article>
+            </div>
+        }
+
+    </div>
+}
+
+@section Scripts {
+    <style>
+        .card:hover {
+            transform: translateY(-3px);
+            transition: transform .18s ease;
+        }
+    </style>
+    @* Efecto sutil de elevación cuando el mouse pasa sobre una tarjeta *@
+}
