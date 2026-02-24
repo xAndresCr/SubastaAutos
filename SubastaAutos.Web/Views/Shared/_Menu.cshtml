@@ -1,4 +1,5 @@
-﻿<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+@* _Menu.cshtml - Menú de navegación principal *@
+<nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
     <div class="container">
         <a class="navbar-brand fw-semibold" asp-controller="Home" asp-action="Index">
             <i class="bi bi-book me-2"></i>Subasta
@@ -15,9 +16,38 @@
 
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Usuario" asp-action="Index">
-                        <i class="bi bi-people-fill"></i>Usuarios
+                        <i class="bi bi-people-fill me-1"></i>Usuarios
                     </a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Auto" asp-action="Index">
+                        <i class="bi bi-car-front me-1"></i>Autos
+                    </a>
+                </li>
+
+                @* ── NUEVO: Dropdown de Subastas ──────────────────── *@
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-hammer me-1"></i>Subastas
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item"
+                               asp-controller="Subasta" asp-action="Index">
+                                <i class="bi bi-lightning me-1"></i>Activas
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               asp-controller="Subasta" asp-action="Finalizadas">
+                                <i class="bi bi-archive me-1"></i>Finalizadas
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
             </ul>
 
             <ul class="navbar-nav ms-auto">

@@ -19,10 +19,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();
 builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
 builder.Services.AddTransient<IRepositoryAuto, RepositoryAuto>();
+builder.Services.AddTransient<IRepositorySubasta, RepositorySubasta>();   // NUEVO
+builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();         // NUEVO
 //*** Services
 builder.Services.AddTransient<IServiceRolUsuario, ServiceRolUsuario>();
 builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
 builder.Services.AddTransient<IServiceAuto, ServiceAuto>();
+builder.Services.AddTransient<IServiceSubasta, ServiceSubasta>();         // NUEVO
+builder.Services.AddTransient<IServicePuja, ServicePuja>();               // NUEVO
 // =======================
 // Configurar AutoMapper
 // =======================
@@ -36,6 +40,9 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<EstadoAutoProfile>();
     config.AddProfile<AutoImagenProfile>();
     config.AddProfile<AutoProfile>();
+    config.AddProfile<EstadoSubastaProfile>();   // NUEVO
+    config.AddProfile<PujaProfile>();            // NUEVO
+    config.AddProfile<SubastaProfile>();         // NUEVO
 });
 // =======================
 // Configurar SQL Server DbContext
@@ -44,7 +51,7 @@ var connectionString = builder.Configuration.GetConnectionString("SqlServerDataB
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException(
-    "No se encontró la cadena de conexión 'SqlServerDataBase' en appsettings.json /appsettings.Development.json." );
+    "No se encontrÃ³ la cadena de conexiÃ³n 'SqlServerDataBase' en appsettings.json /appsettings.Development.json." );
 }
 builder.Services.AddDbContext<SubastaAutosContext>(options =>
 {

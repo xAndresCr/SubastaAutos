@@ -1,0 +1,121 @@
+@model SubastaAutos.Application.DTOs.SubastaDTO
+
+@{
+    ViewData["Title"] = $"Subasta #{Model.IdSubasta}";
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Volver al listado
+    </a>
+</div>
+
+<div class="row g-4">
+
+    @* ── Columna izquierda: Imagen del auto ───────────────────────────── *@
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0">
+            <div class="overflow-hidden bg-body-tertiary rounded"
+                 style="min-height:300px;">
+                @if (!string.IsNullOrWhiteSpace(Model.ImagenPrincipalAuto))
+                {
+                    <img class="w-100 h-100 object-fit-cover"
+                         src="@Model.ImagenPrincipalAuto"
+                         alt="@Model.NombreAuto" />
+                }
+                else
+                {
+                    <div class="d-flex flex-column justify-content-center
+                                align-items-center h-100 text-muted py-5">
+                        <i class="bi bi-car-front" style="font-size:4rem;"></i>
+                        <span>Sin imagen disponible</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ── Columna derecha: Datos de la subasta ─────────────────────────── *@
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h1 class="h5 mb-0">
+                    <i class="bi bi-hammer me-2"></i>@Model.NombreAuto
+                </h1>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+
+                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.Vendedor)</dt>
+                    <dd class="col-7">@Model.Vendedor</dd>
+
+                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.FechaInicio)</dt>
+                    <dd class="col-7">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        @Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")
+                    </dd>
+
+                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.FechaCierre)</dt>
+                    <dd class="col-7">
+                        <i class="bi bi-calendar-x me-1"></i>
+                        @Model.FechaCierre.ToString("dd/MM/yyyy HH:mm")
+                    </dd>
+
+                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.PrecioBase)</dt>
+                    <dd class="col-7">
+                        <span class="fw-semibold">
+                            @Model.PrecioBase.ToString("C", new System.Globalization.CultureInfo("es-CR"))
+                        </span>
+                    </dd>
+
+                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.IncrementoMinimo)</dt>
+                    <dd class="col-7">
+                        @Model.IncrementoMinimo.ToString("C", new System.Globalization.CultureInfo("es-CR"))
+                    </dd>
+
+                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.EstadoSubasta)</dt>
+                    <dd class="col-7">
+                        @if (Model.EstadoSubasta == "Activa")
+                        {
+                            <span class="badge text-bg-success">@Model.EstadoSubasta</span>
+                        }
+                        else if (Model.EstadoSubasta == "Finalizada")
+                        {
+                            <span class="badge text-bg-secondary">@Model.EstadoSubasta</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-danger">@Model.EstadoSubasta</span>
+                        }
+                    </dd>
+
+                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.CantidadPujas)</dt>
+                    <dd class="col-7">
+                        <span class="badge text-bg-warning fs-6">
+                            <i class="bi bi-hammer me-1"></i>@Model.CantidadPujas
+                        </span>
+                    </dd>
+
+                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.FechaCreacion)</dt>
+                    <dd class="col-7">
+                        @(Model.FechaCreacion.HasValue
+                            ? Model.FechaCreacion.Value.ToString("dd/MM/yyyy HH:mm")
+                            : "—")
+                    </dd>
+
+                </dl>
+
+                <hr class="my-3" />
+
+                @* ── Botón para ver historial de pujas ────────────────── *@
+                <div class="d-grid">
+                    <a asp-action="Pujas" asp-route-id="@Model.IdSubasta"
+                       class="btn btn-primary">
+                        <i class="bi bi-list-ul me-1"></i>Ver Historial de Pujas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
