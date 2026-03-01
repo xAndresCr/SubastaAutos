@@ -33,5 +33,10 @@ namespace SubastaAutos.Application.DTOs
 
         public List<RolUsuarioDTO> RolUsuario { get; set; } = new();
 
+        [DisplayName("Subastas creadas")]
+        public int CantSubastasCreadas { get; set; }
+
+        [DisplayName("Pujas realizadas")]
+        public int CantPujasRealizadas { get; set; }
     }
 }

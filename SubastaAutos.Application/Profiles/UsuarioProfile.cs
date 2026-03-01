@@ -13,16 +13,18 @@ namespace SubastaAutos.Application.Profiles
     {
         public UsuarioProfile()
         {
-           
-            CreateMap<UsuarioDTO, Usuario>().ReverseMap();
+            CreateMap<Usuario, UsuarioDTO>()
+                .ForMember(
+                    dest => dest.CantSubastasCreadas,
+                    opt => opt.MapFrom(src => src.Subasta.Count)
+                )
+                .ForMember(
+                    dest => dest.CantPujasRealizadas,
+                    opt => opt.MapFrom(src => src.Puja.Count)
+                );
 
-            // Mapea la entidad Usuario hacia UsuarioDTO y asigna la navegación IdRolNavigation a DTO.Rol
             CreateMap<UsuarioDTO, Usuario>()
-           .ForMember(dest => dest.IdRolNavigation, ori => ori.Ignore());
-
-
-
-
+                .ForMember(dest => dest.IdRolNavigation, ori => ori.Ignore());
         }
     }
 }

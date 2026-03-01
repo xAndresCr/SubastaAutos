@@ -27,6 +27,8 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
         {
             return await _context.Set<Usuario>()
                 .Include(x => x.IdRolNavigation)
+                .Include(x => x.Subasta)
+                .Include(x => x.Puja)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.IdUsuario == id);
         }
