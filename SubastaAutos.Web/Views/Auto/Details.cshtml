@@ -5,14 +5,13 @@
     ViewData["Title"] = "Detalle del Auto";
     @* Cambio: de "Details" a algo descriptivo *@
 
-    @* NUEVO: variables booleanas para no repetir las condiciones abajo *@
+
     var tieneImagenes = Model.AutoImagen != null && Model.AutoImagen.Any();
     var tieneCategorias = Model.IdCategoria != null && Model.IdCategoria.Any();
     var tieneSubastas = Model.Subasta != null && Model.Subasta.Any();
 }
 
-@* ── Breadcrumb: ruta de navegación (Inicio > Autos > Detalle) ────────────── *@
-@* NUEVO: VS no genera esto. Ayuda al usuario saber dónde está. *@
+
 <nav class="mb-3">
     <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item">
@@ -27,7 +26,7 @@
     </ol>
 </nav>
 
-@* ── Encabezado + botón Regresar ─────────────────────────────────────────── *@
+
 <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h1 class="h3 mb-1">@Model.NombreAuto</h1>
@@ -36,15 +35,10 @@
     <a asp-action="Index" class="btn btn-outline-secondary">
         <i class="bi bi-arrow-left me-1"></i>Regresar
     </a>
-    @* CAMBIO: VS generó "Back to List" como texto plano.
-       Se convierte en botón con ícono usando asp-action="Index". *@
+
 </div>
 
-@* ════════════════════════════════════════════════════════════════════════════
-   SECCIÓN 1: Galería de imágenes
-   VS no generó esto. Solo mostró ImagenPrincipal como texto.
-   Aquí se muestran TODAS las imágenes de Model.AutoImagen como galería.
-   ════════════════════════════════════════════════════════════════════════════ *@
+
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-body fw-semibold">
         <i class="bi bi-images me-2"></i>Imágenes del Auto
@@ -88,11 +82,7 @@
     </div>
 </div>
 
-@* ════════════════════════════════════════════════════════════════════════════
-   SECCIÓN 2 y 3: Datos del auto + Descripción (en dos columnas)
-   VS generó un solo bloque dl con todos los campos en fila.
-   Se reorganiza en dos tarjetas lado a lado para mejor lectura.
-   ════════════════════════════════════════════════════════════════════════════ *@
+
 <div class="row g-4 mb-4">
 
     @* ── Columna izquierda: Datos ──────────────────────────────────────────── *@
@@ -102,14 +92,10 @@
                 <i class="bi bi-car-front me-2"></i>Datos del Auto
             </div>
             <div class="card-body">
-                @* dl = definition list: estructura HTML para pares etiqueta/valor
-                   dt = término (la etiqueta, p.ej. "Marca")
-                   dd = definición (el valor, p.ej. "Toyota")
-                   VS sí generó dl/dt/dd pero con col-sm-2/col-sm-10.
-                   Se cambia a col-5/col-7 para mejor proporción. *@
+            
                 <dl class="row mb-0">
 
-                    @* CONSERVADO de lo que generó VS, solo ajustado el ancho *@
+                  
                     <dt class="col-5 text-muted">
                         @Html.DisplayNameFor(model => model.Marca)
                     </dt>
@@ -125,7 +111,7 @@
                     </dt>
                     <dd class="col-7">@Model.Anio</dd>
 
-                    @* CAMBIO: Condicion ya no es texto plano, se envuelve en badge *@
+                 
                     <dt class="col-5 text-muted">
                         @Html.DisplayNameFor(model => model.Condicion)
                     </dt>
@@ -135,7 +121,7 @@
                         </span>
                     </dd>
 
-                    @* CAMBIO: EstadoAuto tampoco es texto plano *@
+                  
                     <dt class="col-5 text-muted">
                         @Html.DisplayNameFor(model => model.EstadoAuto)
                     </dt>
@@ -149,9 +135,7 @@
                         @Html.DisplayNameFor(model => model.FechaRegistro)
                     </dt>
                     <dd class="col-7">
-                        @* CAMBIO: FechaRegistro es nullable (DateTime?).
-                           HasValue verifica que no sea null antes de formatearla.
-                           VS habría mostrado la fecha con hora incluida. *@
+               
                         @(Model.FechaRegistro.HasValue
                                                 ? Model.FechaRegistro.Value.ToString("dd/MM/yyyy")
                                                 : "—")
@@ -164,8 +148,7 @@
                         <i class="bi bi-person me-1"></i>@Model.Propietario
                     </dd>
 
-                    @* NUEVO: VS no generó las Categorías porque es una lista,
-                       no un campo simple. Se itera la lista aquí. *@
+               
                     <dt class="col-5 text-muted">
                         @Html.DisplayNameFor(model => model.IdCategoria)
                     </dt>
@@ -192,9 +175,7 @@
         </div>
     </div>
 
-    @* ── Columna derecha: Descripción ──────────────────────────────────────── *@
-    @* CAMBIO: VS metió la descripción en el mismo dl junto a los demás campos.
-       Se separa en su propia tarjeta porque puede ser un texto largo. *@
+
     <div class="col-12 col-lg-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-body fw-semibold">
@@ -215,11 +196,7 @@
 
 </div>
 
-@* ════════════════════════════════════════════════════════════════════════════
-   SECCIÓN 4: Historial de subastas
-   NUEVO COMPLETO: VS no generó esto porque Model.Subasta es una lista
-   de objetos complejos. VS solo genera campos simples (string, int, etc).
-   ════════════════════════════════════════════════════════════════════════════ *@
+
 <div class="card shadow-sm border-0">
     <div class="card-header bg-body fw-semibold">
         <i class="bi bi-clock-history me-2"></i>Historial de Subastas
@@ -274,7 +251,7 @@
                                     </span>
                                 </td>
                                 <td class="pe-3 text-end">
-                                    @* Enlace directo a la subasta correspondiente *@
+                                    
                                     <a asp-controller="Subasta"
                                        asp-action="Details"
                                        asp-route-id="@sub.IdSubasta"
@@ -291,4 +268,3 @@
     </div>
 </div>
 
-@* ELIMINADO: el enlace "Edit" que generó VS, porque el avance no pide edición *@

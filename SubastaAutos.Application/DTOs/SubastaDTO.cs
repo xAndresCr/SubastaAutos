@@ -6,11 +6,11 @@ namespace SubastaAutos.Application.DTOs
     {
         public int IdSubasta { get; set; }
 
-        // ── Campos calculados (NO existen en la tabla Subasta) ───────────
+
 
         [DisplayName("Auto")]
         public string NombreAuto { get; set; } = string.Empty;
-        // CALCULADO: Marca + " " + Modelo + " " + Anio del auto relacionado
+      
 
         [DisplayName("Imagen")]
         public string ImagenPrincipalAuto { get; set; } = string.Empty;
@@ -18,17 +18,17 @@ namespace SubastaAutos.Application.DTOs
 
         [DisplayName("Vendedor")]
         public string Vendedor { get; set; } = string.Empty;
-        // CALCULADO: NombreCompleto del usuario vendedor
+  
 
         [DisplayName("Estado")]
         public string EstadoSubasta { get; set; } = string.Empty;
-        // CALCULADO: Nombre del EstadoSubasta
+ 
 
         [DisplayName("Pujas")]
         public int CantidadPujas { get; set; }
-        // CALCULADO: Count de la colección Puja (NO se almacena en BD)
 
-        // ── Campos directos de la tabla Subasta ──────────────────────────
+
+        // ── Campos directos de la tabla Subasta 
 
         [DisplayName("Fecha de Inicio")]
         public DateTime FechaInicio { get; set; }

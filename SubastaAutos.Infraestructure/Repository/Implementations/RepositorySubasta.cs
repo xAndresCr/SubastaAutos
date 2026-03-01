@@ -14,9 +14,6 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             _context = context;
         }
 
-        // ── Subastas Activas (para Index) ────────────────────────────────
-        // Filtra por el nombre del estado "Activa" navegando la relación.
-        // Include carga las entidades relacionadas que necesita el DTO.
         public async Task<ICollection<Subasta>> ListActivasAsync()
         {
             return await _context.Set<Subasta>()
@@ -31,8 +28,6 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        // ── Subastas Finalizadas + Canceladas ────────────────────────────
-        // Mismo patrón, pero filtra por los otros dos estados.
         public async Task<ICollection<Subasta>> ListFinalizadasAsync()
         {
             return await _context.Set<Subasta>()
@@ -48,12 +43,6 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        // ── Detalle de una Subasta ───────────────────────────────────────
-        // Carga TODO lo necesario para la vista Details:
-        // - Auto con sus imágenes
-        // - Vendedor
-        // - Estado
-        // - Pujas con el usuario que pujó (para el historial)
         public async Task<Subasta?> FindByIdAsync(int id)
         {
             return await _context.Set<Subasta>()

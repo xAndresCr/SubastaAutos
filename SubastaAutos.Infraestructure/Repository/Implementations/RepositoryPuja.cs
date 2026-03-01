@@ -14,10 +14,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             _context = context;
         }
 
-        // ── Pujas de una subasta ─────────────────────────────────────────
-        // Filtra por IdSubasta e incluye el Usuario para mostrar
-        // el nombre del postor en la vista.
-        // Orden descendente: la puja más reciente (mayor monto) primero.
+   
         public async Task<ICollection<Puja>> ListBySubastaAsync(int idSubasta)
         {
             return await _context.Set<Puja>()
