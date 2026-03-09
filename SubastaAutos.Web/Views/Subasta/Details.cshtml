@@ -46,34 +46,34 @@
             <div class="card-body">
                 <dl class="row mb-0">
 
-                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.Vendedor)</dt>
+                    <dt class="col-5 text-muted" data-i18n="subasta.seller">Vendedor</dt>
                     <dd class="col-7">@Model.Vendedor</dd>
 
-                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.FechaInicio)</dt>
+                    <dt class="col-5 text-muted" data-i18n="subasta.startDate">Fecha de Inicio</dt>
                     <dd class="col-7">
                         <i class="bi bi-calendar-event me-1"></i>
                         @Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")
                     </dd>
 
-                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.FechaCierre)</dt>
+                    <dt class="col-5 text-muted" data-i18n="subasta.endDate">Fecha de Cierre</dt>
                     <dd class="col-7">
                         <i class="bi bi-calendar-x me-1"></i>
                         @Model.FechaCierre.ToString("dd/MM/yyyy HH:mm")
                     </dd>
 
-                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.PrecioBase)</dt>
+                    <dt class="col-5 text-muted" data-i18n="subasta.basePrice">Precio Base</dt>
                     <dd class="col-7">
                         <span class="fw-semibold">
                             @Model.PrecioBase.ToString("C", new System.Globalization.CultureInfo("es-CR"))
                         </span>
                     </dd>
 
-                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.IncrementoMinimo)</dt>
+                    <dt class="col-5 text-muted" data-i18n="subasta.minIncrement">Incremento Mínimo</dt>
                     <dd class="col-7">
                         @Model.IncrementoMinimo.ToString("C", new System.Globalization.CultureInfo("es-CR"))
                     </dd>
 
-                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.EstadoSubasta)</dt>
+                    <dt class="col-5 text-muted" data-i18n="subasta.status">Estado</dt>
                     <dd class="col-7">
                         @if (Model.EstadoSubasta == "Activa")
                         {
@@ -89,14 +89,14 @@
                         }
                     </dd>
 
-                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.CantidadPujas)</dt>
+                    <dt class="col-5 text-muted" data-i18n="subasta.bidCount">Pujas</dt>
                     <dd class="col-7">
                         <span class="badge text-bg-warning fs-6">
                             <i class="bi bi-hammer me-1"></i>@Model.CantidadPujas
                         </span>
                     </dd>
 
-                    <dt class="col-5 text-muted">@Html.DisplayNameFor(m => m.FechaCreacion)</dt>
+                    <dt class="col-5 text-muted" data-i18n="subasta.creationDate">Fecha de Creación</dt>
                     <dd class="col-7">
                         @(Model.FechaCreacion.HasValue
                             ? Model.FechaCreacion.Value.ToString("dd/MM/yyyy HH:mm")
@@ -117,5 +117,4 @@
             </div>
         </div>
     </div>
-
 </div>

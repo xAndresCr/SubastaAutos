@@ -93,7 +93,15 @@
     "finished": "Finalizada",
     "cancelled": "Cancelada",
     "noImageAvailable": "Sin imagen disponible",
-    "viewBidHistory": "Ver Historial de Pujas"
+    "viewBidHistory": "Ver Historial de Pujas",
+    "seller": "Vendedor",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Cierre",
+    "basePrice": "Precio Base",
+    "minIncrement": "Incremento Mínimo",
+    "status": "Estado",
+    "bidCount": "Pujas",
+    "creationDate": "Fecha de Creación"
   },
 
   "puja": {
@@ -101,7 +109,10 @@
     "headerTitle": "Historial de Pujas — Subasta",
     "backToDetail": "Volver al detalle",
     "noBids": "Esta subasta aún no tiene pujas registradas.",
-    "footerNote": "Orden cronológico descendente (más reciente primero)."
+    "footerNote": "Orden cronológico descendente (más reciente primero).",
+    "bidder": "Postor",
+    "amount": "Monto",
+    "date": "Fecha"
   },
 
   "usuario": {
