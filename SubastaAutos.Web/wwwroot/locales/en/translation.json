@@ -1,4 +1,125 @@
 {
-  "WelcomeMessage": "Welcome to your auction page",
-  "description": "This is a system with translation"
+  "nav": {
+    "brand": "SubaCar",
+    "users": "Users",
+    "cars": "Cars",
+    "auctions": "Auctions",
+    "activeAuctions": "Active",
+    "finishedAuctions": "Finished",
+    "guest": "Guest",
+    "logout": "Logout",
+    "login": "Login",
+    "openMenu": "Open menu",
+    "language": "Language"
+  },
+
+  "common": {
+    "detail": "Detail",
+    "details": "Details",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back",
+    "backToList": "Back to list",
+    "goToList": "Go to list",
+    "viewDetail": "View detail",
+    "actions": "Actions",
+    "noImage": "No image",
+    "active": "Active",
+    "disabled": "Disabled",
+    "home": "Home",
+    "privacy": "Privacy",
+    "total": "Total",
+    "totalRegistered": "Total registered",
+    "id": "ID"
+  },
+
+  "home": {
+    "title": "Home",
+    "welcome": "Welcome to your auction page",
+    "subtitle": "Explore vehicles and motorcycles, your new vehicle is waiting for you",
+    "quickAccess": "Quick Access",
+    "usersCard": "Users",
+    "usersDesc": "Manage and view your registered users.",
+    "vehiclesCard": "Vehicles",
+    "vehiclesDesc": "Browse the available vehicle catalog.",
+    "reportsCard": "Reports",
+    "reportsDesc": "View statistics and sales reports."
+  },
+
+  "auto": {
+    "title": "Auctionable Cars",
+    "noRecords": "There are no cars registered at this time.",
+    "detailTitle": "Car Detail",
+    "detailSubtitle": "Complete information of the auctionable item.",
+    "backBtn": "Go back",
+    "breadcrumbCars": "Cars",
+    "imagesTitle": "Car Images",
+    "noImages": "No images registered.",
+    "mainBadge": "Main",
+    "dataTitle": "Car Data",
+    "descriptionTitle": "Description",
+    "noDescription": "No description registered.",
+    "auctionHistory": "Auction History",
+    "noAuctions": "This car has not participated in any auction.",
+    "viewAuction": "View auction"
+  },
+
+  "subasta": {
+    "activeTitle": "Active Auctions",
+    "finishedTitle": "Finished Auctions",
+    "finishedSubtitle": "Closed or cancelled auctions. Total",
+    "noActive": "There are no active auctions at this time.",
+    "noFinished": "There are no finished auctions.",
+    "bids": "bids",
+    "closes": "Closes",
+    "closed": "Closed",
+    "finished": "Finished",
+    "cancelled": "Cancelled",
+    "noImageAvailable": "No image available",
+    "viewBidHistory": "View Bid History"
+  },
+
+  "puja": {
+    "title": "Bids for Auction",
+    "headerTitle": "Bid History — Auction",
+    "backToDetail": "Back to detail",
+    "noBids": "This auction has no bids registered yet.",
+    "footerNote": "Descending chronological order (most recent first)."
+  },
+
+  "usuario": {
+    "listTitle": "User List",
+    "caption": "User list",
+    "detailTitle": "User Detail",
+    "detailPageTitle": "Selected user detail",
+    "detailSubtitle": "General information of the selected user.",
+    "breadcrumbUsers": "Users",
+    "userLabel": "User",
+    "nameLabel": "Name",
+    "currentStatus": "Current Status",
+    "systemRole": "System Role",
+    "email": "Email"
+  },
+
+  "rolUsuario": {
+    "title": "User Roles",
+    "createNew": "Create New"
+  },
+
+  "footer": {
+    "contactUs": "Contact Us",
+    "quickLinks": "Quick Links",
+    "followUs": "Follow Us",
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "products": "Products",
+    "contact": "Contact",
+    "copyright": "your company. All rights reserved"
+  },
+
+  "privacy": {
+    "title": "Privacy Policy",
+    "content": "Use this page to detail your site's privacy policy."
+  }
 }

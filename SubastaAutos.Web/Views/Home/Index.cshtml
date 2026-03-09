@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Inicio";
 }
 <style>
@@ -48,40 +48,40 @@
 
 <section class="py-5 text-center bg-light rounded-3 mb-4 shadow-sm">
     <div class="container">
-        <h1 class="display-5 fw-bold mb-3" data-i18n="WelcomeMessage"></h1>
+        <h1 class="display-5 fw-bold mb-3" data-i18n="home.welcome">Bienvenido a tu página de subastas</h1>
 
-        <p class="lead text-muted mb-4">
+        <p class="lead text-muted mb-4" data-i18n="home.subtitle">
             Explora vehículos y motocicletas, tu nuevo vehículo te está esperando
         </p>
     </div>
 </section>
 
 <section class="container mb-5">
-    <h2 class="h4 fw-bold mb-4 text-center">Accesos rápidos</h2>
+    <h2 class="h4 fw-bold mb-4 text-center" data-i18n="home.quickAccess">Accesos rápidos</h2>
 
     <div class="row g-4">
 
-        <!-- Vehículos -->
+        <!-- Usuarios -->
         <div class="col-12 col-md-4">
             <a asp-controller="Usuario" asp-action="Index" class="text-decoration-none text-dark">
                 <div class="card h-100 shadow-sm border-0 hover-card">
                     <div class="card-body text-center py-4">
                         <i class="bi bi-people fs-1 mb-3 text-primary"></i>
-                        <h5 class="fw-semibold">Usuarios</h5>
-                        <p class="text-muted small">Gestiona y visualiza tus usuarios registrados.</p>
+                        <h5 class="fw-semibold" data-i18n="home.usersCard">Usuarios</h5>
+                        <p class="text-muted small" data-i18n="home.usersDesc">Gestiona y visualiza tus usuarios registrados.</p>
                     </div>
                 </div>
             </a>
         </div>
 
-        <!-- Objetos -->
+        <!-- Vehículos -->
         <div class="col-12 col-md-4">
             <a asp-controller="Auto" asp-action="Index" class="text-decoration-none text-dark">
                 <div class="card h-100 shadow-sm border-0 hover-card">
                     <div class="card-body text-center py-4">
                         <i class="bi bi-car-front-fill fs-1 mb-3 text-success"></i>
-                        <h5 class="fw-semibold">Vehículos</h5>
-                        <p class="text-muted small">Consulta el catálogo de vehículos disponible.</p>
+                        <h5 class="fw-semibold" data-i18n="home.vehiclesCard">Vehículos</h5>
+                        <p class="text-muted small" data-i18n="home.vehiclesDesc">Consulta el catálogo de vehículos disponible.</p>
                     </div>
                 </div>
             </a>
@@ -92,8 +92,8 @@
                 <div class="card h-100 shadow-sm border-0 hover-card">
                     <div class="card-body text-center py-4">
                         <i class="bi bi-bar-chart-line fs-1 mb-3 text-danger"></i>
-                        <h5 class="fw-semibold">Reportes</h5>
-                        <p class="text-muted small">Visualiza estadísticas y reportes de ventas.</p>
+                        <h5 class="fw-semibold" data-i18n="home.reportsCard">Reportes</h5>
+                        <p class="text-muted small" data-i18n="home.reportsDesc">Visualiza estadísticas y reportes de ventas.</p>
                     </div>
                 </div>
             </a>

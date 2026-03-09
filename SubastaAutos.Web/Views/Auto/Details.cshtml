@@ -1,9 +1,8 @@
-﻿@model SubastaAutos.Application.DTOs.AutoDTO
+@model SubastaAutos.Application.DTOs.AutoDTO
 @* VS generó esta línea correctamente. No se toca. *@
 
 @{
     ViewData["Title"] = "Detalle del Auto";
-    @* Cambio: de "Details" a algo descriptivo *@
 
 
     var tieneImagenes = Model.AutoImagen != null && Model.AutoImagen.Any();
@@ -16,13 +15,13 @@
     <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item">
             <a asp-controller="Home" asp-action="Index"
-               class="text-decoration-none">Inicio</a>
+               class="text-decoration-none" data-i18n="common.home">Inicio</a>
         </li>
         <li class="breadcrumb-item">
             <a asp-controller="Auto" asp-action="Index"
-               class="text-decoration-none">Autos</a>
+               class="text-decoration-none" data-i18n="auto.breadcrumbCars">Autos</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+        <li class="breadcrumb-item active" aria-current="page" data-i18n="common.detail">Detalle</li>
     </ol>
 </nav>
 
@@ -30,10 +29,10 @@
 <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
     <div>
         <h1 class="h3 mb-1">@Model.NombreAuto</h1>
-        <p class="text-muted mb-0">Información completa del objeto subastable.</p>
+        <p class="text-muted mb-0" data-i18n="auto.detailSubtitle">Información completa del objeto subastable.</p>
     </div>
     <a asp-action="Index" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i>Regresar
+        <i class="bi bi-arrow-left me-1"></i><span data-i18n="auto.backBtn">Regresar</span>
     </a>
 
 </div>
@@ -41,12 +40,12 @@
 
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-header bg-body fw-semibold">
-        <i class="bi bi-images me-2"></i>Imágenes del Auto
+        <i class="bi bi-images me-2"></i><span data-i18n="auto.imagesTitle">Imágenes del Auto</span>
     </div>
     <div class="card-body">
         @if (!tieneImagenes)
         {
-            <p class="text-muted mb-0">Sin imágenes registradas.</p>
+            <p class="text-muted mb-0" data-i18n="auto.noImages">Sin imágenes registradas.</p>
         }
         else
         {
@@ -72,7 +71,7 @@
                         @if (img.EsPrincipal == true)
                         {
                             <span class="badge text-bg-warning mt-1">
-                                <i class="bi bi-star-fill me-1"></i>Principal
+                                <i class="bi bi-star-fill me-1"></i><span data-i18n="auto.mainBadge">Principal</span>
                             </span>
                         }
                     </div>
@@ -89,7 +88,7 @@
     <div class="col-12 col-lg-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-body fw-semibold">
-                <i class="bi bi-car-front me-2"></i>Datos del Auto
+                <i class="bi bi-car-front me-2"></i><span data-i18n="auto.dataTitle">Datos del Auto</span>
             </div>
             <div class="card-body">
             
@@ -179,7 +178,7 @@
     <div class="col-12 col-lg-6">
         <div class="card shadow-sm border-0 h-100">
             <div class="card-header bg-body fw-semibold">
-                <i class="bi bi-card-text me-2"></i>Descripción
+                <i class="bi bi-card-text me-2"></i><span data-i18n="auto.descriptionTitle">Descripción</span>
             </div>
             <div class="card-body">
                 @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
@@ -188,7 +187,7 @@
                 }
                 else
                 {
-                    <p class="text-muted mb-0">Sin descripción registrada.</p>
+                    <p class="text-muted mb-0" data-i18n="auto.noDescription">Sin descripción registrada.</p>
                 }
             </div>
         </div>
@@ -199,14 +198,14 @@
 
 <div class="card shadow-sm border-0">
     <div class="card-header bg-body fw-semibold">
-        <i class="bi bi-clock-history me-2"></i>Historial de Subastas
+        <i class="bi bi-clock-history me-2"></i><span data-i18n="auto.auctionHistory">Historial de Subastas</span>
     </div>
     <div class="card-body p-0">
         @if (!tieneSubastas)
         {
             <div class="p-4 text-center text-muted">
                 <i class="bi bi-info-circle me-1"></i>
-                Este auto no ha participado en ninguna subasta.
+                <span data-i18n="auto.noAuctions">Este auto no ha participado en ninguna subasta.</span>
             </div>
         }
         else
@@ -256,7 +255,7 @@
                                        asp-action="Details"
                                        asp-route-id="@sub.IdSubasta"
                                        class="btn btn-outline-secondary btn-sm">
-                                        <i class="bi bi-eye me-1"></i>Ver subasta
+                                        <i class="bi bi-eye me-1"></i><span data-i18n="auto.viewAuction">Ver subasta</span>
                                     </a>
                                 </td>
                             </tr>
@@ -267,4 +266,3 @@
         }
     </div>
 </div>
-

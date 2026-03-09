@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -39,7 +39,7 @@
             </div>
             <div>
                 <a class="link-secondary text-decoration-none" asp-area="" asp-controller="Home" asp-action="Privacy">
-                    Privacidad
+                    <span data-i18n="common.privacy">Privacidad</span>
                 </a>
             </div>
         </div>
@@ -48,9 +48,12 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <!-- ═══ I18N: Librerías de internacionalización ═══ -->
     <script src="https://unpkg.com/i18next@23.0.0/i18next.min.js"></script>
     <script src="https://unpkg.com/i18next-http-backend@2.0.0/i18nextHttpBackend.min.js"></script>
+    <script src="https://unpkg.com/i18next-browser-languagedetector@7.2.1/i18nextBrowserLanguageDetector.min.js"></script>
     <script src="~/js/i18n.js"></script>
+    <!-- ═══════════════════════════════════════════════ -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

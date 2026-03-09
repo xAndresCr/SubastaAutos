@@ -1,4 +1,4 @@
-﻿@model SubastaAutos.Application.DTOs.UsuarioDTO
+@model SubastaAutos.Application.DTOs.UsuarioDTO
 
 @{
     ViewData["Title"] = "Detalle del usuario seleccionado";
@@ -7,46 +7,46 @@
 <nav aria-label="miga de pan" class="mb-3">
     <ol class="breadcrumb mb-0">
         <li class="breadcrumb-item">
-            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Inicio</a>
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none" data-i18n="common.home">Inicio</a>
         </li>
         <li class="breadcrumb-item">
-            <a asp-action="Index" class="text-decoration-none">Usuarios</a>
+            <a asp-action="Index" class="text-decoration-none" data-i18n="usuario.breadcrumbUsers">Usuarios</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">Detalle</li>
+        <li class="breadcrumb-item active" aria-current="page" data-i18n="common.detail">Detalle</li>
     </ol>
 </nav>
 
 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
     <div>
-        <h1 class="h3 mb-1">Detalle del Usuario</h1>
-        <p class="text-muted mb-0">Información general del usuario seleccionado.</p>
+        <h1 class="h3 mb-1" data-i18n="usuario.detailTitle">Detalle del Usuario</h1>
+        <p class="text-muted mb-0" data-i18n="usuario.detailSubtitle">Información general del usuario seleccionado.</p>
     </div>
 
     <div class="d-flex gap-2">
         <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i> Volver
+            <i class="bi bi-arrow-left me-1"></i> <span data-i18n="common.back">Volver</span>
         </a>
 
         <a asp-action="Edit" asp-route-id="@Model.IdUsuario" class="btn btn-secondary">
-            <i class="bi bi-pencil-square me-1"></i> Editar
+            <i class="bi bi-pencil-square me-1"></i> <span data-i18n="common.edit">Editar</span>
         </a>
 
         <a asp-action="Delete" asp-route-id="@Model.IdUsuario" class="btn btn-outline-danger">
-            <i class="bi bi-trash me-1"></i> Eliminar
+            <i class="bi bi-trash me-1"></i> <span data-i18n="common.delete">Eliminar</span>
         </a>
     </div>
 </div>
 
 <div class="card shadow-sm">
     <div class="card-header bg-body d-flex justify-content-between align-items-center">
-        <span class="fw-semibold">Usuario</span>
-        <span class="badge text-bg-light border">ID: @Model.IdUsuario</span>
+        <span class="fw-semibold" data-i18n="usuario.userLabel">Usuario</span>
+        <span class="badge text-bg-light border"><span data-i18n="common.id">ID</span>: @Model.IdUsuario</span>
     </div>
 
     <div class="card-body">
         <div class="row g-3">
             <div class="col-12 col-md-8">
-                <div class="mb-2 text-muted small">Nombre</div>
+                <div class="mb-2 text-muted small" data-i18n="usuario.nameLabel">Nombre</div>
                 <div class="fs-5 fw-semibold">@Model.NombreCompleto</div>
             </div>
         </div>
@@ -54,15 +54,24 @@
     <div class="card-body">
         <div class="row g-3">
             <div class="col-12 col-md-8">
-                <div class="mb-2 text-muted small">Estado actual</div>
-                <div class="fs-5 fw-semibold">@(Model.EstadoUsuario ? "Activo" : "Deshabilitado")</div>
+                <div class="mb-2 text-muted small" data-i18n="usuario.currentStatus">Estado actual</div>
+                <div class="fs-5 fw-semibold">
+                    @if (Model.EstadoUsuario)
+                    {
+                        <span data-i18n="common.active">Activo</span>
+                    }
+                    else
+                    {
+                        <span data-i18n="common.disabled">Deshabilitado</span>
+                    }
+                </div>
             </div>
         </div>
     </div>
     <div class="card-body">
         <div class="row g-3">
             <div class="col-12 col-md-8">
-                <div class="mb-2 text-muted small">Rol en el sistema</div>
+                <div class="mb-2 text-muted small" data-i18n="usuario.systemRole">Rol en el sistema</div>
                 <div class="fs-5 fw-semibold">@Model.IdRolNavigation.Nombre</div>
             </div>
         </div>
@@ -70,10 +79,10 @@
 
     <div class="card-footer bg-body d-flex justify-content-end gap-2">
         <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-list-ul me-1"></i> Ir al listado
+            <i class="bi bi-list-ul me-1"></i> <span data-i18n="common.goToList">Ir al listado</span>
         </a>
         <a asp-action="Edit" asp-route-id="@Model.IdUsuario" class="btn btn-secondary">
-            <i class="bi bi-pencil-square me-1"></i> Editar
+            <i class="bi bi-pencil-square me-1"></i> <span data-i18n="common.edit">Editar</span>
         </a>
     </div>
 </div>
@@ -81,7 +90,7 @@
 <div class="card">
     <div class="card-body">
         <div class="col-12 col-md-8">
-            <div class="mb-2 text-muted small">Correo electrónico</div>
+            <div class="mb-2 text-muted small" data-i18n="usuario.email">Correo electrónico</div>
             <div class="fs-5 fw-semibold">@Model.Correo</div>
         </div>
     </div>
@@ -104,5 +113,3 @@
         </div>
     </div>
 </div>
-
-

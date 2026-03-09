@@ -1,0 +1,125 @@
+{
+  "nav": {
+    "brand": "SubaCar",
+    "users": "Usuarios",
+    "cars": "Autos",
+    "auctions": "Subastas",
+    "activeAuctions": "Activas",
+    "finishedAuctions": "Finalizadas",
+    "guest": "Invitado",
+    "logout": "Salir",
+    "login": "Ingresar",
+    "openMenu": "Abrir menú",
+    "language": "Idioma"
+  },
+
+  "common": {
+    "detail": "Detalle",
+    "details": "Detalles",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "back": "Volver",
+    "backToList": "Volver al listado",
+    "goToList": "Ir al listado",
+    "viewDetail": "Ver detalle",
+    "actions": "Acciones",
+    "noImage": "Sin imagen",
+    "active": "Activo",
+    "disabled": "Deshabilitado",
+    "home": "Inicio",
+    "privacy": "Privacidad",
+    "total": "Total",
+    "totalRegistered": "Total registrado",
+    "id": "ID"
+  },
+
+  "home": {
+    "title": "Inicio",
+    "welcome": "Bienvenido a tu página de subastas",
+    "subtitle": "Explora vehículos y motocicletas, tu nuevo vehículo te está esperando",
+    "quickAccess": "Accesos rápidos",
+    "usersCard": "Usuarios",
+    "usersDesc": "Gestiona y visualiza tus usuarios registrados.",
+    "vehiclesCard": "Vehículos",
+    "vehiclesDesc": "Consulta el catálogo de vehículos disponible.",
+    "reportsCard": "Reportes",
+    "reportsDesc": "Visualiza estadísticas y reportes de ventas."
+  },
+
+  "auto": {
+    "title": "Autos Subastables",
+    "noRecords": "No hay autos registrados en este momento.",
+    "detailTitle": "Detalle del Auto",
+    "detailSubtitle": "Información completa del objeto subastable.",
+    "backBtn": "Regresar",
+    "breadcrumbCars": "Autos",
+    "imagesTitle": "Imágenes del Auto",
+    "noImages": "Sin imágenes registradas.",
+    "mainBadge": "Principal",
+    "dataTitle": "Datos del Auto",
+    "descriptionTitle": "Descripción",
+    "noDescription": "Sin descripción registrada.",
+    "auctionHistory": "Historial de Subastas",
+    "noAuctions": "Este auto no ha participado en ninguna subasta.",
+    "viewAuction": "Ver subasta"
+  },
+
+  "subasta": {
+    "activeTitle": "Subastas Activas",
+    "finishedTitle": "Subastas Finalizadas",
+    "finishedSubtitle": "Subastas cerradas o canceladas. Total",
+    "noActive": "No hay subastas activas en este momento.",
+    "noFinished": "No hay subastas finalizadas.",
+    "bids": "pujas",
+    "closes": "Cierra",
+    "closed": "Cerró",
+    "finished": "Finalizada",
+    "cancelled": "Cancelada",
+    "noImageAvailable": "Sin imagen disponible",
+    "viewBidHistory": "Ver Historial de Pujas"
+  },
+
+  "puja": {
+    "title": "Pujas de Subasta",
+    "headerTitle": "Historial de Pujas — Subasta",
+    "backToDetail": "Volver al detalle",
+    "noBids": "Esta subasta aún no tiene pujas registradas.",
+    "footerNote": "Orden cronológico descendente (más reciente primero)."
+  },
+
+  "usuario": {
+    "listTitle": "Listado de usuarios",
+    "caption": "Lista de usuarios",
+    "detailTitle": "Detalle del Usuario",
+    "detailPageTitle": "Detalle del usuario seleccionado",
+    "detailSubtitle": "Información general del usuario seleccionado.",
+    "breadcrumbUsers": "Usuarios",
+    "userLabel": "Usuario",
+    "nameLabel": "Nombre",
+    "currentStatus": "Estado actual",
+    "systemRole": "Rol en el sistema",
+    "email": "Correo electrónico"
+  },
+
+  "rolUsuario": {
+    "title": "Roles de Usuario",
+    "createNew": "Crear Nuevo"
+  },
+
+  "footer": {
+    "contactUs": "Contáctenos",
+    "quickLinks": "Enlaces Rápidos",
+    "followUs": "Síguenos",
+    "home": "Inicio",
+    "about": "Acerca de",
+    "services": "Servicios",
+    "products": "Productos",
+    "contact": "Contacto",
+    "copyright": "tu empresa. Todos los derechos reservados"
+  },
+
+  "privacy": {
+    "title": "Política de Privacidad",
+    "content": "Utilice esta página para detallar la política de privacidad de su sitio."
+  }
+}

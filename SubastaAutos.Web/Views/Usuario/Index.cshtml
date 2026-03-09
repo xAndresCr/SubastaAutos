@@ -1,4 +1,4 @@
-﻿@model IEnumerable<SubastaAutos.Application.DTOs.UsuarioDTO>
+@model IEnumerable<SubastaAutos.Application.DTOs.UsuarioDTO>
 
 @{
     ViewData["Title"] = "Listado de usuarios";
@@ -6,7 +6,7 @@
 
 <div class="table-responsive border rounded p-3 mt-4 shadow-sm">
     <table class="table caption-top table-bordered">
-        <caption>Lista de usuarios</caption>
+        <caption data-i18n="usuario.caption">Lista de usuarios</caption>
         <thead class="table-light position-sticky top-0" style="z-index:1;">
             <tr>
                 <th>
@@ -18,7 +18,7 @@
                 <th>
                     @Html.DisplayNameFor(model => model.EstadoUsuario)
                 </th>
-                <th scope="col" class="text-end pe-3" style="width: 260px;">Acciones</th>
+                <th scope="col" class="text-end pe-3" style="width: 260px;" data-i18n="common.actions">Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -32,7 +32,14 @@
                         <span>@item.IdRolNavigation.Nombre</span>
                     </td>
                     <td>
-                        @(item.EstadoUsuario ? "Activo" : "Deshabilitado")
+                        @if (item.EstadoUsuario)
+                        {
+                            <span data-i18n="common.active">Activo</span>
+                        }
+                        else
+                        {
+                            <span data-i18n="common.disabled">Deshabilitado</span>
+                        }
                     </td>
                     <td class="text-end pe-3">
                         <div class="btn-group" role="group" aria-label="Acciones del autor ">
@@ -40,21 +47,21 @@
                                class="btn btn-outline-secondary btn-sm"
                                title="Ver detalle">
                                 <i class="bi bi-eye"></i>
-                                <span class="d-none d-lg-inline ms-1">Detalle</span>
+                                <span class="d-none d-lg-inline ms-1" data-i18n="common.detail">Detalle</span>
                             </a>
 
                             <a asp-action="Edit"
                                class="btn btn-outline-primary btn-sm"
                                title="Editar">
                                 <i class="bi bi-pencil-square"></i>
-                                <span class="d-none d-lg-inline ms-1">Editar</span>
+                                <span class="d-none d-lg-inline ms-1" data-i18n="common.edit">Editar</span>
                             </a>
 
                             <a asp-action="Delete"
                                class="btn btn-outline-danger btn-sm"
                                title="Eliminar">
                                 <i class="bi bi-trash"></i>
-                                <span class="d-none d-lg-inline ms-1">Eliminar</span>
+                                <span class="d-none d-lg-inline ms-1" data-i18n="common.delete">Eliminar</span>
                             </a>
                         </div>
                     </td>
@@ -63,4 +70,3 @@
         </tbody>
     </table>
 </div>
-

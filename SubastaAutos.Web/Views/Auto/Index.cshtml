@@ -1,4 +1,4 @@
-﻿@model IEnumerable<SubastaAutos.Application.DTOs.AutoDTO>
+@model IEnumerable<SubastaAutos.Application.DTOs.AutoDTO>
 
 
 @{
@@ -12,17 +12,17 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <h1 class="h3 mb-1">Autos Subastables</h1>
+        <h1 class="h3 mb-1" data-i18n="auto.title">Autos Subastables</h1>
      
         <p class="text-muted mb-0">
-            Total registrado: <strong>@total</strong>
+            <span data-i18n="common.totalRegistered">Total registrado</span>: <strong>@total</strong>
         </p>
     </div>
 </div>
 
 @if (Model == null || !Model.Any())
 {
-    <div class="alert alert-info">
+    <div class="alert alert-info" data-i18n="auto.noRecords">
         No hay autos registrados en este momento.
     </div>
 }
@@ -54,7 +54,7 @@ else
                             <div class="d-flex flex-column justify-content-center
                                                     align-items-center h-100 text-muted">
                                 <i class="bi bi-car-front fs-1"></i>
-                                <span class="small">Sin imagen</span>
+                                <span class="small" data-i18n="common.noImage">Sin imagen</span>
                             </div>
                         }
                     </div>
@@ -84,7 +84,7 @@ else
                         <div class="d-grid">
                             <a asp-action="Details" asp-route-id="@item.IdAuto"
                                class="btn btn-secondary btn-sm">
-                                <i class="bi bi-eye me-1"></i>Ver detalle
+                                <i class="bi bi-eye me-1"></i><span data-i18n="common.viewDetail">Ver detalle</span>
                             </a>
                    
                         </div>
