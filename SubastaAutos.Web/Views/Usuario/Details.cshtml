@@ -99,8 +99,12 @@
 <div class="card">
     <div class="card-body">
         <div class="col-12 col-md-8">
-            <div class="mb-2 text-muted small">@Html.DisplayNameFor(m => m.CantSubastasCreadas)</div>
-            <div class="fs-5 fw-semibold">@Model.CantSubastasCreadas</div>
+            <div class="mb-2 text-muted small" data-i18n="usuario.auctionAmount">
+                @Html.DisplayNameFor(m => m.CantSubastasCreadas)
+            </div>
+            <div class="fs-5 fw-semibold">
+                @Model.CantSubastasCreadas
+            </div>
         </div>
     </div>
 </div>
@@ -108,8 +112,12 @@
 <div class="card">
     <div class="card-body">
         <div class="col-12 col-md-8">
-            <div class="mb-2 text-muted small">@Html.DisplayNameFor(m => m.CantPujasRealizadas)</div>
-            <div class="fs-5 fw-semibold">@Model.CantPujasRealizadas</div>
+            <div class="mb-2 text-muted small" data-i18n="usuario.bidsAmount">
+                @Html.DisplayNameFor(m => m.CantPujasRealizadas)
+            </div>
+            <div class="fs-5 fw-semibold">
+                @Model.CantPujasRealizadas
+            </div>
         </div>
     </div>
 </div>

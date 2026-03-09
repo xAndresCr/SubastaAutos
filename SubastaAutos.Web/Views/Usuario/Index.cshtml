@@ -9,16 +9,18 @@
         <caption data-i18n="usuario.caption">Lista de usuarios</caption>
         <thead class="table-light position-sticky top-0" style="z-index:1;">
             <tr>
-                <th>
+                <th data-i18n="usuario.nombreCompleto">
                     @Html.DisplayNameFor(model => model.NombreCompleto)
                 </th>
-                <th>
+                <th data-i18n="usuario.rol">
                     @Html.DisplayNameFor(model => model.IdRolNavigation.Nombre)
                 </th>
-                <th>
+                <th data-i18n="usuario.estado">
                     @Html.DisplayNameFor(model => model.EstadoUsuario)
                 </th>
-                <th scope="col" class="text-end pe-3" style="width: 260px;" data-i18n="common.actions">Acciones</th>
+                <th scope="col" class="text-end pe-3" style="width:260px;" data-i18n="common.actions">
+                    Acciones
+                </th>
             </tr>
         </thead>
         <tbody>

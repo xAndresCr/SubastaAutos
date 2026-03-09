@@ -61,7 +61,24 @@
     "noDescription": "Sin descripción registrada.",
     "auctionHistory": "Historial de Subastas",
     "noAuctions": "Este auto no ha participado en ninguna subasta.",
-    "viewAuction": "Ver subasta"
+    "viewAuction": "Ver subasta",
+    "marca": "Marca",
+    "modelo": "Modelo",
+    "anio": "Año",
+    "condicion": "Condición",
+    "estado": "Estado",
+    "fechaRegistro": "Fecha de registro",
+    "propietario": "Propietario",
+    "categorias": "Categorías",
+    "sinCategorias": "Sin categorías"
+  },
+
+  "autoSubastaDetalle": {
+    "id": "ID Subasta",
+    "fechaInicio": "Fecha de inicio",
+    "fechaCierre": "Fecha de cierre",
+    "estado": "Estado",
+    "acciones": "Acciones"
   },
 
   "subasta": {
@@ -98,7 +115,12 @@
     "nameLabel": "Nombre",
     "currentStatus": "Estado actual",
     "systemRole": "Rol en el sistema",
-    "email": "Correo electrónico"
+    "email": "Correo electrónico",
+    "nombreCompleto": "Nombre completo",
+    "rol": "Rol",
+    "estado": "Estado",
+    "bidsAmount": "Cantidad de pujas realizadas",
+    "auctionAmount": "Cantidad de subastas creadas"
   },
 
   "rolUsuario": {
