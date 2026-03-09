@@ -61,7 +61,23 @@
     "noDescription": "No description registered.",
     "auctionHistory": "Auction History",
     "noAuctions": "This car has not participated in any auction.",
-    "viewAuction": "View auction"
+    "viewAuction": "View auction",
+    "marca": "Brand",
+    "modelo": "Model",
+    "anio": "Year",
+    "condicion": "Condition",
+    "estado": "Status",
+    "fechaRegistro": "Registration date",
+    "propietario": "Owner",
+    "categorias": "Categories",
+    "sinCategorias": "No categories"
+  },
+  "autoSubastaDetalle": {
+    "id": "Auction ID",
+    "fechaInicio": "Start date",
+    "fechaCierre": "Closing date",
+    "estado": "Status",
+    "acciones": "Actions"
   },
 
   "subasta": {
@@ -110,8 +126,11 @@
     "currentStatus": "Current Status",
     "systemRole": "System Role",
     "email": "Email",
-    "auctionsCreated": "Auctions Created",
-    "bidsPlaced": "Bids Placed"
+    "nombreCompleto": "Full name",
+    "rol": "Role",
+    "estado": "Status",
+    "bidsAmount": "Bids placed",
+    "auctionAmount": "Number of auctions created"
   },
 
   "rolUsuario": {
