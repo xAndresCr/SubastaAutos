@@ -76,16 +76,27 @@
     "finished": "Finished",
     "cancelled": "Cancelled",
     "noImageAvailable": "No image available",
-    "viewBidHistory": "View Bid History"
+    "viewBidHistory": "View Bid History",
+    "seller": "Seller",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "basePrice": "Base Price",
+    "minIncrement": "Minimum Increment",
+    "status": "Status",
+    "bidCount": "Bids",
+    "creationDate": "Creation Date"
   },
 
-  "puja": {
-    "title": "Bids for Auction",
-    "headerTitle": "Bid History — Auction",
-    "backToDetail": "Back to detail",
-    "noBids": "This auction has no bids registered yet.",
-    "footerNote": "Descending chronological order (most recent first)."
-  },
+    "puja": {
+        "title": "Bids for Auction",
+        "headerTitle": "Bid History — Auction",
+        "backToDetail": "Back to detail",
+        "noBids": "This auction has no bids registered yet.",
+        "footerNote": "Descending chronological order (most recent first).",
+        "bidder": "Bidder",
+        "amount": "Amount",
+        "dateTime": "Date & Time"
+    },
 
   "usuario": {
     "listTitle": "User List",
