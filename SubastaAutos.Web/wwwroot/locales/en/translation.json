@@ -109,7 +109,9 @@
     "nameLabel": "Name",
     "currentStatus": "Current Status",
     "systemRole": "System Role",
-    "email": "Email"
+    "email": "Email",
+    "auctionsCreated": "Auctions Created",
+    "bidsPlaced": "Bids Placed"
   },
 
   "rolUsuario": {

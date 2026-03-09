@@ -95,7 +95,7 @@
     "footerNote": "Orden cronológico descendente (más reciente primero).",
     "bidder": "Postor",
     "amount": "Monto",
-    "date": "Fecha"
+    "dateTime": "Fecha y Hora"
   },
 
   "usuario": {
@@ -109,7 +109,9 @@
     "nameLabel": "Nombre",
     "currentStatus": "Estado actual",
     "systemRole": "Rol en el sistema",
-    "email": "Correo electrónico"
+    "email": "Correo electrónico",
+    "auctionsCreated": "Subastas Creadas",
+    "bidsPlaced": "Pujas Realizadas"
   },
 
   "rolUsuario": {
