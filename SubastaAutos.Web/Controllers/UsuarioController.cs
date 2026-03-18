@@ -88,8 +88,16 @@ namespace SubastaAutos.Web.Controllers
                 await LoadCombosAsync(dto.IdRol);
                 return View(dto);
             }
-            dto.PasswordHash = dto.Password;
 
+            if (await _servicioUsuario.ExisteCorreoAsync(dto.Correo))
+            {
+                ModelState.AddModelError("Correo", "El correo ya está registrado.");
+                await LoadCombosAsync(dto.IdRol);
+                return View(dto);
+            }
+
+
+            dto.PasswordHash = dto.Password; //Asigna la contraseña, pero aún no se ha hasheado
             dto.EstadoUsuario = true; // o false, 
 
 

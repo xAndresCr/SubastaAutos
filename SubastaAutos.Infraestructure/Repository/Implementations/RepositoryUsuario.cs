@@ -22,6 +22,13 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
         }
 
 
+        //Válida si existe un usuario con el mismo correo electrónico en la base de datos para evitar duplicados
+        public async Task<bool> ExisteCorreoAsync(string correo)
+        {
+            return await _context.Usuario.AnyAsync(u => u.Correo == correo);
+        }
+
+        //Agrega al usuario
         public async Task<Usuario> AddAsync(Usuario usuario)
         {
             _context.Add(usuario);

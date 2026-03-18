@@ -25,6 +25,11 @@ namespace SubastaAutos.Application.Services.Implementations
             _mapper = mapper;
         }
 
+        public async Task<bool> ExisteCorreoAsync(string correo)
+        {
+            return await repositoryUsuario.ExisteCorreoAsync(correo);
+        }
+
 
         //Metodo que mapea el DTO hacia la entidad usuario por medio del AutoMappper cuando se agrega un nuevo usuario
         public async Task<UsuarioDTO> AddAsync(UsuarioDTO usuarioDTO)

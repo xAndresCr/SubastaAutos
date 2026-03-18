@@ -14,6 +14,6 @@ namespace SubastaAutos.Infraestructure.Repository.Interfaces
         Task<Usuario?> GetByIdAsync(int id);
 
         Task<Usuario> AddAsync(Usuario usuario);
-
+        Task<bool> ExisteCorreoAsync(string correo);
     }
 }
