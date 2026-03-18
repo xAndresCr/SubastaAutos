@@ -22,6 +22,15 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
         }
 
 
+        public async Task<Usuario> AddAsync(Usuario usuario)
+        {
+            _context.Add(usuario);
+            await _context.SaveChangesAsync();
+            return usuario;
+
+        }
+
+
         //Metodo para obtnener el detalle de un usuario por su id
         public async Task<Usuario?> GetByIdAsync(int id)
         {

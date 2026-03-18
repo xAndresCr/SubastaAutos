@@ -48,6 +48,22 @@
                     </ul>
                 </li>
 
+
+                @* ── Dropdown de Mantenimientoss ──────────────────── *@
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-hammer me-1"></i><span>Mantenimientos</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item"
+                               asp-controller="Usuario" asp-action="Create">
+                                <i class="bi bi-lightning me-1"></i><span>Usuarios</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
 
             <ul class="navbar-nav ms-auto align-items-center">

@@ -20,6 +20,8 @@
     <!-- Multi - select (depende de Bootstrap + jQuery) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/1.1.2/css/bootstrap-multiselect.css" crossorigin="anonymous" referrerpolicy="no - referrer" />
 
+  
+
 </head>
 <body>
     <header class="sticky-top">
@@ -53,6 +55,16 @@
     <script src="https://unpkg.com/i18next-http-backend@2.0.0/i18nextHttpBackend.min.js"></script>
     <script src="https://unpkg.com/i18next-browser-languagedetector@7.2.1/i18nextBrowserLanguageDetector.min.js"></script>
     <script src="~/js/i18n.js"></script>
+    <!--jQuery (es necesario para jQuery UI / multiselect / unobtrusive)-->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+
+    <!--Multi - select (depende de Bootstrap + jQuery)-->
+    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap - multiselect/1.1.2/css/bootstrap-multiselect.css"crossorigin="anonymous" referrerpolicy="no - referrer"/>
+
+
+    <!--Multi - select-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap - multiselect/1.1.2/js/bootstrap-multiselect.min.js"crossorigin="anonymous" referrerpolicy="no - referrer"> </script>
+
     <!-- ═══════════════════════════════════════════════ -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>

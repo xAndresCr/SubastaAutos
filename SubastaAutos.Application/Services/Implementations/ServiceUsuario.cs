@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using SubastaAutos.Application.DTOs;
 using SubastaAutos.Application.Services.Interfaces;
+using SubastaAutos.Infraestructure.Models;
+using SubastaAutos.Infraestructure.Repository.Implementations;
 using SubastaAutos.Infraestructure.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,17 @@ namespace SubastaAutos.Application.Services.Implementations
         {
             this.repositoryUsuario = repositoryUsuario;
             _mapper = mapper;
+        }
+
+
+        //Metodo que mapea el DTO hacia la entidad usuario por medio del AutoMappper cuando se agrega un nuevo usuario
+        public async Task<UsuarioDTO> AddAsync(UsuarioDTO usuarioDTO)
+        {
+            var usuario = _mapper.Map<Usuario>(usuarioDTO);
+
+            usuario = await repositoryUsuario.AddAsync(usuario);
+            return _mapper.Map<UsuarioDTO>(usuario);
+
         }
 
 

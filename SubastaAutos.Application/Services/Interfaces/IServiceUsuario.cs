@@ -13,5 +13,7 @@ namespace SubastaAutos.Application.Services.Interfaces
         Task<ICollection<UsuarioDTO>> ListAsync();
 
         Task<UsuarioDTO> GetByIdAsync(int id);
+
+        Task  <UsuarioDTO> AddAsync(UsuarioDTO usuarioDTO);
     }
 }

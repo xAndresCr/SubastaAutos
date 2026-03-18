@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,13 +13,20 @@ namespace SubastaAutos.Application.DTOs
     {
         public int IdUsuario { get; set; }
 
+        [Required(ErrorMessage = "El correo es obligatorio")]
+        [EmailAddress(ErrorMessage = "Formato de correo inválido")]
         public string Correo { get; set; } = null!;
 
+        [Required(ErrorMessage = "La contraseña es requerida")]
         public string PasswordHash { get; set; } = null!;
 
         [DisplayName("Nombre del usuario")]
+        [Required(ErrorMessage = "El nombre del usuario es obligatorio")]
         public string NombreCompleto { get; set; } = null!;
 
+        [Required(ErrorMessage = "Debe seleccionar un rol")]
+
+        [DisplayName("Perfil del o rol de usuario")]
         public int IdRol { get; set; }
 
         public int IdEstadoUsuario { get; set; }

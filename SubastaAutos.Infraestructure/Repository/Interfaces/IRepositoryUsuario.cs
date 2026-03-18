@@ -12,5 +12,8 @@ namespace SubastaAutos.Infraestructure.Repository.Interfaces
         Task<ICollection<Usuario>> ListAsync();
 
         Task<Usuario?> GetByIdAsync(int id);
+
+        Task<Usuario> AddAsync(Usuario usuario);
+
     }
 }

@@ -1,0 +1,31 @@
+﻿@model SubastaAutos.Application.DTOs.UsuarioDTO
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<header class="mb-3">
+    <h1 class="h3 mb-0">Crear Usuario</h1>
+    <p class="text-muted mb-0">Mantenimiento: registro de un nuevo Usuario</p>
+</header>
+
+<form asp-action="Create" method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-6">
+        <label asp-for="Correo" class="form-label"></label>
+        <input asp-for="Correo" class="form-control" />
+        <span asp-validation-for="Correo" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="IdRol" class="form-label"></label>
+        <select asp-for="IdRol" class="form-select" asp-items="ViewBag.Roles">
+            <option value="">-- Seleccione un Rol --</option>
+        </select>
+        <span asp-validation-for="IdRol" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+
