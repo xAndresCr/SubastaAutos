@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Libreria.Application.Utils;
+using Libreria.Web.Util;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using SubastaAutos.Application.DTOs;
 using SubastaAutos.Application.Services.Implementations;
 using SubastaAutos.Application.Services.Interfaces;
@@ -12,7 +15,6 @@ namespace SubastaAutos.Web.Controllers
     {
         private readonly IServiceUsuario _servicioUsuario;
         private readonly IServiceRolUsuario _rolUsuarioService;
-
 
 
         public UsuarioController(IServiceUsuario servicioUsuario, IServiceRolUsuario rolUsuarioService)
@@ -81,18 +83,24 @@ namespace SubastaAutos.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UsuarioDTO dto)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 await LoadCombosAsync(dto.IdRol);
                 return View(dto);
             }
+            dto.PasswordHash = dto.Password;
+
+            dto.EstadoUsuario = true; // o false, 
+
 
             await _servicioUsuario.AddAsync(dto);
+
+            TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+               "Usuario registrado con éxito",
+               $"El Usuario {dto.NombreCompleto} fue registrado exitosamente.",
+               SweetAlertMessageType.success);
             return RedirectToAction(nameof(Index));
         }
-
-
-
 
     }
 }

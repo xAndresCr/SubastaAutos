@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace SubastaAutos.Application.Profiles
 {
     public class UsuarioProfile: Profile
@@ -25,6 +26,9 @@ namespace SubastaAutos.Application.Profiles
 
             CreateMap<UsuarioDTO, Usuario>()
                 .ForMember(dest => dest.IdRolNavigation, ori => ori.Ignore());
+
+
+
         }
     }
 }

@@ -30,6 +30,8 @@ namespace SubastaAutos.Application.Services.Implementations
         public async Task<UsuarioDTO> AddAsync(UsuarioDTO usuarioDTO)
         {
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
+            // Asignar fecha actual automáticamente
+            usuario.FechaRegistro = DateTime.Now;
 
             usuario = await repositoryUsuario.AddAsync(usuario);
             return _mapper.Map<UsuarioDTO>(usuario);
