@@ -77,10 +77,9 @@ namespace SubastaAutos.Web.Controllers
             return View(new UsuarioDTO());
         }
 
-        //El metodo controlador para crear un nuevo usuario, recibe un DTO con los datos del formulario, valida el modelo y si es valido lo agrega a la base de datos, luego redirige al Index
-        // POST: Usuario/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        
+        [HttpGet]
+       
         public async Task<IActionResult> Edit(int id, UsuarioDTO dto)
         {
             // Solo validar los campos editables
@@ -118,8 +117,8 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // ── BLOQUEAR / ACTIVAR 
-        [HttpPost]
+        // ── BLOQUEAR / ACTIVAR ─
+        [HttpGet]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleEstado(int id)
         {
