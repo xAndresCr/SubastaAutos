@@ -58,13 +58,30 @@
     <!--jQuery (es necesario para jQuery UI / multiselect / unobtrusive)-->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js" crossorigin="anonymous"></script>
 
-    <!--Multi - select (depende de Bootstrap + jQuery)-->
-    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap - multiselect/1.1.2/css/bootstrap-multiselect.css"crossorigin="anonymous" referrerpolicy="no - referrer"/>
+    <!--SweetAlert 2 JS-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!--Renderizar notificaciones SweetAlert-->
+    <script>
+        (function () {
+            var tempRaw = '@Html.Raw(TempData["Notificacion"] ?? "")';
+            if (tempRaw) {
+                try {
+                    var c = JSON.parse(tempRaw);
+                    Swal.fire({ title: c.title, html: c.text, icon: c.icon });
+                } catch (e) { }
+            }
 
-    <!--Multi - select-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap - multiselect/1.1.2/js/bootstrap-multiselect.min.js"crossorigin="anonymous" referrerpolicy="no - referrer"> </script>
-
+            var vbRaw = '@Html.Raw(ViewBag.Notificacion ?? "")';
+            if (vbRaw) {
+                try {
+                    var c = JSON.parse(vbRaw);
+                    Swal.fire({ title: c.title, html: c.text, icon: c.icon });
+                } catch (e) { }
+            }
+        })();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/1.1.2/js/bootstrap-multiselect.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- ═══════════════════════════════════════════════ -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>

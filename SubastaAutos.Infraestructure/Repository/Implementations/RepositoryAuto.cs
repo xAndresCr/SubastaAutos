@@ -14,21 +14,21 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             _context = context;
         }
 
-        // ── MÉTODO 1: Para el listado ─────────────────────────────────────────
+        // ── LISTADO ──────────────────────────────────────────────
         public async Task<ICollection<Auto>> ListAsync()
         {
             return await _context.Set<Auto>()
-                .Include(a => a.AutoImagen)              // Para ImagenPrincipalUrl (calculado)
-                .Include(a => a.IdCondicionAutoNavigation) // Para Condicion
-                .Include(a => a.IdEstadoAutoNavigation)   // Para EstadoAuto
-                .Include(a => a.IdVendedorNavigation)     // Para Propietario
+                .Include(a => a.AutoImagen)
+                .Include(a => a.IdCondicionAutoNavigation)
+                .Include(a => a.IdEstadoAutoNavigation)
+                .Include(a => a.IdVendedorNavigation)
                 .OrderBy(a => a.Marca)
                 .ThenBy(a => a.Modelo)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        // ── MÉTODO 2: Para el detalle ─────────────────────────────────────────
+        // ── DETALLE ──────────────────────────────────────────────
         public async Task<Auto?> FindByIdAsync(int id)
         {
             return await _context.Set<Auto>()
@@ -39,8 +39,84 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .Include(a => a.IdEstadoAutoNavigation)
                 .Include(a => a.IdVendedorNavigation)
                 .Include(a => a.Subasta)
-                .ThenInclude(s => s.IdEstadoSubastaNavigation)
+                    .ThenInclude(s => s.IdEstadoSubastaNavigation)
                 .FirstOrDefaultAsync();
+        }
+
+        // ── CREAR ────────────────────────────────────────────────
+        public async Task<int> AddAsync(Auto entity, string[] selectedCategorias)
+        {
+            await ApplyCategoriasAsync(entity, selectedCategorias);
+            await _context.Set<Auto>().AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity.IdAuto;
+        }
+
+        // ── EDITAR ───────────────────────────────────────────
+        public async Task UpdateAsync(Auto entity, string[] selectedCategorias)
+        {
+            await ApplyCategoriasAsync(entity, selectedCategorias);
+            await _context.SaveChangesAsync();
+        }
+
+        // ── CAMBIAR ESTADO ───────────────────────────────────────
+        public async Task UpdateEstadoAsync(int id, int nuevoEstadoId)
+        {
+            var entity = await _context.Set<Auto>().FindAsync(id);
+            if (entity == null)
+                throw new Exception("Auto no encontrado.");
+
+            entity.IdEstadoAuto = nuevoEstadoId;
+            await _context.SaveChangesAsync();
+        }
+
+        // ── VALIDACIONES DE NEGOCIO ──────────────────────────────
+        public async Task<bool> TieneSubastasAsync(int id)
+        {
+            return await _context.Set<Subasta>()
+                .AnyAsync(s => s.IdAuto == id);
+        }
+
+        public async Task<bool> TieneSubastaActivaAsync(int id)
+        {
+            // IdEstadoSubasta = 1 es "Activa"
+            return await _context.Set<Subasta>()
+                .AnyAsync(s => s.IdAuto == id && s.IdEstadoSubasta == 1);
+        }
+
+        // ── HELPER: Aplicar categorías M:N ──────────────────────
+        private async Task ApplyCategoriasAsync(Auto auto, string[] selectedCategorias)
+        {
+            if (selectedCategorias == null || selectedCategorias.Length == 0)
+            {
+                auto.IdCategoria = new List<Categoria>();
+                return;
+            }
+
+            var ids = selectedCategorias
+                .Select(x => int.TryParse(x, out var n) ? n : (int?)null)
+                .Where(x => x.HasValue)
+                .Select(x => x!.Value)
+                .Distinct()
+                .ToList();
+
+            if (ids.Count == 0)
+            {
+                auto.IdCategoria = new List<Categoria>();
+                return;
+            }
+
+            var categorias = await _context.Categoria
+                .Where(c => ids.Contains(c.IdCategoria))
+                .ToListAsync();
+
+            auto.IdCategoria = categorias;
+        }
+        // Un auto se considera "vendido" si tiene una subasta Finalizada (Id=2)
+        public async Task<bool> TieneSubastaFinalizadaAsync(int id)
+        {
+            return await _context.Set<Subasta>()
+                .AnyAsync(s => s.IdAuto == id && s.IdEstadoSubasta == 2);
         }
     }
 }

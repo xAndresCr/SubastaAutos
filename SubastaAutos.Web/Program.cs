@@ -6,6 +6,7 @@ using SubastaAutos.Infraestructure.Data;
 using SubastaAutos.Infraestructure.Repository.Implementations;
 using SubastaAutos.Infraestructure.Repository.Interfaces;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,14 +20,20 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();
 builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
 builder.Services.AddTransient<IRepositoryAuto, RepositoryAuto>();
-builder.Services.AddTransient<IRepositorySubasta, RepositorySubasta>();   // NUEVO
-builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();         // NUEVO
+builder.Services.AddTransient<IRepositorySubasta, RepositorySubasta>();
+builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
+builder.Services.AddTransient<IRepositoryCategoria, RepositoryCategoria>();
+builder.Services.AddTransient<IRepositoryCondicionAuto, RepositoryCondicionAuto>();
+builder.Services.AddTransient<IRepositoryEstadoAuto, RepositoryEstadoAuto>();
 //*** Services
 builder.Services.AddTransient<IServiceRolUsuario, ServiceRolUsuario>();
 builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
 builder.Services.AddTransient<IServiceAuto, ServiceAuto>();
-builder.Services.AddTransient<IServiceSubasta, ServiceSubasta>();         // NUEVO
-builder.Services.AddTransient<IServicePuja, ServicePuja>();               // NUEVO
+builder.Services.AddTransient<IServiceSubasta, ServiceSubasta>();
+builder.Services.AddTransient<IServicePuja, ServicePuja>();
+builder.Services.AddTransient<IServiceCategoria, ServiceCategoria>();
+builder.Services.AddTransient<IServiceCondicionAuto, ServiceCondicionAuto>();
+builder.Services.AddTransient<IServiceEstadoAuto, ServiceEstadoAuto>();
 // =======================
 // Configurar AutoMapper
 // =======================
@@ -40,9 +47,9 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<EstadoAutoProfile>();
     config.AddProfile<AutoImagenProfile>();
     config.AddProfile<AutoProfile>();
-    config.AddProfile<EstadoSubastaProfile>();   // NUEVO
-    config.AddProfile<PujaProfile>();            // NUEVO
-    config.AddProfile<SubastaProfile>();         // NUEVO
+    config.AddProfile<EstadoSubastaProfile>();
+    config.AddProfile<PujaProfile>();
+    config.AddProfile<SubastaProfile>();
 });
 // =======================
 // Configurar SQL Server DbContext

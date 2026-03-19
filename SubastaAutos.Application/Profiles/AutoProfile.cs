@@ -8,63 +8,42 @@ namespace SubastaAutos.Application.Profiles
     {
         public AutoProfile()
         {
-
+            // Subasta → SubastaResumenDTO (se usa dentro de AutoDTO)
             CreateMap<Subasta, SubastaResumenDTO>()
-                      .ForMember(
-                          dest => dest.EstadoSubasta,
-                          opt => opt.MapFrom(src => src.IdEstadoSubastaNavigation.Nombre)
-                      );
-      
+                .ForMember(d => d.EstadoSubasta,
+                    o => o.MapFrom(s => s.IdEstadoSubastaNavigation.Nombre));
+
+            // ── ENTIDAD → DTO (lectura) ──────────────────────────
             CreateMap<Auto, AutoDTO>()
-           
-                .ForMember(
-                    dest => dest.NombreAuto,
-                    opt => opt.MapFrom(src => $"{src.Marca} {src.Modelo} {src.Anio}")
-                )
-
-                .ForMember(
-                    dest => dest.Propietario,
-                    opt => opt.MapFrom(src => src.IdVendedorNavigation.NombreCompleto)
-                )
-                // Condicion: viene de la navegación a CondicionAuto
-                .ForMember(
-                    dest => dest.Condicion,
-                    opt => opt.MapFrom(src => src.IdCondicionAutoNavigation.Nombre)
-                )
-                // EstadoAuto: viene de la navegación a EstadoAuto
-                .ForMember(
-                    dest => dest.EstadoAuto,
-                    opt => opt.MapFrom(src => src.IdEstadoAutoNavigation.Nombre)
-                )
-       
-                .ForMember(
-                    dest => dest.ImagenPrincipal,
-                    opt => opt.MapFrom((src, dest) =>
+                .ForMember(d => d.NombreAuto,
+                    o => o.MapFrom(s => $"{s.Marca} {s.Modelo} {s.Anio}"))
+                .ForMember(d => d.Propietario,
+                    o => o.MapFrom(s => s.IdVendedorNavigation.NombreCompleto))
+                .ForMember(d => d.Condicion,
+                    o => o.MapFrom(s => s.IdCondicionAutoNavigation.Nombre))
+                .ForMember(d => d.EstadoAuto,
+                    o => o.MapFrom(s => s.IdEstadoAutoNavigation.Nombre))
+                .ForMember(d => d.ImagenPrincipal,
+                    o => o.MapFrom((s, d) =>
                     {
-                        var img = src.AutoImagen.FirstOrDefault(i => i.EsPrincipal == true)
-                                  ?? src.AutoImagen.FirstOrDefault();
-
+                        var img = s.AutoImagen.FirstOrDefault(i => i.EsPrincipal == true)
+                                  ?? s.AutoImagen.FirstOrDefault();
                         if (img?.Imagen != null && img.Imagen.Length > 0)
                             return $"data:image/jpeg;base64,{Convert.ToBase64String(img.Imagen)}";
-
                         return string.Empty;
-                    })
-)
+                    }))
+                .ForMember(d => d.IdCategoria, o => o.MapFrom(s => s.IdCategoria))
+                .ForMember(d => d.AutoImagen, o => o.MapFrom(s => s.AutoImagen))
+                .ForMember(d => d.Subasta, o => o.MapFrom(s => s.Subasta));
 
-                .ForMember(
-                    dest => dest.IdCategoria,
-                    opt => opt.MapFrom(src => src.IdCategoria)
-                )
-        
-                .ForMember(
-                    dest => dest.AutoImagen,
-                    opt => opt.MapFrom(src => src.AutoImagen)
-                )
-      
-                .ForMember(
-                    dest => dest.Subasta,
-                    opt => opt.MapFrom(src => src.Subasta)
-                );
+            // ── DTO → ENTIDAD (crear/editar) ─────────────────────
+            CreateMap<AutoDTO, Auto>()
+                .ForMember(d => d.IdCondicionAutoNavigation, o => o.Ignore())
+                .ForMember(d => d.IdEstadoAutoNavigation, o => o.Ignore())
+                .ForMember(d => d.IdVendedorNavigation, o => o.Ignore())
+                .ForMember(d => d.IdCategoria, o => o.Ignore())
+                .ForMember(d => d.AutoImagen, o => o.Ignore())
+                .ForMember(d => d.Subasta, o => o.Ignore());
         }
     }
 }

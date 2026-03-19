@@ -8,7 +8,7 @@ namespace SubastaAutos.Application.DTOs
 {
     public record CondicionAutoDTO
     {
-        public int IdEstadoAuto { get; set; }
+        public int IdCondicionAuto { get; set; }
         public string Nombre { get; set; } = string.Empty;
     }
 }

@@ -1,0 +1,197 @@
+@model SubastaAutos.Application.DTOs.AutoDTO
+
+@{
+    ViewData["Title"] = "Editar Auto";
+}
+
+<header class="mb-3">
+    <h1 class="h3 mb-0">Editar Auto</h1>
+    <p class="text-muted mb-0">Modificación del objeto subastable: @Model.NombreAuto</p>
+</header>
+
+<form asp-action="Edit" method="post" asp-route-id="@Model.IdAuto"
+      enctype="multipart/form-data" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @* === DEBUG TEMPORAL: mostrar todos los errores === *@
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            <strong>Errores de validación:</strong>
+            <ul>
+                @foreach (var key in ViewData.ModelState.Keys)
+                {
+                    @foreach (var error in ViewData.ModelState[key].Errors)
+                    {
+                        <li><strong>@key:</strong> @error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+    <input type="hidden" asp-for="IdAuto" />
+    <input type="hidden" asp-for="IdVendedor" />
+    <input type="hidden" asp-for="FechaRegistro" />
+
+    @* ── Vendedor (no editable) ── *@
+    <div class="col-md-6">
+        <label class="form-label">Vendedor</label>
+        <input type="text" class="form-control" value="@ViewBag.VendedorNombre" readonly />
+    </div>
+
+    @* ── Estado (switch Activo / Inactivo) ── *@
+    <div class="col-md-6">
+        <label class="form-label">Estado</label>
+        <div class="form-check form-switch mt-2">
+            <input type="hidden" asp-for="IdEstadoAuto" id="hiddenEstado" />
+            <input class="form-check-input" type="checkbox" role="switch"
+                   id="switchEstado"
+                   @(Model.IdEstadoAuto == 1 ? "checked" : "")
+                   onchange="document.getElementById('hiddenEstado').value = this.checked ? 1 : 2;"
+                   style="width:3em; height:1.5em; cursor:pointer;" />
+            <label class="form-check-label" for="switchEstado" id="labelEstado"
+                   style="cursor:pointer;">
+                @(Model.IdEstadoAuto == 1 ? "Activo" : "Inactivo")
+            </label>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Marca" class="form-label"></label>
+        <input asp-for="Marca" class="form-control" />
+        <span asp-validation-for="Marca" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Modelo" class="form-label"></label>
+        <input asp-for="Modelo" class="form-control" />
+        <span asp-validation-for="Modelo" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Anio" class="form-label"></label>
+        <input asp-for="Anio" class="form-control" inputmode="numeric" />
+        <span asp-validation-for="Anio" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Vin" class="form-label"></label>
+        <input asp-for="Vin" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Vin" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="IdCondicionAuto" class="form-label">Condición</label>
+        <select asp-for="IdCondicionAuto" class="form-select" asp-items="ViewBag.ListCondicion">
+            <option value="">-- Seleccione condición --</option>
+        </select>
+        <span asp-validation-for="IdCondicionAuto" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Descripcion" class="form-label"></label>
+        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label">Categorías</label>
+        <select id="selectedCategorias" name="selectedCategorias"
+                class="form-select" asp-items="ViewBag.ListCategorias" multiple>
+        </select>
+        <div class="form-text">Puede seleccionar múltiples categorías (mínimo 1).</div>
+        @if (ViewData.ModelState.ContainsKey("selectedCategorias"))
+        {
+            <span class="text-danger">@ViewData.ModelState["selectedCategorias"]?.Errors.FirstOrDefault()?.ErrorMessage</span>
+        }
+    </div>
+
+    @* ── Imágenes actuales ── *@
+    <div class="col-12">
+        <label class="form-label">Imágenes actuales</label>
+        <div class="d-flex flex-wrap gap-2 mb-2">
+            @if (Model.AutoImagen != null && Model.AutoImagen.Any())
+            {
+                @foreach (var img in Model.AutoImagen)
+                {
+                    if (img.Imagen != null && img.Imagen.Length > 0)
+                    {
+                        <div class="position-relative">
+                            <img src="data:image/jpeg;base64,@Convert.ToBase64String(img.Imagen)"
+                                 class="img-thumbnail"
+                                 style="max-height:120px;" alt="Imagen del auto" />
+                            @if (img.EsPrincipal)
+                            {
+                                <span class="badge text-bg-primary position-absolute top-0 start-0 m-1"
+                                      style="font-size:0.65rem;">Principal</span>
+                            }
+                        </div>
+                    }
+                }
+            }
+            else
+            {
+                <span class="text-muted">Sin imágenes.</span>
+            }
+        </div>
+
+        <label class="form-label" for="imageFiles">Cambiar imágenes (opcional)</label>
+        <input type="file" id="imageFiles" name="imageFiles"
+               class="form-control" accept="image/*" multiple />
+        <div class="form-text">Si sube nuevas imágenes, reemplazarán las actuales. La primera será la principal.</div>
+
+        <div id="previewContainer" class="d-flex flex-wrap gap-2 mt-3"></div>
+    </div>
+
+    <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check2-circle"></i> Guardar cambios
+        </button>
+        <a asp-action="IndexAdmin" class="btn btn-outline-secondary">Volver</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const input = document.getElementById('imageFiles');
+        const container = document.getElementById('previewContainer');
+        input?.addEventListener('change', () => {
+            container.innerHTML = '';
+            if (!input.files) return;
+            Array.from(input.files).forEach((file, i) => {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'img-thumbnail';
+                img.style.maxHeight = '120px';
+                img.alt = `Imagen ${i + 1}`;
+                container.appendChild(img);
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            if ($.fn.multiselect) {
+                $('#selectedCategorias').multiselect({
+                    buttonClass: 'form-select',
+                    templates: {
+                        button: '<button type="button" class="multiselect dropdown-toggle" data-bs-toggle="dropdown"><span class="multiselect-selected-text"></span></button>',
+                    },
+                    includeSelectAllOption: true,
+                    selectAllText: 'Seleccionar todas',
+                    allSelectedText: 'Todas las categorías',
+                    nonSelectedText: '-- Seleccione categorías --',
+                    nSelectedText: ' categorías seleccionadas',
+                });
+            }
+        });
+    </script>
+    <script>
+        const sw = document.getElementById('switchEstado');
+        const lbl = document.getElementById('labelEstado');
+        sw?.addEventListener('change', () => {
+            lbl.textContent = sw.checked ? 'Activo' : 'Inactivo';
+        });
+    </script>
+}

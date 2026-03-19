@@ -1,9 +1,4 @@
 ﻿using SubastaAutos.Application.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubastaAutos.Application.Services.Interfaces
 {
@@ -11,5 +6,11 @@ namespace SubastaAutos.Application.Services.Interfaces
     {
         Task<ICollection<AutoDTO>> ListAsync();
         Task<AutoDTO?> FindByIdAsync(int id);
+        Task<int> AddAsync(AutoDTO dto, string[] selectedCategorias, List<byte[]> imagenes);
+        Task UpdateAsync(int id, AutoDTO dto, string[] selectedCategorias, List<byte[]>? nuevasImagenes);
+        Task ActivarDesactivarAsync(int id);
+        Task EliminarLogicoAsync(int id);
+        Task<bool> TieneSubastaActivaAsync(int id);
+        Task<bool> TieneSubastaFinalizadaAsync(int id);
     }
 }

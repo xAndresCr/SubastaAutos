@@ -98,6 +98,8 @@ public partial class SubastaAutosContext : DbContext
             entity.HasKey(e => new {e.IdImagen, e.IdAuto })
                   .HasName("PK__AutoImag__B42D8F2A3CA22E9D");
 
+            entity.Property(e => e.IdImagen).ValueGeneratedOnAdd();
+
             entity.Property(e => e.EsPrincipal).HasDefaultValue(false);
 
             entity.Property(e => e.Imagen).HasColumnType("varbinary(max)");
