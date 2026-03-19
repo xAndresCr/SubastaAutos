@@ -81,32 +81,61 @@ namespace SubastaAutos.Web.Controllers
         // POST: Usuario/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(UsuarioDTO dto)
+        public async Task<IActionResult> Edit(int id, UsuarioDTO dto)
         {
-            if (ModelState.IsValid)
+            // Solo validar los campos editables
+            ModelState.Remove("IdRol");
+            ModelState.Remove("FechaRegistro");
+            ModelState.Remove("EstadoUsuario");
+            ModelState.Remove("IdRolNavigation");
+            ModelState.Remove("IdRolNavigation.Nombre");
+
+            if (!ModelState.IsValid)
             {
-                await LoadCombosAsync(dto.IdRol);
+                var errores = string.Join("<br>",
+                    ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
+                    "Errores de validación",
+                    $"El formulario contiene errores:<br>{errores}",
+                    SweetAlertMessageType.warning);
                 return View(dto);
             }
 
-            if (await _servicioUsuario.ExisteCorreoAsync(dto.Correo))
+            try
             {
-                ModelState.AddModelError("Correo", "El correo ya está registrado.");
-                await LoadCombosAsync(dto.IdRol);
+                await _servicioUsuario.UpdateAsync(id, dto);
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Usuario actualizado",
+                    $"El usuario {dto.NombreCompleto} fue modificado exitosamente.",
+                    SweetAlertMessageType.success);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Error", ex.Message, SweetAlertMessageType.error);
                 return View(dto);
             }
+        }
 
-
-            dto.PasswordHash = dto.Password; //Asigna la contraseña, pero aún no se ha hasheado
-            dto.EstadoUsuario = true; // o false, 
-
-
-            await _servicioUsuario.AddAsync(dto);
-
-            TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
-               "Usuario registrado con éxito",
-               $"El Usuario {dto.NombreCompleto} fue registrado exitosamente.",
-               SweetAlertMessageType.success);
+        // ── BLOQUEAR / ACTIVAR 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleEstado(int id)
+        {
+            try
+            {
+                await _servicioUsuario.ToggleEstadoAsync(id);
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Estado actualizado",
+                    "El estado del usuario fue cambiado exitosamente.",
+                    SweetAlertMessageType.success);
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Error", ex.Message, SweetAlertMessageType.error);
+            }
             return RedirectToAction(nameof(Index));
         }
 

@@ -17,17 +17,6 @@ namespace SubastaAutos.Application.DTOs
         [EmailAddress(ErrorMessage = "Formato de correo inválido")]
         public string Correo { get; set; } = null!;
 
-        [Required(ErrorMessage = "La contraseña es requerida")]
-        [DataType(DataType.Password)]
-        [DisplayName("Contraseña")]
-        public string Password { get; set; } = null!;
-
-        [Required(ErrorMessage = "Debe confirmar la contraseña")]
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Las contraseñas no coinciden.")]
-        [DisplayName("Confirmar contraseña")]
-        public string ConfirmPassword { get; set; } = null!;
-
         // Este campo no se muestra en el formulario, se llena en el controlador
         public string PasswordHash { get; set; } = null!;
 

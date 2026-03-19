@@ -59,5 +59,22 @@ namespace SubastaAutos.Application.Services.Implementations
             var collection = _mapper.Map<ICollection<UsuarioDTO>>(list);
             return collection;
         }
+
+        public async Task UpdateAsync(int id, UsuarioDTO dto)
+        {
+            var entity = await repositoryUsuario.GetByIdAsync(id);
+            if (entity == null)
+                throw new Exception("Usuario no encontrado.");
+
+            entity.NombreCompleto = dto.NombreCompleto;
+            entity.Correo = dto.Correo;
+
+            await repositoryUsuario.UpdateAsync(entity);
+        }
+
+        public async Task ToggleEstadoAsync(int id)
+        {
+            await repositoryUsuario.ToggleEstadoAsync(id);
+        }
     }
 }

@@ -17,5 +17,8 @@ namespace SubastaAutos.Application.Services.Interfaces
         Task  <UsuarioDTO> AddAsync(UsuarioDTO usuarioDTO);
 
         Task<bool> ExisteCorreoAsync(string correo);
+
+        Task UpdateAsync(int id, UsuarioDTO dto);
+        Task ToggleEstadoAsync(int id);
     }
 }

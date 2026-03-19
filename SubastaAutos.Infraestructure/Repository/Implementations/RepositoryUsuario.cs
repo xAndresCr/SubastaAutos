@@ -58,5 +58,26 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .ToListAsync();
             return collecton;
         }
+
+        public async Task UpdateAsync(Usuario entity)
+        {
+            _context.Entry(entity).Property(u => u.NombreCompleto).IsModified = true;
+            _context.Entry(entity).Property(u => u.Correo).IsModified = true;
+
+            await _context.SaveChangesAsync();
+        }
+
+
+        public async Task ToggleEstadoAsync(int id)
+        {
+            var entity = await _context.Usuario.FindAsync(id);
+
+            if (entity == null)
+                throw new Exception("Usuario no encontrado.");
+
+
+            entity.EstadoUsuario = !entity.EstadoUsuario;
+            await _context.SaveChangesAsync();
+        }
     }
 }

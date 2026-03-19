@@ -60,11 +60,11 @@
                                 <span class="d-none d-lg-inline ms-1" data-i18n="common.detail">Detalle</span>
                             </a>
 
-                            <a asp-action="Edit"
+                            <a asp-action="Edit" asp-route-id="@item.IdUsuario"
                                class="btn btn-outline-primary btn-sm"
                                title="Editar">
                                 <i class="bi bi-pencil-square"></i>
-                                <span class="d-none d-lg-inline ms-1" data-i18n="common.edit">Editar</span>
+                                <span class="d-none d-lg-inline ms-1">Editar</span>
                             </a>
 
                             <a asp-action="Delete"
