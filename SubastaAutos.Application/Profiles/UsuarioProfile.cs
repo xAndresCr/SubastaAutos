@@ -15,14 +15,12 @@ namespace SubastaAutos.Application.Profiles
         public UsuarioProfile()
         {
             CreateMap<Usuario, UsuarioDTO>()
-                .ForMember(
-                    dest => dest.CantSubastasCreadas,
-                    opt => opt.MapFrom(src => src.Subasta.Count)
-                )
-                .ForMember(
-                    dest => dest.CantPujasRealizadas,
-                    opt => opt.MapFrom(src => src.Puja.Count)
-                );
+             .ForMember(
+                 dest => dest.CantSubastasCreadas,
+                 opt => opt.MapFrom(src => src.Subasta.Count))
+             .ForMember(
+                 dest => dest.CantPujasRealizadas,
+                 opt => opt.MapFrom(src => src.Puja.Count));
 
             CreateMap<UsuarioDTO, Usuario>()
                 .ForMember(dest => dest.IdRolNavigation, ori => ori.Ignore());

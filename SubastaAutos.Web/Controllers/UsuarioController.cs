@@ -79,15 +79,40 @@ namespace SubastaAutos.Web.Controllers
 
         
         [HttpGet]
-       
+        public async Task<IActionResult> Edit(int id)
+        {
+            try
+            {
+                var dto = await _servicioUsuario.GetByIdAsync(id);
+                if (dto == null)
+                {
+                    TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                        "No encontrado",
+                        "El usuario no existe.",
+                        SweetAlertMessageType.warning);
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Error", ex.Message, SweetAlertMessageType.error);
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UsuarioDTO dto)
         {
-            // Solo validar los campos editables
             ModelState.Remove("IdRol");
             ModelState.Remove("FechaRegistro");
             ModelState.Remove("EstadoUsuario");
             ModelState.Remove("IdRolNavigation");
             ModelState.Remove("IdRolNavigation.Nombre");
+            ModelState.Remove("PasswordHash");
+            ModelState.Remove("RolUsuario");
 
             if (!ModelState.IsValid)
             {
@@ -99,7 +124,6 @@ namespace SubastaAutos.Web.Controllers
                     SweetAlertMessageType.warning);
                 return View(dto);
             }
-
             try
             {
                 await _servicioUsuario.UpdateAsync(id, dto);

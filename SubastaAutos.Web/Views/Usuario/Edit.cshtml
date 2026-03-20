@@ -9,7 +9,7 @@
     <p class="text-muted mb-0">Actualización de perfil: solo nombre y correo</p>
 </header>
 
-<form asp-action="Edit" method="post" asp-route-id="@Model.IdUsuario" class="row g-3">
+<form asp-action="Edit" method="post" asp-route-id="@Model.IdUsuario" class="row g-3" novalidate>
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <input type="hidden" asp-for="IdUsuario" />
