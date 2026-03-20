@@ -12,5 +12,6 @@ namespace SubastaAutos.Application.Services.Interfaces
         Task EliminarLogicoAsync(int id);
         Task<bool> TieneSubastaActivaAsync(int id);
         Task<bool> TieneSubastaFinalizadaAsync(int id);
+        Task<bool> ExisteVinAsync(string vin, int? excluirAutoId = null);
     }
 }

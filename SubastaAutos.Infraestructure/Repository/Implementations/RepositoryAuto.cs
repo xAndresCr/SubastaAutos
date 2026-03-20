@@ -118,5 +118,15 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             return await _context.Set<Subasta>()
                 .AnyAsync(s => s.IdAuto == id && s.IdEstadoSubasta == 2);
         }
+        public async Task<bool> ExisteVinAsync(string vin, int? excluirAutoId = null)
+        {
+            var query = _context.Set<Auto>()
+                .Where(a => a.Vin == vin);
+
+            if (excluirAutoId.HasValue)
+                query = query.Where(a => a.IdAuto != excluirAutoId.Value);
+
+            return await query.AnyAsync();
+        }
     }
 }

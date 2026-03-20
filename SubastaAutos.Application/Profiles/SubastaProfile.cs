@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using SubastaAutos.Application.DTOs;
 using SubastaAutos.Infraestructure.Models;
 
@@ -8,54 +8,38 @@ namespace SubastaAutos.Application.Profiles
     {
         public SubastaProfile()
         {
+            // ── ENTIDAD → DTO (lectura) ─────────────────────────
             CreateMap<Subasta, SubastaDTO>()
-
-                .ForMember(
-                    dest => dest.NombreAuto,
-                    opt => opt.MapFrom(src =>
-                        $"{src.IdAutoNavigation.Marca} {src.IdAutoNavigation.Modelo} {src.IdAutoNavigation.Anio}")
-                )
-
-         
-                .ForMember(
-                    dest => dest.ImagenPrincipalAuto,
-                    opt => opt.MapFrom((src, dest) =>
+                .ForMember(d => d.NombreAuto,
+                    o => o.MapFrom(s =>
+                        $"{s.IdAutoNavigation.Marca} {s.IdAutoNavigation.Modelo} {s.IdAutoNavigation.Anio}"))
+                .ForMember(d => d.ImagenPrincipalAuto,
+                    o => o.MapFrom((s, d) =>
                     {
-                        var img = src.IdAutoNavigation.AutoImagen
+                        var img = s.IdAutoNavigation.AutoImagen
                                       .FirstOrDefault(i => i.EsPrincipal == true)
-                                  ?? src.IdAutoNavigation.AutoImagen.FirstOrDefault();
-
+                                  ?? s.IdAutoNavigation.AutoImagen.FirstOrDefault();
                         if (img?.Imagen != null && img.Imagen.Length > 0)
                             return $"data:image/jpeg;base64,{Convert.ToBase64String(img.Imagen)}";
-
                         return string.Empty;
-                    })
-                )
+                    }))
+                .ForMember(d => d.Vendedor,
+                    o => o.MapFrom(s => s.IdVendedorNavigation.NombreCompleto))
+                .ForMember(d => d.EstadoSubasta,
+                    o => o.MapFrom(s => s.IdEstadoSubastaNavigation.Nombre))
+                .ForMember(d => d.CantidadPujas,
+                    o => o.MapFrom(s => s.Puja.Count))
+                .ForMember(d => d.Pujas,
+                    o => o.MapFrom(s => s.Puja));
 
-       
-                .ForMember(
-                    dest => dest.Vendedor,
-                    opt => opt.MapFrom(src => src.IdVendedorNavigation.NombreCompleto)
-                )
-
-                .ForMember(
-                    dest => dest.EstadoSubasta,
-                    opt => opt.MapFrom(src => src.IdEstadoSubastaNavigation.Nombre)
-                )
-
- 
-                .ForMember(
-                    dest => dest.CantidadPujas,
-                    opt => opt.MapFrom(src => src.Puja.Count)
-                )
-
-
-                .ForMember(
-                    dest => dest.Pujas,
-                    opt => opt.MapFrom(src => src.Puja)
-                );
-
-   
+            // ── DTO → ENTIDAD (crear/editar) ────────────────────
+            CreateMap<SubastaDTO, Subasta>()
+                .ForMember(d => d.IdAutoNavigation, o => o.Ignore())
+                .ForMember(d => d.IdVendedorNavigation, o => o.Ignore())
+                .ForMember(d => d.IdEstadoSubastaNavigation, o => o.Ignore())
+                .ForMember(d => d.Puja, o => o.Ignore())
+                .ForMember(d => d.Pago, o => o.Ignore())
+                .ForMember(d => d.ResultadoSubasta, o => o.Ignore());
         }
     }
 }

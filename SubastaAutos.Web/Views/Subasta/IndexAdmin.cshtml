@@ -1,0 +1,181 @@
+@model IEnumerable<SubastaAutos.Application.DTOs.SubastaDTO>
+
+@{
+    ViewData["Title"] = "Administración de Subastas";
+    var total = Model?.Count() ?? 0;
+}
+
+<nav class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Inicio</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Gestión de Subastas</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1">Subastas</h1>
+        <p class="text-muted mb-0">Gestión administrativa de subastas. Total: <strong>@total</strong>.</p>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nueva Subasta
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-body">
+        <span class="fw-semibold">Listado</span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="p-4 text-center">
+                <i class="bi bi-inbox display-6 mb-2"></i>
+                <h2 class="h5">No hay subastas registradas</h2>
+                <a asp-action="Create" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-lg me-1"></i> Crear subasta
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3" style="width:60px;">ID</th>
+                            <th style="width:70px;"></th>
+                            <th>Auto</th>
+                            <th>Vendedor</th>
+                            <th class="text-end">Precio Base</th>
+                            <th class="text-center">Pujas</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-end pe-3" style="width:300px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-3">
+                                    <span class="badge text-bg-light border">@item.IdSubasta</span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImagenPrincipalAuto))
+                                    {
+                                        <img src="@item.ImagenPrincipalAuto" class="rounded"
+                                             style="width:50px; height:35px; object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-image text-muted"></i>
+                                    }
+                                </td>
+                                <td class="fw-semibold">@item.NombreAuto</td>
+                                <td>@item.Vendedor</td>
+                                <td class="text-end">@item.PrecioBase.ToString("₡#,##0.00")</td>
+                                <td class="text-center">
+                                    <span class="badge text-bg-primary">@item.CantidadPujas</span>
+                                </td>
+                                <td class="text-center">
+                                    @switch (item.EstadoSubasta)
+                                    {
+                                        case "Borrador":
+                                            <span class="badge text-bg-secondary">Borrador</span>
+                                            break;
+                                        case "Activa":
+                                            <span class="badge text-bg-success">Activa</span>
+                                            break;
+                                        case "Finalizada":
+                                            <span class="badge text-bg-info">Finalizada</span>
+                                            break;
+                                        case "Cancelada":
+                                            <span class="badge text-bg-danger">Cancelada</span>
+                                            break;
+                                        default:
+                                            <span class="badge text-bg-light border">@item.EstadoSubasta</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end pe-3">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.IdSubasta"
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-eye"></i>
+                                            <span class="d-none d-lg-inline ms-1">Detalle</span>
+                                        </a>
+
+                                        @if (item.EstadoSubasta == "Borrador")
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@item.IdSubasta"
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-pencil-square"></i>
+                                                <span class="d-none d-lg-inline ms-1">Editar</span>
+                                            </a>
+
+                                            <form asp-action="Publicar" asp-route-id="@item.IdSubasta"
+                                                  method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-success btn-sm"
+                                                        title="Publicar">
+                                                    <i class="bi bi-megaphone"></i>
+                                                    <span class="d-none d-lg-inline ms-1">Publicar</span>
+                                                </button>
+                                            </form>
+
+                                            <form asp-action="Cancelar" asp-route-id="@item.IdSubasta"
+                                                  method="post" class="d-inline form-cancelar">
+                                                @Html.AntiForgeryToken()
+                                                <button type="button" class="btn btn-outline-danger btn-sm btn-cancelar">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    <span class="d-none d-lg-inline ms-1">Cancelar</span>
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (item.EstadoSubasta == "Activa" && item.CantidadPujas == 0)
+                                        {
+                                            <form asp-action="Cancelar" asp-route-id="@item.IdSubasta"
+                                                  method="post" class="d-inline form-cancelar">
+                                                @Html.AntiForgeryToken()
+                                                <button type="button" class="btn btn-outline-danger btn-sm btn-cancelar">
+                                                    <i class="bi bi-x-circle"></i>
+                                                    <span class="d-none d-lg-inline ms-1">Cancelar</span>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts {
+    <script>
+        document.querySelectorAll('.btn-cancelar').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var form = this.closest('form');
+                Swal.fire({
+                    title: '¿Está seguro?',
+                    text: 'La subasta será cancelada. Esta acción no se puede deshacer.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, cancelar',
+                    cancelButtonText: 'No, volver'
+                }).then(function (result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+}

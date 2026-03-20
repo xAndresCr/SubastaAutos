@@ -103,5 +103,9 @@ namespace SubastaAutos.Application.Services.Implementations
         {
             return await _repository.TieneSubastaFinalizadaAsync(id);
         }
+        public async Task<bool> ExisteVinAsync(string vin, int? excluirAutoId = null)
+        {
+            return await _repository.ExisteVinAsync(vin, excluirAutoId);
+        }
     }
 }

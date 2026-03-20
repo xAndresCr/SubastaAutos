@@ -121,6 +121,11 @@ namespace SubastaAutos.Web.Controllers
                 ModelState.AddModelError("imageFiles",
                     "Debe seleccionar al menos una imagen.");
 
+            // Validación: VIN único
+            bool vinExiste = await _serviceAuto.ExisteVinAsync(dto.Vin);
+            if (vinExiste)
+                ModelState.AddModelError("Vin", "Ya existe un vehículo con ese número de VIN.");
+
             // Quitar validaciones de campos calculados (solo lectura)
             ModelState.Remove("NombreAuto");
             ModelState.Remove("Propietario");
@@ -221,6 +226,11 @@ namespace SubastaAutos.Web.Controllers
             if (selectedCategorias.Length == 0)
                 ModelState.AddModelError("selectedCategorias",
                     "Debe seleccionar al menos una categoría.");
+
+            // Validación: VIN único (excluyendo el auto actual)
+            bool vinExiste = await _serviceAuto.ExisteVinAsync(dto.Vin, id);
+            if (vinExiste)
+                ModelState.AddModelError("Vin", "Ya existe otro vehículo con ese número de VIN.");
 
             // Quitar validaciones de campos calculados
             ModelState.Remove("NombreAuto");

@@ -17,5 +17,6 @@ namespace SubastaAutos.Infraestructure.Repository.Interfaces
         Task<bool> TieneSubastasAsync(int id);
         Task<bool> TieneSubastaActivaAsync(int id);
         Task<bool> TieneSubastaFinalizadaAsync(int id);
+        Task<bool> ExisteVinAsync(string vin, int? excluirAutoId = null);
     }
 }
