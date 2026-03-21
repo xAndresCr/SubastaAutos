@@ -66,9 +66,17 @@ namespace SubastaAutos.Application.Services.Implementations
             if (entity == null)
                 throw new Exception("Usuario no encontrado.");
 
+             //Validar que el correo nuevo sea diferente al actual
+            if (entity.Correo.ToLower() == dto.Correo.ToLower())
+                throw new InvalidOperationException("El correo nuevo debe ser diferente al correo actual.");
+
+             //Validar que el correo nuevo no exista en la BD
+            bool correoExiste = await repositoryUsuario.ExisteCorreoAsync(dto.Correo);
+            if (correoExiste)
+                throw new InvalidOperationException("El correo ingresado ya está registrado por otro usuario.");
+
             entity.NombreCompleto = dto.NombreCompleto;
             entity.Correo = dto.Correo;
-
             await repositoryUsuario.UpdateAsync(entity);
         }
 
