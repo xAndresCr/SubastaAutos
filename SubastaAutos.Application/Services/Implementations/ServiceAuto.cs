@@ -72,7 +72,7 @@ namespace SubastaAutos.Application.Services.Implementations
             await _repository.UpdateAsync(entity, selectedCategorias);
         }
 
-        // ── Activo ↔ Inactivo ──
+        // Activo Inactivo 
         public async Task ActivarDesactivarAsync(int id)
         {
             var entity = await _repository.FindByIdAsync(id);
@@ -84,7 +84,7 @@ namespace SubastaAutos.Application.Services.Implementations
             await _repository.UpdateEstadoAsync(id, nuevoEstado);
         }
 
-        // ── Eliminación lógica (estado = 3) ──
+        // Eliminación lógica
         public async Task EliminarLogicoAsync(int id)
         {
             // Validar: no puede tener subastas asociadas

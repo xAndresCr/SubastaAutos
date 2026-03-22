@@ -15,25 +15,19 @@ namespace SubastaAutos.Application.Profiles
         public UsuarioProfile()
         {
             CreateMap<Usuario, UsuarioDTO>()
-             .ForMember(
-                 dest => dest.CantSubastasCreadas,
-                 opt => opt.MapFrom(src => src.Subasta.Count))
-             .ForMember(
-                 dest => dest.CantPujasRealizadas,
-                 opt => opt.MapFrom(src => src.Puja.Count));
+                .ForMember(dest => dest.CantSubastasCreadas,
+                    opt => opt.MapFrom(src => src.Subasta.Count))
+                .ForMember(dest => dest.CantPujasRealizadas,
+                    opt => opt.MapFrom(src => src.Puja.Count));
 
+            // ← Solo un CreateMap<UsuarioDTO, Usuario>
             CreateMap<UsuarioDTO, Usuario>()
-                .ForMember(dest => dest.IdRolNavigation, ori => ori.Ignore());
-
-            ///Mapeo para ignorar los otros atributos del DTO 
-            CreateMap<UsuarioDTO, Usuario>()
-               .ForMember(d => d.IdRolNavigation, o => o.Ignore())
-               .ForMember(d => d.PasswordHash, o => o.Ignore())
-               .ForMember(d => d.Auto, o => o.Ignore())
-               .ForMember(d => d.Puja, o => o.Ignore())
-               .ForMember(d => d.Subasta, o => o.Ignore())
-               .ForMember(d => d.ResultadoSubasta, o => o.Ignore());
-
+                .ForMember(d => d.IdRolNavigation, o => o.Ignore())
+                .ForMember(d => d.PasswordHash, o => o.Ignore())
+                .ForMember(d => d.Auto, o => o.Ignore())
+                .ForMember(d => d.Puja, o => o.Ignore())
+                .ForMember(d => d.Subasta, o => o.Ignore())
+                .ForMember(d => d.ResultadoSubasta, o => o.Ignore());
         }
     }
 }

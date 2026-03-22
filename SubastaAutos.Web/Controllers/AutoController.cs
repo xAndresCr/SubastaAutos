@@ -64,7 +64,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // ── HELPER: Cargar combos para Create/Edit ──────────────
+  
         private async Task LoadCombosAsync(IEnumerable<string>? selectedCategoriaIds = null)
         {
             var condiciones = await _serviceCondicion.ListAsync();
@@ -92,7 +92,7 @@ namespace SubastaAutos.Web.Controllers
             ViewBag.VendedorNombre = auto?.Propietario ?? "Usuario #1";
         }
 
-        // ── CREATE GET ──────────────────────────────────────────
+        //  CREATE GET 
         public async Task<IActionResult> Create()
         {
             await LoadCombosAsync();
@@ -100,7 +100,7 @@ namespace SubastaAutos.Web.Controllers
             return View(new AutoDTO { IdEstadoAuto = 1, IdVendedor = VendedorSimuladoId });
         }
 
-        // ── CREATE POST ─────────────────────────────────────────
+        // CREATE POST 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AutoDTO dto, List<IFormFile> imageFiles, string[] selectedCategorias)
@@ -147,7 +147,7 @@ namespace SubastaAutos.Web.Controllers
                 return View(dto);
             }
 
-            // Convertir imágenes a byte[]
+            // Convertir imágenes a byte
             var imagenes = new List<byte[]>();
             foreach (var file in imageFiles)
             {
@@ -166,7 +166,7 @@ namespace SubastaAutos.Web.Controllers
             return RedirectToAction(nameof(IndexAdmin));
         }
 
-        // ── EDIT GET ────────────────────────────────────────────
+        // EDIT GET 
         public async Task<IActionResult> Edit(int id)
         {
             try
@@ -212,7 +212,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // ── EDIT POST ───────────────────────────────────────────
+        // EDIT POST 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, AutoDTO dto, List<IFormFile>? imageFiles, string[] selectedCategorias)
@@ -227,7 +227,7 @@ namespace SubastaAutos.Web.Controllers
                 ModelState.AddModelError("selectedCategorias",
                     "Debe seleccionar al menos una categoría.");
 
-            // Validación: VIN único (excluyendo el auto actual)
+            // Validación: VIN único 
             bool vinExiste = await _serviceAuto.ExisteVinAsync(dto.Vin, id);
             if (vinExiste)
                 ModelState.AddModelError("Vin", "Ya existe otro vehículo con ese número de VIN.");
@@ -254,7 +254,7 @@ namespace SubastaAutos.Web.Controllers
                 return View(dto);
             }
 
-            // Convertir imágenes nuevas (si subieron)
+            // Convertir imágenes nuevas 
             List<byte[]>? nuevasImagenes = null;
             if (imageFiles != null && imageFiles.Count > 0)
             {
@@ -277,7 +277,7 @@ namespace SubastaAutos.Web.Controllers
             return RedirectToAction(nameof(IndexAdmin));
         }
 
-        // ── ACTIVAR / DESACTIVAR ────────────────────────────────
+        //ACTIVAR / DESACTIVAR 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ActivarDesactivar(int id)
@@ -298,7 +298,7 @@ namespace SubastaAutos.Web.Controllers
             return RedirectToAction(nameof(IndexAdmin));
         }
 
-        // ── ELIMINACIÓN LÓGICA ──────────────────────────────────
+        //  ELIMINACIÓN LÓGICA
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarLogico(int id)

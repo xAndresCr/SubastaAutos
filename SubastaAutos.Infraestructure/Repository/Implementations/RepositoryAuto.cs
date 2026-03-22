@@ -14,7 +14,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             _context = context;
         }
 
-        // ── LISTADO ──────────────────────────────────────────────
+        // LISTADO 
         public async Task<ICollection<Auto>> ListAsync()
         {
             return await _context.Set<Auto>()
@@ -28,7 +28,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        // ── DETALLE ──────────────────────────────────────────────
+        //DETALLE 
         public async Task<Auto?> FindByIdAsync(int id)
         {
             return await _context.Set<Auto>()
@@ -43,7 +43,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .FirstOrDefaultAsync();
         }
 
-        // ── CREAR ────────────────────────────────────────────────
+        // CREAR
         public async Task<int> AddAsync(Auto entity, string[] selectedCategorias)
         {
             await ApplyCategoriasAsync(entity, selectedCategorias);
@@ -52,14 +52,14 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             return entity.IdAuto;
         }
 
-        // ── EDITAR ───────────────────────────────────────────
+        //  EDITAR
         public async Task UpdateAsync(Auto entity, string[] selectedCategorias)
         {
             await ApplyCategoriasAsync(entity, selectedCategorias);
             await _context.SaveChangesAsync();
         }
 
-        // ── CAMBIAR ESTADO ───────────────────────────────────────
+        // CAMBIAR ESTADO 
         public async Task UpdateEstadoAsync(int id, int nuevoEstadoId)
         {
             var entity = await _context.Set<Auto>().FindAsync(id);
@@ -70,7 +70,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             await _context.SaveChangesAsync();
         }
 
-        // ── VALIDACIONES DE NEGOCIO ──────────────────────────────
+        //VALIDACIONES DE NEGOCIO
         public async Task<bool> TieneSubastasAsync(int id)
         {
             return await _context.Set<Subasta>()
@@ -84,7 +84,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .AnyAsync(s => s.IdAuto == id && s.IdEstadoSubasta == 1);
         }
 
-        // ── HELPER: Aplicar categorías M:N ──────────────────────
+        //Aplicar categorías 
         private async Task ApplyCategoriasAsync(Auto auto, string[] selectedCategorias)
         {
             if (selectedCategorias == null || selectedCategorias.Length == 0)

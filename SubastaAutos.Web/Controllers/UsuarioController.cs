@@ -63,14 +63,14 @@ namespace SubastaAutos.Web.Controllers
             var roles = await _rolUsuarioService.ListAsync();
             ViewBag.Roles = new SelectList(
                 roles,
-                nameof(RolUsuarioDTO.IdRol),     // valor del <option>
+                nameof(RolUsuarioDTO.IdRol),    
                 nameof(RolUsuarioDTO.Nombre),    // texto visible
                 idRolSeleccionado                // seleccionado
             );
         }
 
         // GET: Usuario/Create
-        //Carga los combos de roles para el formulario si no se cae esa picha
+        //Carga los combos de roles para el formulario si no se cae ese serote
         public async Task<IActionResult> Create()
         {
             await LoadCombosAsync();
@@ -108,7 +108,6 @@ namespace SubastaAutos.Web.Controllers
         {
             ModelState.Remove("IdRol");
             ModelState.Remove("FechaRegistro");
-            ModelState.Remove("EstadoUsuario");
             ModelState.Remove("IdRolNavigation");
             ModelState.Remove("IdRolNavigation.Nombre");
             ModelState.Remove("PasswordHash");

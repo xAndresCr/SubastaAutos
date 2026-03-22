@@ -12,14 +12,14 @@
 <form asp-action="Create" method="post" enctype="multipart/form-data" class="row g-3">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    @* ── Vendedor (no editable, solo muestra) ── *@
+
     <div class="col-md-6">
         <label class="form-label">Vendedor</label>
         <input type="text" class="form-control" value="@ViewBag.VendedorNombre" readonly />
         <input type="hidden" asp-for="IdVendedor" />
     </div>
 
-    @* ── Estado (no editable, solo muestra) ── *@
+
     <div class="col-md-6">
         <label class="form-label">Estado</label>
         <input type="text" class="form-control" value="Activo" readonly />

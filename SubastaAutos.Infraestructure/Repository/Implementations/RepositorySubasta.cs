@@ -14,7 +14,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             _context = context;
         }
 
-        // ── LISTADO GENERAL (admin) ─────────────────────────────
+        // LISTADO GENERAL (admin)
         public async Task<ICollection<Subasta>> ListAsync()
         {
             return await _context.Set<Subasta>()
@@ -28,7 +28,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        // ── LISTADO ACTIVAS (público) ───────────────────────────
+        // LISTADO ACTIVAS (público)
         public async Task<ICollection<Subasta>> ListActivasAsync()
         {
             return await _context.Set<Subasta>()
@@ -43,7 +43,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        // ── LISTADO FINALIZADAS (público) ───────────────────────
+        // LISTADO FINALIZADAS (público)
         public async Task<ICollection<Subasta>> ListFinalizadasAsync()
         {
             return await _context.Set<Subasta>()
@@ -58,7 +58,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .ToListAsync();
         }
 
-        // ── DETALLE ─────────────────────────────────────────────
+        // DETALLE 
         public async Task<Subasta?> FindByIdAsync(int id)
         {
             return await _context.Set<Subasta>()
@@ -72,7 +72,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .FirstOrDefaultAsync();
         }
 
-        // ── CREAR ───────────────────────────────────────────────
+        //CREAR 
         public async Task<int> AddAsync(Subasta entity)
         {
             await _context.Set<Subasta>().AddAsync(entity);
@@ -80,7 +80,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             return entity.IdSubasta;
         }
 
-        // ── EDITAR ──────────────────────────────────────────────
+        // EDITAR
         public async Task UpdateAsync(Subasta entity)
         {
             _context.Entry(entity).Property(s => s.FechaInicio).IsModified = true;
@@ -90,7 +90,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             await _context.SaveChangesAsync();
         }
 
-        // ── CAMBIAR ESTADO ──────────────────────────────────────
+        //CAMBIAR ESTADO 
         public async Task UpdateEstadoAsync(int id, int nuevoEstadoId)
         {
             var entity = await _context.Set<Subasta>().FindAsync(id);

@@ -66,23 +66,43 @@ namespace SubastaAutos.Application.Services.Implementations
             if (entity == null)
                 throw new Exception("Usuario no encontrado.");
 
-             //Validar que el correo nuevo sea diferente al actual
-            if (entity.Correo.ToLower() == dto.Correo.ToLower())
-                throw new InvalidOperationException("El correo nuevo debe ser diferente al correo actual.");
+            // Validar que al menos algo haya cambiado
+            bool correoIgual = entity.Correo.ToLower() == dto.Correo.ToLower();
+            bool nombreIgual = entity.NombreCompleto.ToLower() == dto.NombreCompleto.ToLower();
+            bool estadoIgual = entity.EstadoUsuario == dto.EstadoUsuario;
 
-             //Validar que el correo nuevo no exista en la BD
-            bool correoExiste = await repositoryUsuario.ExisteCorreoAsync(dto.Correo);
-            if (correoExiste)
-                throw new InvalidOperationException("El correo ingresado ya está registrado por otro usuario.");
+            if (correoIgual && nombreIgual && estadoIgual)
+                throw new InvalidOperationException(
+                    "No se realizaron cambios, los datos son idénticos a los actuales.");
+
+            // Validar correo duplicado solo si cambió
+            if (!correoIgual)
+            {
+                bool correoExiste = await repositoryUsuario.ExisteCorreoAsync(dto.Correo);
+                if (correoExiste)
+                    throw new InvalidOperationException(
+                        "El correo ingresado ya está registrado por otro usuario.");
+            }
 
             entity.NombreCompleto = dto.NombreCompleto;
             entity.Correo = dto.Correo;
+            entity.EstadoUsuario = dto.EstadoUsuario;
             await repositoryUsuario.UpdateAsync(entity);
         }
 
         public async Task ToggleEstadoAsync(int id)
         {
             await repositoryUsuario.ToggleEstadoAsync(id);
+        }
+
+        public async Task UpdateEstadoAsync(int id, bool nuevoEstado)
+        {
+            var entity = await repositoryUsuario.GetByIdAsync(id);
+            if (entity == null)
+                throw new Exception("Usuario no encontrado.");
+
+            entity.EstadoUsuario = nuevoEstado;
+            await repositoryUsuario.UpdateAsync(entity);
         }
     }
 }

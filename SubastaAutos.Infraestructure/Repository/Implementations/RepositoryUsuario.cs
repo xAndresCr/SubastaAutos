@@ -63,7 +63,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
         {
             _context.Entry(entity).Property(u => u.NombreCompleto).IsModified = true;
             _context.Entry(entity).Property(u => u.Correo).IsModified = true;
-
+            _context.Entry(entity).Property(u => u.EstadoUsuario).IsModified = true; 
             await _context.SaveChangesAsync();
         }
 

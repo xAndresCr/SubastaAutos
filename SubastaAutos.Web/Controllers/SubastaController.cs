@@ -122,7 +122,7 @@ namespace SubastaAutos.Web.Controllers
             ViewBag.VendedorNombre = autoVendedor?.Propietario ?? "Usuario #1";
         }
 
-        // ── CREATE GET ──────────────────────────────────────────
+        // CREATE GET 
         public async Task<IActionResult> Create()
         {
             await LoadCombosAsync();
@@ -136,7 +136,7 @@ namespace SubastaAutos.Web.Controllers
             });
         }
 
-        // ── CREATE POST ─────────────────────────────────────────
+        // CREATE POST 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SubastaDTO dto)
@@ -193,7 +193,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // ── EDIT GET ────────────────────────────────────────────
+        // EDIT GET 
         public async Task<IActionResult> Edit(int id)
         {
             try
@@ -223,7 +223,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // ── EDIT POST ───────────────────────────────────────────
+        // EDIT POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, SubastaDTO dto)
@@ -274,7 +274,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // ── PUBLICAR ────────────────────────────────────────────
+        //PUBLICAR
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Publicar(int id)
@@ -295,7 +295,7 @@ namespace SubastaAutos.Web.Controllers
             return RedirectToAction(nameof(IndexAdmin));
         }
 
-        // ── CANCELAR ────────────────────────────────────────────
+        //CANCELAR 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancelar(int id)

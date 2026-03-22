@@ -18,7 +18,7 @@
     <input type="hidden" asp-for="IdEstadoSubasta" />
     <input type="hidden" asp-for="FechaCreacion" />
 
-    @* ── Campos no editables (mostrar) ── *@
+
     <div class="col-md-4">
         <label class="form-label">Vendedor</label>
         <input type="text" class="form-control" value="@Model.Vendedor" readonly />
@@ -34,7 +34,7 @@
         <input type="text" class="form-control" value="@Model.EstadoSubasta" readonly />
     </div>
 
-    @* ── Campos editables ── *@
+
     <div class="col-md-6">
         <label asp-for="FechaInicio" class="form-label"></label>
         <input asp-for="FechaInicio" class="form-control" type="datetime-local" step="1" />

@@ -45,7 +45,7 @@ namespace SubastaAutos.Application.DTOs
         [DisplayName("Fecha de Registro")]
         public DateTime? FechaRegistro { get; set; }
 
-        // ── Campos calculados (solo lectura, para listado/detalle) ──
+  
 
         [DisplayName("Auto")]
         public string NombreAuto { get; set; } = string.Empty;
