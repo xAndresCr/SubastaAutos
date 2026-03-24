@@ -15,19 +15,19 @@
     <input type="hidden" asp-for="IdVendedor" />
     <input type="hidden" asp-for="IdEstadoSubasta" />
 
-    @* ── Vendedor (no editable) ── *@
+    @*Vendedor (no editable)  *@
     <div class="col-md-6">
         <label class="form-label">Vendedor</label>
         <input type="text" class="form-control" value="@ViewBag.VendedorNombre" readonly />
     </div>
 
-    @* ── Estado (no editable) ── *@
+    @*  Estado (no editable)  *@
     <div class="col-md-6">
         <label class="form-label">Estado</label>
         <input type="text" class="form-control" value="Borrador" readonly />
     </div>
 
-    @* ── Auto ── *@
+    @* Auto *@
     <div class="col-12">
         <label asp-for="IdAuto" class="form-label">Auto a subastar</label>
         <select asp-for="IdAuto" class="form-select" asp-items="ViewBag.ListAutos">

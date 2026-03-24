@@ -14,6 +14,10 @@ namespace SubastaAutos.Application.DTOs
         [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un auto")]
         public int IdAuto { get; set; }
 
+        //este debió ser el correcto
+        //[Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un auto.")]
+       // public int IdAuto { get; set; }
+
         [DisplayName("Fecha de Inicio")]
         [Required(ErrorMessage = "La fecha de inicio es requerida")]
         public DateTime FechaInicio { get; set; }

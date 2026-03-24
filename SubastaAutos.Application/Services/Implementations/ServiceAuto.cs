@@ -88,7 +88,7 @@ namespace SubastaAutos.Application.Services.Implementations
         public async Task EliminarLogicoAsync(int id)
         {
             // Validar: no puede tener subastas asociadas
-            bool tieneSubastas = await _repository.TieneSubastasAsync(id);
+            bool tieneSubastas = await _repository.TieneSubastaActivaAsync(id);
             if (tieneSubastas)
                 throw new InvalidOperationException("No se puede eliminar: el auto tiene subastas asociadas.");
 

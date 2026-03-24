@@ -90,6 +90,7 @@ namespace SubastaAutos.Application.Services.Implementations
             await repositoryUsuario.UpdateAsync(entity);
         }
 
+       
         public async Task ToggleEstadoAsync(int id)
         {
             await repositoryUsuario.ToggleEstadoAsync(id);

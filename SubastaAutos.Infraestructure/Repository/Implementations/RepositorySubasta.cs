@@ -106,7 +106,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             await _context.SaveChangesAsync();
         }
 
-        // ── VALIDACIONES ────────────────────────────────────────
+        // ── VALIDACIONES 
         public async Task<bool> TienePujasAsync(int id)
         {
             return await _context.Set<Puja>()

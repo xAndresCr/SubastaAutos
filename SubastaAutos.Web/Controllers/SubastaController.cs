@@ -67,7 +67,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // ── PUJAS (historial) ───────────────────────────────────
+        // PUJAS (historial) 
         public async Task<IActionResult> Pujas(int? id)
         {
             try

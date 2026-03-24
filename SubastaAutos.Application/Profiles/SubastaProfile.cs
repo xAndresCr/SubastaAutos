@@ -8,7 +8,6 @@ namespace SubastaAutos.Application.Profiles
     {
         public SubastaProfile()
         {
-            // ── ENTIDAD → DTO (lectura) ─────────────────────────
             CreateMap<Subasta, SubastaDTO>()
                 .ForMember(d => d.NombreAuto,
                     o => o.MapFrom(s =>
