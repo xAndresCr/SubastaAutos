@@ -24,5 +24,41 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<int> AddAsync(Puja entity)
+        {
+            await _context.Set<Puja>().AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity.IdPuja;
+        }
+
+        public async Task<bool> EsLiderAsync(int idSubasta, int idUsuario)
+        {
+            var lider = await GetPujaLiderAsync(idSubasta);
+            return lider?.IdUsuario == idUsuario;
+        }
+
+        public Task<List<Puja>> GetBySubastaAsync(int idSubasta)
+        {
+            throw new NotImplementedException();
+        }
+
+        // Obtener la puja más alta de una subasta
+        public async Task<Puja?> GetPujaLiderAsync(int idSubasta)
+        {
+            return await _context.Set<Puja>()
+                .Include(p => p.IdUsuarioNavigation)
+                .Where (p => p.IdSubasta == idSubasta)
+                .OrderByDescending(p => p.Monto)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> UsuarioTienePujaAsync(int idSubasta, int idUsuario)
+        {
+            return await _context.Set<Puja>()
+             .AnyAsync(p => p.IdSubasta == idSubasta && p.IdUsuario == idUsuario);
+
+        }
+
     }
 }
