@@ -130,5 +130,11 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
 
             return await query.AnyAsync();
         }
+
+        public async Task GuardarResultadoAsync(ResultadoSubasta resultado)
+        {
+            await _context.Set<ResultadoSubasta>().AddAsync(resultado);
+            await _context.SaveChangesAsync();
+        }
     }
 }

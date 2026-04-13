@@ -5,6 +5,7 @@ using SubastaAutos.Application.Services.Interfaces;
 using SubastaAutos.Infraestructure.Data;
 using SubastaAutos.Infraestructure.Repository.Implementations;
 using SubastaAutos.Infraestructure.Repository.Interfaces;
+using SubastaAutos.Web.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +28,7 @@ builder.Services.AddSession(options =>
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSignalR();
 
 
 //***********
@@ -102,6 +104,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.MapHub<SubastaHub>("/subastaHub");
+
 app.UseAuthorization();
 app.MapStaticAssets();
 

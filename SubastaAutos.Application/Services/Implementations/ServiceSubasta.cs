@@ -124,5 +124,37 @@ namespace SubastaAutos.Application.Services.Implementations
 
             return true;
         }
+
+        public async Task CerrarAsync(int id)
+        {
+            var entity = await _repository.FindByIdAsync(id);
+            if (entity == null)
+                throw new Exception("Subasta no encontrada.");
+
+            // Solo se puede cerrar si está Activa
+            if (entity.IdEstadoSubasta != 1)
+                throw new InvalidOperationException(
+                    "Solo se puede cerrar una subasta activa.");
+
+            // Cambiar estado a Finalizada
+            await _repository.UpdateEstadoAsync(id, 2);
+            // Determinar ganador — la puja de mayor monto
+            var pujaGanadora = entity.Puja
+                .OrderByDescending(p => p.Monto)
+                .FirstOrDefault();
+
+            // Si hubo pujas, guardar el resultado
+            if (pujaGanadora != null)
+            {
+                var resultado = new ResultadoSubasta
+                {
+                    IdSubasta = id,
+                    IdUsuarioGanador = pujaGanadora.IdUsuario,
+                    MontoFinal = pujaGanadora.Monto,
+                    FechaCierreReal = DateTime.Now
+                };
+                await _repository.GuardarResultadoAsync(resultado);
+            }
+        }
     }
 }

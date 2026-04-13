@@ -1,8 +1,10 @@
 using Libreria.Web.Util;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using SubastaAutos.Application.DTOs;
 using SubastaAutos.Application.Services.Interfaces;
+using SubastaAutos.Web.Hubs;
 
 namespace SubastaAutos.Web.Controllers
 {
@@ -11,41 +13,44 @@ namespace SubastaAutos.Web.Controllers
         private readonly IServiceSubasta _serviceSubasta;
         private readonly IServicePuja _servicePuja;
         private readonly IServiceAuto _serviceAuto;
+        private readonly IHubContext<SubastaHub> _hubContext;
 
         private const int VendedorSimuladoId = 1;
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
             IServicePuja servicePuja,
-            IServiceAuto serviceAuto)
+            IServiceAuto serviceAuto,
+            IHubContext<SubastaHub> hubContext)
         {
             _serviceSubasta = serviceSubasta;
             _servicePuja = servicePuja;
             _serviceAuto = serviceAuto;
+            _hubContext = hubContext;
         }
 
-        // ── LISTADO PÚBLICO: Activas ────────────────────────────
+        // ── LISTADO PÚBLICO: Activas 
         public async Task<IActionResult> Index()
         {
             var collection = await _serviceSubasta.ListActivasAsync();
             return View(collection);
         }
 
-        // ── LISTADO PÚBLICO: Finalizadas ────────────────────────
+        // ── LISTADO PÚBLICO: Finalizadas 
         public async Task<IActionResult> Finalizadas()
         {
             var collection = await _serviceSubasta.ListFinalizadasAsync();
             return View(collection);
         }
 
-        // ── LISTADO ADMIN: Todas ────────────────────────────────
+        // ── LISTADO ADMIN: Todas 
         public async Task<IActionResult> IndexAdmin()
         {
             var collection = await _serviceSubasta.ListAsync();
             return View(collection);
         }
 
-        // ── DETALLE ─────────────────────────────────────────────
+        // ── DETALLE 
         public async Task<IActionResult> Details(int? id)
         {
             try
@@ -56,6 +61,11 @@ namespace SubastaAutos.Web.Controllers
                 var dto = await _serviceSubasta.FindByIdAsync(id.Value);
                 if (dto == null)
                     throw new Exception("Subasta no encontrada.");
+
+                //Mensahe de notificación si la puja fue superada
+                ViewBag.PujaFueSuperada = await _servicePuja
+                .PujaFueSuperadaAsync(id.Value, VendedorSimuladoId);
+                ViewBag.UsuarioActualId = VendedorSimuladoId;
 
                 return View(dto);
             }
@@ -85,6 +95,108 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
+        //AJAX: REGISTRAR PUJA
+        [HttpPost]
+        public async Task<IActionResult> Pujar([FromBody] PujaDTO dto)
+        {
+            try
+            {
+                await _servicePuja.AddAsync(dto, VendedorSimuladoId);
+
+                // Obtener la nueva puja líder para devolver al cliente
+                var lider = await _servicePuja.GetPujaLiderAsync(dto.IdSubasta);
+
+                // Notificar a todos los que están viendo esta subasta
+                await _hubContext.Clients
+                    .Group($"subasta-{dto.IdSubasta}")
+                    .SendAsync("NuevaPuja", new
+                    {
+                        montoLider = lider?.Monto,
+                        nombreLider = lider?.NombrePostor,
+                        fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                        nombrePostor = lider?.NombrePostor,
+                        monto = dto.Monto
+                    });
+
+                return Json(new { success = true, mensaje = "Puja registrada exitosamente." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new { success = false, mensaje = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, mensaje = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EstadoSubasta(int id)
+        {
+            try
+            {
+                var subasta = await _serviceSubasta.FindByIdAsync(id);
+                if (subasta == null)
+                    return Json(new { success = false });
+
+                var lider = await _servicePuja.GetPujaLiderAsync(id);
+                bool pujaFueSuperada = await _servicePuja
+                    .PujaFueSuperadaAsync(id, VendedorSimuladoId);
+
+                // Notificar a todos los clientes del grupo el estado actual
+                await _hubContext.Clients
+                    .Group($"subasta-{id}")
+                    .SendAsync("EstadoActualizado", new
+                    {
+                        idEstado = subasta.IdEstadoSubasta,
+                        estadoNombre = subasta.EstadoSubasta,
+                        montoLider = lider?.Monto ?? subasta.PrecioBase,
+                        nombreLider = lider?.NombrePostor ?? "Sin pujas",
+                        pujaFueSuperada
+                    });
+
+                return Json(new
+                {
+                    success = true,
+                    idEstado = subasta.IdEstadoSubasta,
+                    estadoNombre = subasta.EstadoSubasta,
+                    montoLider = lider?.Monto ?? subasta.PrecioBase,
+                    nombreLider = lider?.NombrePostor ?? "Sin pujas",
+                    pujaFueSuperada
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, mensaje = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CerrarSubasta(int id)
+        {
+            try
+            {
+                await _serviceSubasta.CerrarAsync(id);
+
+                var lider = await _servicePuja.GetPujaLiderAsync(id);
+
+                // Notificar a todos los clientes que la subasta fue cerrada
+                await _hubContext.Clients
+                    .Group($"subasta-{id}")
+                    .SendAsync("SubastaCerrada", new
+                    {
+                        mensaje = "La subasta ha finalizado.",
+                        ganador = lider?.NombrePostor ?? "Sin ganador",
+                        montoFinal = lider?.Monto ?? 0
+                    });
+
+                return Json(new { success = true, mensaje = "Subasta cerrada exitosamente." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new { success = false, mensaje = ex.Message });
+            }
+        }
         private async Task LoadCombosAsync(int? selectedAutoId = null)
         {
             var autos = await _serviceAuto.ListAsync();
