@@ -15,7 +15,7 @@ namespace SubastaAutos.Web.Controllers
         private readonly IServiceAuto _serviceAuto;
         private readonly IHubContext<SubastaHub> _hubContext;
 
-        private const int VendedorSimuladoId = 1;
+        private const int VendedorSimuladoId = 4;
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
@@ -130,6 +130,29 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
+        // ── VISTA DE PUJAS (GET) ─────────────────────────────────────
+        [HttpGet]
+        public async Task<IActionResult> Pujar(int id)
+        {
+            try
+            {
+                var dto = await _serviceSubasta.FindByIdAsync(id);
+                if (dto == null)
+                    throw new Exception("Subasta no encontrada.");
+
+                ViewBag.PujaFueSuperada = await _servicePuja
+                    .PujaFueSuperadaAsync(id, VendedorSimuladoId);
+                ViewBag.UsuarioActualId = VendedorSimuladoId;
+
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Error", ex.Message, SweetAlertMessageType.error);
+                return RedirectToAction(nameof(Index));
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> EstadoSubasta(int id)
         {

@@ -35,22 +35,31 @@ namespace SubastaAutos.Application.Services.Implementations
            
             //Obtener el monto más alto o actual 
             var pujaLider = await _repository.GetPujaLiderAsync(dto.IdSubasta);
-            //asigna el monto actual al monto de la puja más alta, si no hay pujas deja el precio base de la subasta
-            decimal montoActual = pujaLider?.Monto ?? subasta.PrecioBase;
 
-            // 5. Validar monto mayor que puja actual
-            if (dto.Monto <= montoActual)
+            decimal montoMinimo;
+
+            if (pujaLider != null)
+            {
+                // Ya hay pujas
+                montoMinimo = pujaLider.Monto + subasta.IncrementoMinimo;
+            }
+            else
+            {
+                //Primera puja también aplica incremento
+                montoMinimo = subasta.PrecioBase + subasta.IncrementoMinimo;
+            }
+
+            // 5. Validación única 
+            if (dto.Monto < montoMinimo)
                 throw new InvalidOperationException(
-                    $"El monto debe ser mayor que la puja actual (₡{montoActual:N2}).");
+                    $"El monto debe ser al menos ₡{montoMinimo:N2}.");
 
-            // 6. Validar incremento mínimo
-            if (dto.Monto < montoActual + subasta.IncrementoMinimo)
-                throw new InvalidOperationException(
-                    $"El monto debe cumplir el incremento mínimo de ₡{subasta.IncrementoMinimo:N2}.");
-
+            // 6. Crear entidad
             var entity = _mapper.Map<Puja>(dto);
             entity.IdUsuario = idUsuarioActual;
             entity.FechaHora = DateTime.Now;
+
+            // 7. Guardar
             return await _repository.AddAsync(entity);
 
         }

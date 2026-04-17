@@ -1,0 +1,377 @@
+﻿@model SubastaAutos.Application.DTOs.SubastaDTO
+@{
+    ViewData["Title"] = $"Subasta #{Model.IdSubasta}";
+    var esActiva = Model.EstadoSubasta == "Activa";
+    var pujaFueSuperada = (bool)(ViewBag.PujaFueSuperada ?? false);
+    var culture = new System.Globalization.CultureInfo("es-CR");
+}
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>
+        <span data-i18n="common.backToList">Volver al listado</span>
+    </a>
+</div>
+
+@* ── Notificación puja superada ── *@
+@if (pujaFueSuperada)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>¡Su puja ha sido superada!</strong> Otro usuario realizó una oferta mayor.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="row g-4">
+
+    @* ── Columna izquierda: imagen ── *@
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0">
+            <div class="overflow-hidden bg-body-tertiary rounded" style="min-height:300px;">
+                @if (!string.IsNullOrWhiteSpace(Model.ImagenPrincipalAuto))
+                {
+                    <img class="w-100 h-100 object-fit-cover"
+                         src="@Model.ImagenPrincipalAuto"
+                         alt="@Model.NombreAuto" />
+                }
+                else
+                {
+                    <div class="d-flex flex-column justify-content-center
+                                    align-items-center h-100 text-muted py-5">
+                        <i class="bi bi-car-front" style="font-size:4rem;"></i>
+                        <span>Sin imagen disponible</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* ── Formulario de puja ── *@
+        @if (esActiva)
+        {
+            <div class="card shadow-sm border-0 mt-3" id="cardPujar">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="bi bi-cash-coin me-2"></i>Realizar Puja
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <span class="input-group-text">₡</span>
+                        <input type="number" id="montoPuja" class="form-control"
+                               placeholder="Ingrese su oferta" min="0" step="0.01" />
+                        <button class="btn btn-success" id="btnPujar">
+                            <i class="bi bi-hammer me-1"></i> Pujar
+                        </button>
+                    </div>
+                    <div id="mensajePuja" class="mt-2"></div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-secondary mt-3">
+                <i class="bi bi-lock me-2"></i>
+                Esta subasta no está activa. No se pueden realizar pujas.
+            </div>
+        }
+    </div>
+
+    @* ── Columna derecha: info de la subasta ── *@
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-secondary text-white">
+                <h1 class="h5 mb-0">
+                    <i class="bi bi-hammer me-2"></i>@Model.NombreAuto
+                </h1>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+
+                    <dt class="col-5 text-muted">Vendedor</dt>
+                    <dd class="col-7">@Model.Vendedor</dd>
+
+                    <dt class="col-5 text-muted">Fecha de Inicio</dt>
+                    <dd class="col-7">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        @Model.FechaInicio.ToString("dd/MM/yyyy HH:mm")
+                    </dd>
+
+                    <dt class="col-5 text-muted">Fecha de Cierre</dt>
+                    <dd class="col-7">
+                        <i class="bi bi-calendar-x me-1"></i>
+                        @Model.FechaCierre.ToString("dd/MM/yyyy HH:mm")
+                    </dd>
+
+                    <dt class="col-5 text-muted">Precio Base</dt>
+                    <dd class="col-7">
+                        <span class="fw-semibold">
+                            @Model.PrecioBase.ToString("C", culture)
+                        </span>
+                    </dd>
+
+                    <dt class="col-5 text-muted">Incremento Mínimo</dt>
+                    <dd class="col-7">
+                        @Model.IncrementoMinimo.ToString("C", culture)
+                    </dd>
+
+                    <dt class="col-5 text-muted">Estado</dt>
+                    <dd class="col-7">
+                        @if (Model.EstadoSubasta == "Activa")
+                        {
+                            <span class="badge text-bg-success">@Model.EstadoSubasta</span>
+                        }
+                        else if (Model.EstadoSubasta == "Finalizada")
+                        {
+                            <span class="badge text-bg-secondary">@Model.EstadoSubasta</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-danger">@Model.EstadoSubasta</span>
+                        }
+                    </dd>
+
+                    @* ── Puja más alta ── *@
+                    <dt class="col-5 text-muted">Puja Más Alta</dt>
+                    <dd class="col-7">
+                        <span class="fw-bold text-success fs-5" id="montoLider">
+                            @if (Model.Pujas.Any())
+                            {
+                                @Model.Pujas.First().Monto.ToString("C", culture)
+                            }
+                            else
+                            {
+                                <span class="text-muted">Sin pujas</span>
+                            }
+                        </span>
+                    </dd>
+
+                    @* ── Usuario líder ── *@
+                    <dt class="col-5 text-muted">Usuario Líder</dt>
+                    <dd class="col-7">
+                        <span id="nombreLider">
+                            @(Model.Pujas.Any() ? Model.Pujas.First().NombrePostor : "Sin pujas")
+                        </span>
+                    </dd>
+
+                    <dt class="col-5 text-muted">Fecha de Creación</dt>
+                    <dd class="col-7">
+                        @(Model.FechaCreacion.HasValue
+                                                ? Model.FechaCreacion.Value.ToString("dd/MM/yyyy HH:mm")
+                                                : "—")
+                    </dd>
+
+                </dl>
+
+                @* ── Contador de tiempo restante ── *@
+                <hr class="my-3" />
+                <div class="text-center p-3 bg-light rounded">
+                    <span class="text-muted small d-block">Tiempo Restante</span>
+                    <span id="contador" class="fs-2 fw-bold text-danger">--:--:--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ── Historial de pujas ── *@
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-dark text-white">
+        <h6 class="mb-0">
+            <i class="bi bi-clock-history me-2"></i>Historial de Pujas
+        </h6>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Usuario</th>
+                    <th>Monto</th>
+                    <th>Fecha y Hora</th>
+                </tr>
+            </thead>
+            <tbody id="historialPujas">
+                @if (Model.Pujas.Any())
+                {
+                    @foreach (var puja in Model.Pujas)
+                    {
+                        <tr>
+                            <td>@puja.NombrePostor</td>
+                            <td>@puja.Monto.ToString("C", culture)</td>
+                            <td>@puja.FechaHora?.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr id="sinPujas">
+                        <td colspan="3" class="text-center text-muted py-3">
+                            No hay pujas registradas aún.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const idSubasta = @Model.IdSubasta;
+        const fechaCierre = new Date("@Model.FechaCierre.ToString("yyyy-MM-ddTHH:mm:ss")");
+        const esActiva = @esActiva.ToString().ToLower();
+
+        // ── CONTADOR ─────────────────────────────────────────────
+        function actualizarContador() {
+            const ahora = new Date();
+            const diferencia = fechaCierre - ahora;
+
+            if (diferencia <= 0) {
+                document.getElementById("contador").textContent = "00:00:00";
+                if (esActiva) cerrarSubasta();
+                return;
+            }
+
+            const horas = Math.floor(diferencia / (1000 * 60 * 60));
+            const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+
+            document.getElementById("contador").textContent =
+                `${String(horas).padStart(2, '0')}:` +
+                `${String(minutos).padStart(2, '0')}:` +
+                `${String(segundos).padStart(2, '0')}`;
+        }
+
+        const intervaloContador = setInterval(actualizarContador, 1000);
+        actualizarContador();
+
+        // ── CERRAR SUBASTA ───────────────────────────────────────
+        let yaSeCerro = false;
+        async function cerrarSubasta() {
+            if (yaSeCerro) return;
+            yaSeCerro = true;
+            clearInterval(intervaloContador);
+
+            const response = await fetch(`/Subasta/CerrarSubasta?id=${idSubasta}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                const cardPujar = document.getElementById("cardPujar");
+                if (cardPujar) {
+                    cardPujar.innerHTML = `
+                        <div class="card-body">
+                            <div class="alert alert-danger mb-0">
+                                <i class="bi bi-lock-fill me-2"></i>
+                                <strong>Subasta finalizada.</strong> No se aceptan más pujas.
+                            </div>
+                        </div>`;
+                }
+            }
+        }
+
+        // ── SIGNALR ──────────────────────────────────────────────
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/subastaHub")
+            .withAutomaticReconnect()
+            .build();
+
+        // Nueva puja en tiempo real
+        connection.on("NuevaPuja", function (data) {
+            document.getElementById("montoLider").innerHTML =
+                `₡${Number(data.montoLider).toLocaleString('es-CR',
+                    { minimumFractionDigits: 2 })}`;
+            document.getElementById("nombreLider").textContent = data.nombreLider;
+
+            const sinPujas = document.getElementById("sinPujas");
+            if (sinPujas) sinPujas.remove();
+
+            const historial = document.getElementById("historialPujas");
+            historial.insertAdjacentHTML("afterbegin", `
+                <tr>
+                    <td>${data.nombrePostor}</td>
+                    <td>₡${Number(data.monto).toLocaleString('es-CR',
+                        { minimumFractionDigits: 2 })}</td>
+                    <td>${data.fechaHora}</td>
+                </tr>`);
+        });
+
+        // Estado actualizado
+        connection.on("EstadoActualizado", function (data) {
+            document.getElementById("montoLider").innerHTML =
+                `₡${Number(data.montoLider).toLocaleString('es-CR',
+                    { minimumFractionDigits: 2 })}`;
+            document.getElementById("nombreLider").textContent = data.nombreLider;
+
+            if (data.pujaFueSuperada) {
+                const alerta = document.createElement("div");
+                alerta.className = "alert alert-warning alert-dismissible fade show mt-2";
+                alerta.innerHTML = `
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>¡Su puja ha sido superada!</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+                document.querySelector(".container").prepend(alerta);
+            }
+        });
+
+        // Subasta cerrada
+        connection.on("SubastaCerrada", function (data) {
+            clearInterval(intervaloContador);
+            document.getElementById("contador").textContent = "00:00:00";
+
+            const cardPujar = document.getElementById("cardPujar");
+            if (cardPujar) {
+                cardPujar.innerHTML = `
+                    <div class="card-body">
+                        <div class="alert alert-danger mb-0">
+                            <i class="bi bi-lock-fill me-2"></i>
+                            <strong>Subasta finalizada.</strong><br/>
+                            Ganador: <strong>${data.ganador}</strong><br/>
+                            Monto final: <strong>₡${Number(data.montoFinal)
+                                .toLocaleString('es-CR',
+                                    { minimumFractionDigits: 2 })}</strong>
+                        </div>
+                    </div>`;
+            }
+        });
+
+        // Iniciar conexión
+        connection.start()
+            .then(() => connection.invoke("UnirseASubasta", idSubasta.toString()))
+            .catch(err => console.error("SignalR error:", err));
+
+        // ── BOTÓN PUJAR ──────────────────────────────────────────
+        if (esActiva) {
+            document.getElementById("btnPujar").addEventListener("click", async function () {
+                const monto = parseFloat(document.getElementById("montoPuja").value);
+                const mensajeDiv = document.getElementById("mensajePuja");
+
+                if (!monto || monto <= 0) {
+                    mensajeDiv.innerHTML = `<div class="alert alert-warning py-2">
+                        Ingrese un monto válido.</div>`;
+                    return;
+                }
+
+                const response = await fetch("/Subasta/Pujar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idSubasta: idSubasta, monto: monto })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mensajeDiv.innerHTML = `<div class="alert alert-success py-2">
+                        ${data.mensaje}</div>`;
+                    document.getElementById("montoPuja").value = "";
+                } else {
+                    mensajeDiv.innerHTML = `<div class="alert alert-danger py-2">
+                        ${data.mensaje}</div>`;
+                }
+            });
+        }
+    </script>
+}

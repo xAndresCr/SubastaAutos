@@ -17,8 +17,10 @@ namespace SubastaAutos.Application.Profiles
 
             // DTO → Entidad (para registrar puja)
             CreateMap<PujaDTO, Puja>()
+                .ForMember(d => d.IdPuja, o => o.Ignore())
                 .ForMember(d => d.IdUsuarioNavigation, o => o.Ignore())
                 .ForMember(d => d.IdSubastaNavigation, o => o.Ignore());
+                
 
         }
     }
