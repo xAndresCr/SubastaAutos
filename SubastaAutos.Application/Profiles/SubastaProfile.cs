@@ -28,8 +28,10 @@ namespace SubastaAutos.Application.Profiles
                     o => o.MapFrom(s => s.IdEstadoSubastaNavigation.Nombre))
                 .ForMember(d => d.CantidadPujas,
                     o => o.MapFrom(s => s.Puja.Count))
-                .ForMember(d => d.Pujas,
-                    o => o.MapFrom(s => s.Puja));
+               .ForMember(d => d.Pujas,
+                         o => o.MapFrom(s => s.Puja
+        .OrderByDescending(p => p.Monto) // ← agregar esto
+        .ToList()));
 
             // ── DTO → ENTIDAD (crear/editar) ────────────────────
             CreateMap<SubastaDTO, Subasta>()

@@ -130,14 +130,16 @@
                             <span class="badge text-bg-danger">@Model.EstadoSubasta</span>
                         }
                     </dd>
-
+                    @{
+                        var pujaLider = Model.Pujas.OrderByDescending(p => p.Monto).FirstOrDefault();
+                    }
                     @* ── Puja más alta ── *@
                     <dt class="col-5 text-muted">Puja Más Alta</dt>
                     <dd class="col-7">
                         <span class="fw-bold text-success fs-5" id="montoLider">
-                            @if (Model.Pujas.Any())
+                            @if (pujaLider != null)
                             {
-                                @Model.Pujas.First().Monto.ToString("C", culture)
+                                @pujaLider.Monto.ToString("C", culture)
                             }
                             else
                             {
@@ -150,7 +152,7 @@
                     <dt class="col-5 text-muted">Usuario Líder</dt>
                     <dd class="col-7">
                         <span id="nombreLider">
-                            @(Model.Pujas.Any() ? Model.Pujas.First().NombrePostor : "Sin pujas")
+                            @(pujaLider?.NombrePostor ?? "Sin pujas")
                         </span>
                     </dd>
 
@@ -162,7 +164,7 @@
                     </dd>
 
                 </dl>
-
+                
                 @* ── Contador de tiempo restante ── *@
                 <hr class="my-3" />
                 <div class="text-center p-3 bg-light rounded">
@@ -222,7 +224,7 @@
         const fechaCierre = new Date("@Model.FechaCierre.ToString("yyyy-MM-ddTHH:mm:ss")");
         const esActiva = @esActiva.ToString().ToLower();
 
-        // ── CONTADOR ─────────────────────────────────────────────
+        //  CONTADOR 
         function actualizarContador() {
             const ahora = new Date();
             const diferencia = fechaCierre - ahora;
@@ -246,7 +248,7 @@
         const intervaloContador = setInterval(actualizarContador, 1000);
         actualizarContador();
 
-        // ── CERRAR SUBASTA ───────────────────────────────────────
+        // CERRAR SUBASTA 
         let yaSeCerro = false;
         async function cerrarSubasta() {
             if (yaSeCerro) return;
@@ -273,7 +275,7 @@
             }
         }
 
-        // ── SIGNALR ──────────────────────────────────────────────
+        // SIGNALR 
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/subastaHub")
             .withAutomaticReconnect()
@@ -343,7 +345,7 @@
             .then(() => connection.invoke("UnirseASubasta", idSubasta.toString()))
             .catch(err => console.error("SignalR error:", err));
 
-        // ── BOTÓN PUJAR ──────────────────────────────────────────
+        // BOTÓN PUJAR
         if (esActiva) {
             document.getElementById("btnPujar").addEventListener("click", async function () {
                 const monto = parseFloat(document.getElementById("montoPuja").value);
@@ -367,6 +369,27 @@
                     mensajeDiv.innerHTML = `<div class="alert alert-success py-2">
                         ${data.mensaje}</div>`;
                     document.getElementById("montoPuja").value = "";
+
+                    //Actualiza la vara para el que hizo la puja localmente 
+
+                     document.getElementById("montoLider").innerHTML =
+                `₡${Number(data.montoLider).toLocaleString('es-CR',
+                    { minimumFractionDigits: 2 })}`;
+            document.getElementById("nombreLider").textContent = data.nombreLider;
+
+            //Quita el mensaje de "Sin Pujas"
+             const sinPujas = document.getElementById("sinPujas");
+            if (sinPujas) sinPujas.remove();
+
+            //Actualiza la tabla de pujas una vez se inserta una puja por parte del usuario
+            const historial = document.getElementById("historialPujas");
+            historial.insertAdjacentHTML("afterbegin", `
+                <tr>
+                    <td>${data.nombrePostor}</td>
+                    <td>₡${Number(data.monto).toLocaleString('es-CR',
+                        { minimumFractionDigits: 2 })}</td>
+                    <td>${data.fechaHora}</td>
+                </tr>`);
                 } else {
                     mensajeDiv.innerHTML = `<div class="alert alert-danger py-2">
                         ${data.mensaje}</div>`;

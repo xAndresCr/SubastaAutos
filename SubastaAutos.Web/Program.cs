@@ -7,35 +7,24 @@ using SubastaAutos.Infraestructure.Repository.Implementations;
 using SubastaAutos.Infraestructure.Repository.Interfaces;
 using SubastaAutos.Web.Hubs;
 
-
 var builder = WebApplication.CreateBuilder(args);
-
 
 // Cache en memoria (requerido por Session)
 builder.Services.AddDistributedMemoryCache();
 
-//Registrar Session con opciones
+// ← Solo UNA vez AddSession
 builder.Services.AddSession(options =>
 {
-    // Tiempo m�ximo sin actividad antes de expirar la sesi�n
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
-
-    // Opciones de la cookie de sesi�n
-    options.Cookie.HttpOnly = true;          // No accesible desde JS
-    options.Cookie.IsEssential = true;       // Necesaria aunque haya consentimiento de cookies
-    options.Cookie.Name = ".Libreria.Session";
+    options.IdleTimeout = TimeSpan.FromHours(1);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.Name = ".SubastaAutos.Session";
 });
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR();
 
-
-//***********
-// =======================
-// Configurar Dependency Injection
-// =======================
-//*** Repositories
+// Repositories
 builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();
 builder.Services.AddTransient<IRepositoryUsuario, RepositoryUsuario>();
 builder.Services.AddTransient<IRepositoryAuto, RepositoryAuto>();
@@ -44,7 +33,8 @@ builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
 builder.Services.AddTransient<IRepositoryCategoria, RepositoryCategoria>();
 builder.Services.AddTransient<IRepositoryCondicionAuto, RepositoryCondicionAuto>();
 builder.Services.AddTransient<IRepositoryEstadoAuto, RepositoryEstadoAuto>();
-//*** Services
+
+// Services
 builder.Services.AddTransient<IServiceRolUsuario, ServiceRolUsuario>();
 builder.Services.AddTransient<IServiceUsuario, ServiceUsuario>();
 builder.Services.AddTransient<IServiceAuto, ServiceAuto>();
@@ -53,12 +43,10 @@ builder.Services.AddTransient<IServicePuja, ServicePuja>();
 builder.Services.AddTransient<IServiceCategoria, ServiceCategoria>();
 builder.Services.AddTransient<IServiceCondicionAuto, ServiceCondicionAuto>();
 builder.Services.AddTransient<IServiceEstadoAuto, ServiceEstadoAuto>();
-// =======================
-// Configurar AutoMapper
-// =======================
+
+// AutoMapper
 builder.Services.AddAutoMapper(config =>
 {
-    //*** Profiles
     config.AddProfile<RolUsuarioProfile>();
     config.AddProfile<UsuarioProfile>();
     config.AddProfile<CategoriaProfile>();
@@ -70,44 +58,41 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<PujaProfile>();
     config.AddProfile<SubastaProfile>();
 });
-// =======================
-// Configurar SQL Server DbContext
-// =======================
+
+// SQL Server
 var connectionString = builder.Configuration.GetConnectionString("SqlServerDataBase");
 if (string.IsNullOrWhiteSpace(connectionString))
 {
     throw new InvalidOperationException(
-    "No se encontró la cadena de conexión 'SqlServerDataBase' en appsettings.json /appsettings.Development.json." );
+        "No se encontró la cadena de conexión 'SqlServerDataBase'.");
 }
 builder.Services.AddDbContext<SubastaAutosContext>(options =>
 {
     options.UseSqlServer(connectionString, sqlOptions =>
     {
-        // Reintentos ante fallos transitorios (recomendado)
         sqlOptions.EnableRetryOnFailure();
     });
     if (builder.Environment.IsDevelopment())
         options.EnableSensitiveDataLogging();
 });
-//**********
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// ← Orden correcto
+app.UseSession();       // ← antes de UseRouting
 app.UseRouting();
+app.UseAuthorization();
 
 app.MapHub<SubastaHub>("/subastaHub");
-
-app.UseAuthorization();
 app.MapStaticAssets();
 
 app.MapControllerRoute(

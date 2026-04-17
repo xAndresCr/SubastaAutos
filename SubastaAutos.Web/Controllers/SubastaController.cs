@@ -15,7 +15,7 @@ namespace SubastaAutos.Web.Controllers
         private readonly IServiceAuto _serviceAuto;
         private readonly IHubContext<SubastaHub> _hubContext;
 
-        private const int VendedorSimuladoId = 4;
+        public int VendedorSimuladoId { get; private set; }
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
@@ -101,7 +101,7 @@ namespace SubastaAutos.Web.Controllers
         {
             try
             {
-                await _servicePuja.AddAsync(dto, VendedorSimuladoId);
+                await _servicePuja.AddAsync(dto, GetUsuarioActualId());
 
                 // Obtener la nueva puja líder para devolver al cliente
                 var lider = await _servicePuja.GetPujaLiderAsync(dto.IdSubasta);
@@ -118,7 +118,18 @@ namespace SubastaAutos.Web.Controllers
                         monto = dto.Monto
                     });
 
-                return Json(new { success = true, mensaje = "Puja registrada exitosamente." });
+                //Devolver datos completos al cliente que pujó
+
+                return Json(new
+                {
+                    success = true,
+                    mensaje = "Puja registrada exitosamente.",
+                    montoLider = lider?.Monto,
+                    nombreLider = lider?.NombrePostor,
+                    nombrePostor = lider?.NombrePostor,
+                    fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                    monto = dto.Monto
+                });
             }
             catch (InvalidOperationException ex)
             {
@@ -128,6 +139,26 @@ namespace SubastaAutos.Web.Controllers
             {
                 return Json(new { success = false, mensaje = ex.Message });
             }
+        }
+        //Para la sesión
+        private int GetUsuarioActualId()
+        {
+            // Si ya tiene usuario en sesión, lo retorna
+            var idSesion = HttpContext.Session.GetInt32("UsuarioSimulado");
+            if (idSesion.HasValue)
+                return idSesion.Value;
+
+            // Si no tiene, asigna el default y lo guarda en sesión
+            HttpContext.Session.SetInt32("UsuarioSimulado", VendedorSimuladoId);
+            return VendedorSimuladoId;
+        }
+
+        // Solo para pruebas se accede via URL: /Subasta/SimularUsuario/3
+        [HttpGet]
+        public IActionResult SimularUsuario(int id)
+        {
+            HttpContext.Session.SetInt32("UsuarioSimulado", id);
+            return Json(new { success = true, mensaje = $"Usuario simulado cambiado a {id}" });
         }
 
         // ── VISTA DE PUJAS (GET) ─────────────────────────────────────
@@ -141,8 +172,8 @@ namespace SubastaAutos.Web.Controllers
                     throw new Exception("Subasta no encontrada.");
 
                 ViewBag.PujaFueSuperada = await _servicePuja
-                    .PujaFueSuperadaAsync(id, VendedorSimuladoId);
-                ViewBag.UsuarioActualId = VendedorSimuladoId;
+                    .PujaFueSuperadaAsync(id, GetUsuarioActualId());
+                ViewBag.UsuarioActualId = GetUsuarioActualId();
 
                 return View(dto);
             }
@@ -164,7 +195,7 @@ namespace SubastaAutos.Web.Controllers
 
                 var lider = await _servicePuja.GetPujaLiderAsync(id);
                 bool pujaFueSuperada = await _servicePuja
-                    .PujaFueSuperadaAsync(id, VendedorSimuladoId);
+                    .PujaFueSuperadaAsync(id, GetUsuarioActualId());
 
                 // Notificar a todos los clientes del grupo el estado actual
                 await _hubContext.Clients
@@ -253,7 +284,7 @@ namespace SubastaAutos.Web.Controllers
                 "Descripcion",
                 selectedAutoId);
 
-            var autoVendedor = autos.FirstOrDefault(a => a.IdVendedor == VendedorSimuladoId);
+            var autoVendedor = autos.FirstOrDefault(a => a.IdVendedor == GetUsuarioActualId());
             ViewBag.VendedorNombre = autoVendedor?.Propietario ?? "Usuario #1";
         }
 
@@ -263,7 +294,7 @@ namespace SubastaAutos.Web.Controllers
             await LoadCombosAsync();
             return View(new SubastaDTO
             {
-                IdVendedor = VendedorSimuladoId,
+                IdVendedor = GetUsuarioActualId(),
                 IdEstadoSubasta = 4, // Borrador
                 FechaCreacion = DateTime.Now,
                 FechaInicio = DateTime.Now.AddDays(1),
@@ -277,7 +308,7 @@ namespace SubastaAutos.Web.Controllers
         public async Task<IActionResult> Create(SubastaDTO dto)
         {
             // Forzar valores internos
-            dto.IdVendedor = VendedorSimuladoId;
+            dto.IdVendedor = GetUsuarioActualId();
             dto.IdEstadoSubasta = 4; // Borrador
             dto.FechaCreacion = DateTime.Now;
 

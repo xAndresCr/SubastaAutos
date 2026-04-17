@@ -189,10 +189,12 @@ public partial class SubastaAutosContext : DbContext
                 .HasConstraintName("FK_Pago_Subasta");
         });
 
+        
         modelBuilder.Entity<Puja>(entity =>
         {
-            entity.HasKey(e => new { e.IdPuja, e.IdSubasta })
-                  .HasName("PK__Puja__F986B2D42FBBA596");
+            // ← Solo IdPuja como llave primaria con IDENTITY
+            entity.HasKey(e => e.IdPuja);
+            entity.Property(e => e.IdPuja).ValueGeneratedOnAdd();
 
             entity.Property(e => e.FechaHora).HasDefaultValueSql("(sysdatetime())");
             entity.Property(e => e.Monto).HasColumnType("decimal(12, 2)");

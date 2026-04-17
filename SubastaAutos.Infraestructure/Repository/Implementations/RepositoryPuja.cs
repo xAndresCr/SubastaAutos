@@ -20,13 +20,14 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
             return await _context.Set<Puja>()
                 .Where(p => p.IdSubasta == idSubasta)
                 .Include(p => p.IdUsuarioNavigation)       // Para NombrePostor
-                .OrderByDescending(p => p.FechaHora)
+                .OrderByDescending(p => p.Monto)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
         public async Task<int> AddAsync(Puja entity)
         {
+
             await _context.Set<Puja>().AddAsync(entity);
             await _context.SaveChangesAsync();
             return entity.IdPuja;
