@@ -36,6 +36,7 @@ builder.Services.AddTransient<IRepositoryPuja, RepositoryPuja>();
 builder.Services.AddTransient<IRepositoryCategoria, RepositoryCategoria>();
 builder.Services.AddTransient<IRepositoryCondicionAuto, RepositoryCondicionAuto>();
 builder.Services.AddTransient<IRepositoryEstadoAuto, RepositoryEstadoAuto>();
+builder.Services.AddTransient<IRepositoryPago, RepositoryPago>();
 
 // Services
 builder.Services.AddTransient<IServiceRolUsuario, ServiceRolUsuario>();
@@ -46,6 +47,7 @@ builder.Services.AddTransient<IServicePuja, ServicePuja>();
 builder.Services.AddTransient<IServiceCategoria, ServiceCategoria>();
 builder.Services.AddTransient<IServiceCondicionAuto, ServiceCondicionAuto>();
 builder.Services.AddTransient<IServiceEstadoAuto, ServiceEstadoAuto>();
+builder.Services.AddTransient<IServicePago, ServicePago>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(config =>
