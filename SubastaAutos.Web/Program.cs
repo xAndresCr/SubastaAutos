@@ -22,7 +22,10 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 
 // Repositories
 builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();
@@ -89,6 +92,9 @@ app.UseStaticFiles();
 
 // ← Orden correcto
 app.UseSession();       // ← antes de UseRouting
+
+
+app.UseWebSockets();
 app.UseRouting();
 app.UseAuthorization();
 

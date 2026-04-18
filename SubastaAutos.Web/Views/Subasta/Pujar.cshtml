@@ -218,7 +218,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script>
         const idSubasta = @Model.IdSubasta;
         const fechaCierre = new Date("@Model.FechaCierre.ToString("yyyy-MM-ddTHH:mm:ss")");
@@ -226,6 +226,7 @@
 
         //  CONTADOR 
         function actualizarContador() {
+            //este bicho obtiene la fecha
             const ahora = new Date();
             const diferencia = fechaCierre - ahora;
 
@@ -235,14 +236,25 @@
                 return;
             }
 
-            const horas = Math.floor(diferencia / (1000 * 60 * 60));
-            const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-            const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+            //variables incluyendo días, hace los calculos para calcular las diferencias
+                const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+                const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
 
-            document.getElementById("contador").textContent =
+                if(dias > 0){
+                    //Sí la subasta dura más días entonces que muestre las horas  los días que faltan....
+                    document.getElementById("contador").textContent =
+                     `${dias}d ${String(horas).padStart(2, '0')}:` +
+                    `${String(minutos).padStart(2, '0')}:` +
+                    `${String(segundos).padStart(2, '0')}`;
+                }else{
+                    //Si es menos de un día, di que solo muestre las horas
+                     document.getElementById("contador").textContent =
                 `${String(horas).padStart(2, '0')}:` +
                 `${String(minutos).padStart(2, '0')}:` +
                 `${String(segundos).padStart(2, '0')}`;
+                }
         }
 
         const intervaloContador = setInterval(actualizarContador, 1000);
@@ -301,14 +313,27 @@
                 </tr>`);
         });
 
-        // Estado actualizado
+        // Estado actualizado, muestra los datos con el nuevo lider y nuevo monto
         connection.on("EstadoActualizado", function (data) {
             document.getElementById("montoLider").innerHTML =
                 `₡${Number(data.montoLider).toLocaleString('es-CR',
                     { minimumFractionDigits: 2 })}`;
             document.getElementById("nombreLider").textContent = data.nombreLider;
 
+
+            //Si la puja fue supera esta vara muestra al
+            // usuario el mensaje en tiempo real y cuando se mete al detalle mirey
             if (data.pujaFueSuperada) {
+
+                //Muestra un sweet alert primero
+                    Swal.fire({
+                    title: '¡Puja superada!',
+                    text: 'Su puja ha sido superada por otro usuario.',
+                    icon: 'warning',
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#ffc107'
+                });
+
                 const alerta = document.createElement("div");
                 alerta.className = "alert alert-warning alert-dismissible fade show mt-2";
                 alerta.innerHTML = `
@@ -341,9 +366,12 @@
         });
 
         // Iniciar conexión
-        connection.start()
-            .then(() => connection.invoke("UnirseASubasta", idSubasta.toString()))
-            .catch(err => console.error("SignalR error:", err));
+           connection.start()
+        .then(() => {
+            console.log("Uniéndose al grupo: subasta-" + idSubasta.toString());
+            connection.invoke("UnirseASubasta", idSubasta.toString());
+        })
+        .catch(err => console.error("SignalR error:", err));
 
         // BOTÓN PUJAR
         if (esActiva) {
@@ -364,8 +392,19 @@
                 });
 
                 const data = await response.json();
-
+                
+                //muestra el div con el mensajito que se registro la puja
                 if (data.success) {
+
+                        // SweetAlert de éxito
+                        Swal.fire({
+                            title: '¡Puja registrada!',
+                            text: data.mensaje,
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: true
+                        });
+                }
                     mensajeDiv.innerHTML = `<div class="alert alert-success py-2">
                         ${data.mensaje}</div>`;
                     document.getElementById("montoPuja").value = "";
@@ -390,11 +429,25 @@
                         { minimumFractionDigits: 2 })}</td>
                     <td>${data.fechaHora}</td>
                 </tr>`);
-                } else {
-                    mensajeDiv.innerHTML = `<div class="alert alert-danger py-2">
-                        ${data.mensaje}</div>`;
-                }
+
+                        //Para cuando el usuario no ingreso ningún monto
+                        if (!monto || monto <= 0) {
+                            Swal.fire({
+                                title: 'Monto inválido',
+                                text: 'Por favor ingrese un monto válido mayor a 0.',
+                                icon: 'warning',
+                                confirmButtonText: 'Aceptar'
+                            });
+
+                            //Mantener mensaje en el div también
+                            document.getElementById("mensajePuja").innerHTML = `
+                                <div class="alert alert-warning py-2">
+                                    Ingrese un monto válido.
+                                </div>`;
+                                    return;
+                  }
             });
         }
+        
     </script>
 }

@@ -9,7 +9,8 @@
     <p class="text-muted mb-0">La subasta se creará como borrador hasta que decida publicarla</p>
 </header>
 
-<form asp-action="Create" method="post" class="row g-3">
+<form asp-action="Create" method="post" class="row g-3" novalidate>
+
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <input type="hidden" asp-for="IdVendedor" />
@@ -38,13 +39,19 @@
 
     <div class="col-md-6">
         <label asp-for="FechaInicio" class="form-label"></label>
-        <input asp-for="FechaInicio" class="form-control" type="datetime-local" step="1" />
+        <input asp-for="FechaInicio"
+               class="form-control"
+               type="datetime-local"
+               value="@Model.FechaInicio.ToString("yyyy-MM-ddTHH:mm")" />
         <span asp-validation-for="FechaInicio" class="text-danger"></span>
     </div>
 
     <div class="col-md-6">
         <label asp-for="FechaCierre" class="form-label"></label>
-        <input asp-for="FechaCierre" class="form-control" type="datetime-local" step="1" />
+        <input asp-for="FechaCierre"
+               class="form-control"
+               type="datetime-local"
+               value="@Model.FechaCierre.ToString("yyyy-MM-ddTHH:mm")" />
         <span asp-validation-for="FechaCierre" class="text-danger"></span>
     </div>
 
@@ -78,4 +85,12 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+      
+
+        // Cuando cambia fecha inicio, actualizar mínimo de fecha cierre
+        document.getElementById("FechaInicio").addEventListener("change", function () {
+            document.getElementById("FechaCierre").min = this.value;
+        });
+    </script>
 }

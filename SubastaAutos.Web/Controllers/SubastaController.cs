@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
 using SubastaAutos.Application.DTOs;
+using SubastaAutos.Application.Services.Implementations;
 using SubastaAutos.Application.Services.Interfaces;
 using SubastaAutos.Web.Hubs;
 
@@ -15,7 +16,10 @@ namespace SubastaAutos.Web.Controllers
         private readonly IServiceAuto _serviceAuto;
         private readonly IHubContext<SubastaHub> _hubContext;
 
-        public int VendedorSimuladoId { get; private set; }
+        private const int VendedorSimuladoId = 1;
+
+        private static readonly int[] UsuariosCompradores = { 2, 3 };
+        private static int _contadorUsuario = -1;
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
@@ -106,17 +110,33 @@ namespace SubastaAutos.Web.Controllers
                 // Obtener la nueva puja líder para devolver al cliente
                 var lider = await _servicePuja.GetPujaLiderAsync(dto.IdSubasta);
 
-                // Notificar a todos los que están viendo esta subasta
+                //Verificar qué usuarios tienen pujas en esta subasta
+                //este método si está medio porro, pero es para notificarles a los
+                //maes que fueron superados en pujas
                 await _hubContext.Clients
-                    .Group($"subasta-{dto.IdSubasta}")
-                    .SendAsync("NuevaPuja", new
-                    {
-                        montoLider = lider?.Monto,
-                        nombreLider = lider?.NombrePostor,
-                        fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
-                        nombrePostor = lider?.NombrePostor,
-                        monto = dto.Monto
-                    });
+                        .Group($"subasta-{dto.IdSubasta}")
+                        .SendAsync("NuevaPuja", new
+                        {
+                            montoLider = lider?.Monto,
+                            nombreLider = lider?.NombrePostor,
+                            fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                            nombrePostor = lider?.NombrePostor,
+                            monto = dto.Monto,
+                            idUsuarioLider = lider?.IdUsuario,
+                            idUsuarioQuePujo = GetUsuarioActualId()
+                        });
+
+                //// Notificar a todos los que están viendo esta subasta
+                //await _hubContext.Clients
+                //    .Group($"subasta-{dto.IdSubasta}")
+                //    .SendAsync("NuevaPuja", new
+                //    {
+                //        montoLider = lider?.Monto,
+                //        nombreLider = lider?.NombrePostor,
+                //        fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                //        nombrePostor = lider?.NombrePostor,
+                //        monto = dto.Monto
+                //    });
 
                 //Devolver datos completos al cliente que pujó
 
@@ -149,8 +169,11 @@ namespace SubastaAutos.Web.Controllers
                 return idSesion.Value;
 
             // Si no tiene, asigna el default y lo guarda en sesión
-            HttpContext.Session.SetInt32("UsuarioSimulado", VendedorSimuladoId);
-            return VendedorSimuladoId;
+            var idx = Interlocked.Increment(ref _contadorUsuario) % UsuariosCompradores.Length;
+            var idUsuario = UsuariosCompradores[idx];
+            HttpContext.Session.SetInt32("UsuarioSimulado", idUsuario);
+            
+            return idUsuario;
         }
 
         // Solo para pruebas se accede via URL: /Subasta/SimularUsuario/3
@@ -284,10 +307,9 @@ namespace SubastaAutos.Web.Controllers
                 "Descripcion",
                 selectedAutoId);
 
-            var autoVendedor = autos.FirstOrDefault(a => a.IdVendedor == GetUsuarioActualId());
+            var autoVendedor = autos.FirstOrDefault(a => a.IdVendedor == VendedorSimuladoId);
             ViewBag.VendedorNombre = autoVendedor?.Propietario ?? "Usuario #1";
         }
-
         // CREATE GET 
         public async Task<IActionResult> Create()
         {
@@ -307,8 +329,9 @@ namespace SubastaAutos.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SubastaDTO dto)
         {
+
             // Forzar valores internos
-            dto.IdVendedor = GetUsuarioActualId();
+            dto.IdVendedor = VendedorSimuladoId;
             dto.IdEstadoSubasta = 4; // Borrador
             dto.FechaCreacion = DateTime.Now;
 

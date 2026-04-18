@@ -12,6 +12,8 @@ namespace SubastaAutos.Application.DTOs
         public string NombrePostor { get; set; } = string.Empty;
         // CALCULADO: NombreCompleto del usuario que hizo la puja
 
+        public int IdUsuario { get; set; }
+
         [DisplayName("Monto")]
         public decimal Monto { get; set; }
 
