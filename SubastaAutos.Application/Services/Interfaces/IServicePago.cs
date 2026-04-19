@@ -12,5 +12,6 @@ namespace SubastaAutos.Application.Services.Interfaces
         Task<PagoDTO?> GetBySubastaAsync(int idSubasta);
         Task<int> RegistrarPagoAsync(int idSubasta);
         Task ConfirmarPagoAsync(int idPago);
+        Task<PagoDTO?> GetByIdAsync(int idPago);
     }
 }

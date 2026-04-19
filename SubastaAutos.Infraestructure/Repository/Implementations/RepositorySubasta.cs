@@ -69,6 +69,8 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .Include(s => s.IdEstadoSubastaNavigation)
                 .Include(s => s.Puja)
                     .ThenInclude(p => p.IdUsuarioNavigation)
+                .Include(s => s.ResultadoSubasta)
+                    .ThenInclude(r => r.IdUsuarioGanadorNavigation)
                 .FirstOrDefaultAsync();
         }
 

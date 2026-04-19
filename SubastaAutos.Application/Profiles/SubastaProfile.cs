@@ -24,12 +24,17 @@ namespace SubastaAutos.Application.Profiles
                     }))
                 .ForMember(d => d.Vendedor,
                     o => o.MapFrom(s => s.IdVendedorNavigation.NombreCompleto))
+                .ForMember(d => d.DescripcionAuto,
+                    o => o.MapFrom(s => s.IdAutoNavigation.Descripcion ?? string.Empty))
+                .ForMember(d => d.AutoImagenes,
+                    o => o.MapFrom(s => s.IdAutoNavigation.AutoImagen))
                 .ForMember(d => d.EstadoSubasta,
                     o => o.MapFrom(s => s.IdEstadoSubastaNavigation.Nombre))
                 .ForMember(d => d.CantidadPujas,
                     o => o.MapFrom(s => s.Puja.Count))
-               .ForMember(d => d.Pujas,
-                         o => o.MapFrom(s => s.Puja
+                .ForMember(d => d.Pujas,
+                    o => o.MapFrom(s => s.Puja
+
         .OrderByDescending(p => p.Monto) // ← agregar esto
         .ToList()));
 

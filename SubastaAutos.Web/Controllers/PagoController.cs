@@ -91,15 +91,20 @@ namespace SubastaAutos.Web.Controllers
         }
         //Confirmar pago AJAX
         [HttpPost]
+        [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> Confirmar([FromBody] int idPago)
         {
             try
             {
                 await _servicePago.ConfirmarPagoAsync(idPago);
+                var pago = await _servicePago.GetByIdAsync(idPago);
+
                 return Json(new
                 {
                     success = true,
-                    mensaje = "Pago confirmado exitosamente."
+                    mensaje = "Pago confirmado exitosamente.",
+                    estado = pago?.EstadoPago
                 });
             }
             catch (Exception ex)

@@ -51,5 +51,16 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                     .ThenInclude(s => s.IdAutoNavigation)  
                 .FirstOrDefaultAsync(p => p.IdSubasta == idSubasta);    
         }
+        public async Task<Pago?> GetByIdAsync(int idPago)
+        {
+            return await _context.Set<Pago>()
+                .Include(p => p.IdEstadoPagoNavigation)
+                .Include(p => p.IdSubastaNavigation)
+                    .ThenInclude(s => s.IdAutoNavigation)
+                .Include(p => p.IdSubastaNavigation)
+                    .ThenInclude(s => s.ResultadoSubasta)
+                        .ThenInclude(r => r.IdUsuarioGanadorNavigation)
+                .FirstOrDefaultAsync(p => p.IdPago == idPago);
+        }
     }
 }

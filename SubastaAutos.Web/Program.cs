@@ -62,6 +62,7 @@ builder.Services.AddAutoMapper(config =>
     config.AddProfile<EstadoSubastaProfile>();
     config.AddProfile<PujaProfile>();
     config.AddProfile<SubastaProfile>();
+    config.AddProfile<PagoProfile>();
 });
 
 // SQL Server

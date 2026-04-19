@@ -13,5 +13,6 @@ namespace SubastaAutos.Infraestructure.Repository.Interfaces
         Task<int> AddAsync(Pago entity);
         Task ConfirmarPagoAsync(int idPago);
         Task<bool> ExistePagoParaSubastaAsync(int idSubasta);
+        Task<Pago?> GetByIdAsync(int idPago);
     }
 }

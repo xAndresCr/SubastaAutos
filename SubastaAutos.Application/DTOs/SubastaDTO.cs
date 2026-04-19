@@ -65,5 +65,10 @@ namespace SubastaAutos.Application.DTOs
 
         [DisplayName("Historial de Pujas")]
         public List<PujaDTO> Pujas { get; set; } = new();
+        [DisplayName("Descripción")]
+        public string DescripcionAuto { get; set; } = string.Empty;
+
+        [DisplayName("Imágenes")]
+        public List<AutoImagenDTO> AutoImagenes { get; set; } = new();
     }
 }

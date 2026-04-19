@@ -68,5 +68,11 @@ namespace SubastaAutos.Application.Services.Implementations
             };
             return await _repositoryPago.AddAsync(pago);
         }
+        public async Task<PagoDTO?> GetByIdAsync(int idPago)
+        {
+            var entity = await _repositoryPago.GetByIdAsync(idPago);
+            if (entity == null) return null;
+            return _mapper.Map<PagoDTO>(entity);
+        }
     }
 }

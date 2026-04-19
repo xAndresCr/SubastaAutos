@@ -15,6 +15,7 @@ namespace SubastaAutos.Web.Controllers
         private readonly IServicePuja _servicePuja;
         private readonly IServiceAuto _serviceAuto;
         private readonly IHubContext<SubastaHub> _hubContext;
+        private readonly IServicePago _servicePago;
 
         private const int VendedorSimuladoId = 1;
 
@@ -25,11 +26,13 @@ namespace SubastaAutos.Web.Controllers
             IServiceSubasta serviceSubasta,
             IServicePuja servicePuja,
             IServiceAuto serviceAuto,
+            IServicePago servicePago,
             IHubContext<SubastaHub> hubContext)
         {
             _serviceSubasta = serviceSubasta;
             _servicePuja = servicePuja;
             _serviceAuto = serviceAuto;
+            _servicePago = servicePago;
             _hubContext = hubContext;
         }
 
@@ -194,9 +197,46 @@ namespace SubastaAutos.Web.Controllers
                 if (dto == null)
                     throw new Exception("Subasta no encontrada.");
 
+                var usuarioActualId = GetUsuarioActualId();
+
                 ViewBag.PujaFueSuperada = await _servicePuja
-                    .PujaFueSuperadaAsync(id, GetUsuarioActualId());
-                ViewBag.UsuarioActualId = GetUsuarioActualId();
+                    .PujaFueSuperadaAsync(id, usuarioActualId);
+                ViewBag.UsuarioActualId = usuarioActualId;
+
+                // Determinar si el usuario actual es el ganador
+                ViewBag.EsGanador = false;
+                ViewBag.PagoRegistrado = false;
+                ViewBag.PagoConfirmado = false;
+                ViewBag.IdPago = 0;
+
+                if (dto.IdEstadoSubasta == 2) // Finalizada
+                {
+                    var pujaGanadora = dto.Pujas
+                        .OrderByDescending(p => p.Monto)
+                        .FirstOrDefault();
+
+                    if (pujaGanadora != null && pujaGanadora.IdUsuario == usuarioActualId)
+                    {
+                        ViewBag.EsGanador = true;
+
+                        // Verificar si ya existe un pago
+                        try
+                        {
+                            var pago = await _servicePago.GetBySubastaAsync(id);
+                            if (pago != null)
+                            {
+                                ViewBag.PagoRegistrado = true;
+                                ViewBag.IdPago = pago.IdPago;
+                                ViewBag.PagoConfirmado = pago.IdEstadoPago == 2;
+                                ViewBag.EstadoPagoNombre = pago.EstadoPago;
+                            }
+                        }
+                        catch
+                        {
+                            // No existe pago aún — es válido
+                        }
+                    }
+                }
 
                 return View(dto);
             }
@@ -257,14 +297,14 @@ namespace SubastaAutos.Web.Controllers
 
                 var lider = await _servicePuja.GetPujaLiderAsync(id);
 
-                // Notificar a todos los clientes que la subasta fue cerrada
                 await _hubContext.Clients
                     .Group($"subasta-{id}")
                     .SendAsync("SubastaCerrada", new
                     {
                         mensaje = "La subasta ha finalizado.",
                         ganador = lider?.NombrePostor ?? "Sin ganador",
-                        montoFinal = lider?.Monto ?? 0
+                        montoFinal = lider?.Monto ?? 0,
+                        idUsuarioGanador = lider?.IdUsuario ?? 0
                     });
 
                 return Json(new { success = true, mensaje = "Subasta cerrada exitosamente." });
