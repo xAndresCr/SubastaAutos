@@ -355,6 +355,7 @@
         const esVendedor = @esVendedor.ToString().ToLower();
         const usuarioActualId = @ViewBag.UsuarioActualId;
         let montoSiguiente = @montoSiguientePuja.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        let montoLiderActual = @(pujaLider != null ? pujaLider.Monto.ToString(System.Globalization.CultureInfo.InvariantCulture) : "0");
 
         // ═══════ CONTADOR ═══════
         function actualizarContador() {
