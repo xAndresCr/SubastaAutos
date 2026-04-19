@@ -12,6 +12,8 @@
     var idPago = (int)(ViewBag.IdPago ?? 0);
     var estadoPagoNombre = (string)(ViewBag.EstadoPagoNombre ?? "Sin registrar");
     var esFinalizada = Model.EstadoSubasta == "Finalizada";
+    var esVendedor = (bool)(ViewBag.EsVendedor ?? false);
+    var montoSiguientePuja = (decimal)(ViewBag.MontoSiguientePuja ?? 0m);
 }
 
 <div class="mb-3">
@@ -186,7 +188,7 @@
     <div class="col-md-5">
 
         @* ── Card de pujar ── *@
-        @if (esActiva)
+        @if (esActiva && !esVendedor)
         {
             <div class="card shadow-sm border-0" id="cardPujar">
                 <div class="card-header bg-success text-white">
@@ -194,17 +196,23 @@
                         <i class="bi bi-cash-coin me-2"></i>Realizar Puja
                     </h6>
                 </div>
-                <div class="card-body">
-                    <div class="input-group">
-                        <span class="input-group-text">₡</span>
-                        <input type="number" id="montoPuja" class="form-control"
-                               placeholder="Ingrese su oferta" min="0" step="0.01" />
-                        <button class="btn btn-success" id="btnPujar">
-                            <i class="bi bi-hammer me-1"></i> Pujar
-                        </button>
-                    </div>
+                <div class="card-body text-center">
+                    <p class="text-muted mb-1">Monto de la siguiente puja:</p>
+                    <span class="fs-3 fw-bold text-success d-block mb-3" id="lblMontoSiguiente">
+                        @montoSiguientePuja.ToString("C", culture)
+                    </span>
+                    <button class="btn btn-success btn-lg w-100" id="btnPujar">
+                        <i class="bi bi-hammer me-1"></i> Pujar
+                    </button>
                     <div id="mensajePuja" class="mt-2"></div>
                 </div>
+            </div>
+        }
+        else if (esActiva && esVendedor)
+        {
+            <div class="alert alert-info" id="cardPujar">
+                <i class="bi bi-person-badge me-2"></i>
+                Eres el vendedor de esta subasta. No podés realizar pujas.
             </div>
         }
         else
@@ -293,19 +301,25 @@
                     <dt class="col-5 text-muted">Subasta</dt>
                     <dd class="col-7">#@Model.IdSubasta — @Model.NombreAuto</dd>
 
-                    <dt class="col-5 text-muted">Monto Final</dt>
-                    <dd class="col-7 fw-bold text-success" id="pagoMonto">
+                    <dt class="col-5 text-muted">Ganador</dt>
+                    <dd class="col-7 fw-semibold" id="pagoGanador">
                         @{
                             var ganadorPuja = Model.Pujas.OrderByDescending(p => p.Monto).FirstOrDefault();
                         }
-                        @(ganadorPuja != null ? ganadorPuja.Monto.ToString("C", culture) : "—")
+                        <i class="bi bi-trophy-fill text-warning me-1"></i>
+                        @(ganadorPuja?.NombrePostor ?? "—")
+                    </dd>
+
+                    <dt class="col-5 text-muted">Monto Final</dt>
+                    <dd class="col-7">
+                        <span class="fw-bold text-success" id="pagoMonto">—</span>
                     </dd>
 
                     <dt class="col-5 text-muted">Estado del Pago</dt>
                     <dd class="col-7">
                         <span id="estadoPagoBadge"
                               class="badge @(pagoConfirmado ? "text-bg-success" :
-                                                                           pagoRegistrado ? "text-bg-warning" : "text-bg-secondary")">
+                                                               pagoRegistrado ? "text-bg-warning" : "text-bg-secondary")">
                             @estadoPagoNombre
                         </span>
                     </dd>
@@ -338,10 +352,12 @@
         const idSubasta = @Model.IdSubasta;
         const fechaCierre = new Date("@Model.FechaCierre.ToString("yyyy-MM-ddTHH:mm:ss")");
         const esActiva = @esActiva.ToString().ToLower();
+        const esVendedor = @esVendedor.ToString().ToLower();
+        const usuarioActualId = @ViewBag.UsuarioActualId;
+        let montoSiguiente = @montoSiguientePuja.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
-        //  CONTADOR 
+        // ═══════ CONTADOR ═══════
         function actualizarContador() {
-            //este bicho obtiene la fecha
             const ahora = new Date();
             const diferencia = fechaCierre - ahora;
 
@@ -351,31 +367,20 @@
                 return;
             }
 
-            //variables incluyendo días, hace los calculos para calcular las diferencias
-                const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-                const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-                const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
+            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
+            const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((diferencia % (1000 * 60)) / 1000);
 
-                if(dias > 0){
-                    //Sí la subasta dura más días entonces que muestre las horas  los días que faltan....
-                    document.getElementById("contador").textContent =
-                     `${dias}d ${String(horas).padStart(2, '0')}:` +
-                    `${String(minutos).padStart(2, '0')}:` +
-                    `${String(segundos).padStart(2, '0')}`;
-                }else{
-                    //Si es menos de un día, di que solo muestre las horas
-                     document.getElementById("contador").textContent =
-                `${String(horas).padStart(2, '0')}:` +
-                `${String(minutos).padStart(2, '0')}:` +
-                `${String(segundos).padStart(2, '0')}`;
-                }
+            document.getElementById("contador").textContent = dias > 0
+                ? `${dias}d ${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`
+                : `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
         }
 
         const intervaloContador = setInterval(actualizarContador, 1000);
         actualizarContador();
 
-        // CERRAR SUBASTA 
+        // ═══════ CERRAR SUBASTA ═══════
         let yaSeCerro = false;
         async function cerrarSubasta() {
             if (yaSeCerro) return;
@@ -388,216 +393,180 @@
             });
 
             const data = await response.json();
-            if (data.success) {
-                const cardPujar = document.getElementById("cardPujar");
-                if (cardPujar) {
-                    cardPujar.innerHTML = `
-                        <div class="card-body">
-                            <div class="alert alert-danger mb-0">
-                                <i class="bi bi-lock-fill me-2"></i>
-                                <strong>Subasta finalizada.</strong> No se aceptan más pujas.
-                            </div>
-                        </div>`;
-                }
+            if (!data.success) {
+                yaSeCerro = false;
             }
         }
 
-        // SIGNALR 
+        // ═══════ FUNCIONES AUXILIARES ═══════
+        function formatearMonto(valor) {
+            return `₡${Number(valor).toLocaleString('es-CR', { minimumFractionDigits: 2 })}`;
+        }
+
+        function actualizarMontoSiguiente(nuevoMonto) {
+            montoSiguiente = nuevoMonto;
+            const lbl = document.getElementById("lblMontoSiguiente");
+            if (lbl) lbl.textContent = formatearMonto(nuevoMonto);
+        }
+
+        // ═══════ SIGNALR ═══════
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("/subastaHub")
             .withAutomaticReconnect()
             .build();
 
-        // Nueva puja en tiempo real
-        connection.on("NuevaPuja", function (data) {
-            document.getElementById("montoLider").innerHTML =
-                `₡${Number(data.montoLider).toLocaleString('es-CR',
-                    { minimumFractionDigits: 2 })}`;
+        // ── Nueva puja en tiempo real ──
+                connection.on("NuevaPuja", function (data) {
+            // Actualizar líder para TODOS
+            document.getElementById("montoLider").innerHTML = formatearMonto(data.montoLider);
             document.getElementById("nombreLider").textContent = data.nombreLider;
+            
+            montoLiderActual = data.montoLider;
+            actualizarMontoModal();
 
+            if (data.montoSiguiente) {
+                actualizarMontoSiguiente(data.montoSiguiente);
+            }
+
+            // Si fui YO quien pujó, no agregar al historial (ya se hizo en el callback del fetch)
+            if (data.idUsuarioQuePujo === usuarioActualId) return;
+
+            // Quitar "Sin Pujas"
             const sinPujas = document.getElementById("sinPujas");
             if (sinPujas) sinPujas.remove();
 
+            // Agregar al historial solo para los DEMÁS
             const historial = document.getElementById("historialPujas");
             historial.insertAdjacentHTML("afterbegin", `
                 <tr>
                     <td>${data.nombrePostor}</td>
-                    <td>₡${Number(data.monto).toLocaleString('es-CR',
-                        { minimumFractionDigits: 2 })}</td>
+                    <td>${formatearMonto(data.monto)}</td>
                     <td>${data.fechaHora}</td>
                 </tr>`);
-        });
 
-        // Estado actualizado, muestra los datos con el nuevo lider y nuevo monto
-        connection.on("EstadoActualizado", function (data) {
-            document.getElementById("montoLider").innerHTML =
-                `₡${Number(data.montoLider).toLocaleString('es-CR',
-                    { minimumFractionDigits: 2 })}`;
-            document.getElementById("nombreLider").textContent = data.nombreLider;
-
-
-            //Si la puja fue supera esta vara muestra al
-            // usuario el mensaje en tiempo real y cuando se mete al detalle mirey
-            if (data.pujaFueSuperada) {
-
-                //Muestra un sweet alert primero
-                    Swal.fire({
+            // Notificación "puja superada" solo si no fui yo
+            if (data.idUsuarioLider !== usuarioActualId) {
+                Swal.fire({
                     title: '¡Puja superada!',
                     text: 'Su puja ha sido superada por otro usuario.',
                     icon: 'warning',
                     confirmButtonText: 'Entendido',
                     confirmButtonColor: '#ffc107'
                 });
-
-                const alerta = document.createElement("div");
-                alerta.className = "alert alert-warning alert-dismissible fade show mt-2";
-                alerta.innerHTML = `
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <strong>¡Su puja ha sido superada!</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
-                document.querySelector(".container").prepend(alerta);
             }
         });
 
-        // Subasta cerrada
+        // ── Subasta cerrada ──
         connection.on("SubastaCerrada", function (data) {
             clearInterval(intervaloContador);
             document.getElementById("contador").textContent = "00:00:00";
 
             const cardPujar = document.getElementById("cardPujar");
             if (cardPujar) {
-                cardPujar.innerHTML = `
-                    <div class="card-body">
-                        <div class="alert alert-danger mb-0">
-                            <i class="bi bi-lock-fill me-2"></i>
-                            <strong>Subasta finalizada.</strong><br/>
-                            Ganador: <strong>${data.ganador}</strong><br/>
-                            Monto final: <strong>₡${Number(data.montoFinal)
-                                .toLocaleString('es-CR',
-                                    { minimumFractionDigits: 2 })}</strong>
-                        </div>
-                    </div>`;
-            }
-        });
-
-        // Iniciar conexión
-           connection.start()
-        .then(() => {
-            console.log("Uniéndose al grupo: subasta-" + idSubasta.toString());
-            connection.invoke("UnirseASubasta", idSubasta.toString());
-        })
-        .catch(err => console.error("SignalR error:", err));
-
-        // BOTÓN PUJAR
-        if (esActiva) {
-            document.getElementById("btnPujar").addEventListener("click", async function () {
-                const monto = parseFloat(document.getElementById("montoPuja").value);
-                const mensajeDiv = document.getElementById("mensajePuja");
-
-                if (!monto || monto <= 0) {
-                    mensajeDiv.innerHTML = `<div class="alert alert-warning py-2">
-                        Ingrese un monto válido.</div>`;
-                    return;
+                if (data.huboPujas) {
+                    cardPujar.innerHTML = `
+                        <div class="card-body">
+                            <div class="alert alert-danger mb-0">
+                                <i class="bi bi-lock-fill me-2"></i>
+                                <strong>Subasta finalizada.</strong><br/>
+                                Ganador: <strong>${data.ganador}</strong><br/>
+                                Monto final: <strong>${formatearMonto(data.montoFinal)}</strong>
+                            </div>
+                        </div>`;
+                } else {
+                    cardPujar.innerHTML = `
+                        <div class="card-body">
+                            <div class="alert alert-warning mb-0">
+                                <i class="bi bi-slash-circle me-2"></i>
+                                <strong>Subasta finalizada sin ofertas.</strong><br/>
+                                No se registraron pujas para esta subasta.
+                            </div>
+                        </div>`;
                 }
-
-                const response = await fetch("/Subasta/Pujar", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ idSubasta: idSubasta, monto: monto })
-                });
-
-                const data = await response.json();
-                
-                //muestra el div con el mensajito que se registro la puja
-                if (data.success) {
-
-                        // SweetAlert de éxito
-                        Swal.fire({
-                            title: '¡Puja registrada!',
-                            text: data.mensaje,
-                            icon: 'success',
-                            timer: 2000,
-                            showConfirmButton: true
-                        });
-                }
-                    mensajeDiv.innerHTML = `<div class="alert alert-success py-2">
-                        ${data.mensaje}</div>`;
-                    document.getElementById("montoPuja").value = "";
-
-                    //Actualiza la vara para el que hizo la puja localmente 
-
-                     document.getElementById("montoLider").innerHTML =
-                `₡${Number(data.montoLider).toLocaleString('es-CR',
-                    { minimumFractionDigits: 2 })}`;
-            document.getElementById("nombreLider").textContent = data.nombreLider;
-
-            //Quita el mensaje de "Sin Pujas"
-             const sinPujas = document.getElementById("sinPujas");
-            if (sinPujas) sinPujas.remove();
-
-            //Actualiza la tabla de pujas una vez se inserta una puja por parte del usuario
-            const historial = document.getElementById("historialPujas");
-            historial.insertAdjacentHTML("afterbegin", `
-                <tr>
-                    <td>${data.nombrePostor}</td>
-                    <td>₡${Number(data.monto).toLocaleString('es-CR',
-                        { minimumFractionDigits: 2 })}</td>
-                    <td>${data.fechaHora}</td>
-                </tr>`);
-
-                        //Para cuando el usuario no ingreso ningún monto
-                        if (!monto || monto <= 0) {
-                            Swal.fire({
-                                title: 'Monto inválido',
-                                text: 'Por favor ingrese un monto válido mayor a 0.',
-                                icon: 'warning',
-                                confirmButtonText: 'Aceptar'
-                            });
-
-                            //Mantener mensaje en el div también
-                            document.getElementById("mensajePuja").innerHTML = `
-                                <div class="alert alert-warning py-2">
-                                    Ingrese un monto válido.
-                                </div>`;
-                                    return;
-                  }
-            });
-        }
-
-                // ═══════════════════════════════════════════
-        // PAGO — Variables de estado
-        // ═══════════════════════════════════════════
-        let pagoIdActual = @idPago;
-        const usuarioActualId = @ViewBag.UsuarioActualId;
-
-        // ── Modificar evento SubastaCerrada para mostrar botón de pago al ganador ──
-        connection.on("SubastaCerrada", function (data) {
-            clearInterval(intervaloContador);
-            document.getElementById("contador").textContent = "00:00:00";
-
-            const cardPujar = document.getElementById("cardPujar");
-            if (cardPujar) {
-                cardPujar.innerHTML = `
-                    <div class="card-body">
-                        <div class="alert alert-danger mb-0">
-                            <i class="bi bi-lock-fill me-2"></i>
-                            <strong>Subasta finalizada.</strong><br/>
-                            Ganador: <strong>${data.ganador}</strong><br/>
-                            Monto final: <strong>₡${Number(data.montoFinal)
-                                .toLocaleString('es-CR',
-                                    { minimumFractionDigits: 2 })}</strong>
-                        </div>
-                    </div>`;
             }
-
+                    montoLiderActual = data.montoFinal;
+                            const elGanador = document.getElementById("pagoGanador");
+        if (elGanador) elGanador.innerHTML = `<i class="bi bi-trophy-fill text-warning me-1"></i>${data.ganador}`;
+        actualizarMontoModal();
             // Mostrar botón de pago SOLO al ganador
-            if (data.idUsuarioGanador === usuarioActualId) {
+            if (data.huboPujas && data.idUsuarioGanador === usuarioActualId) {
                 const contenedor = document.getElementById("contenedorBtnPago");
                 if (contenedor) contenedor.style.display = "";
             }
         });
 
-        // ── Registrar Pago ──
+        // ── Iniciar conexión ──
+        connection.start()
+            .then(() => {
+                connection.invoke("UnirseASubasta", idSubasta.toString());
+            })
+            .catch(err => console.error("SignalR error:", err));
+
+        // ═══════ BOTÓN PUJAR ═══════
+        const btnPujar = document.getElementById("btnPujar");
+        if (btnPujar && esActiva && !esVendedor) {
+            btnPujar.addEventListener("click", async function () {
+                this.disabled = true;
+                const mensajeDiv = document.getElementById("mensajePuja");
+
+                const response = await fetch("/Subasta/Pujar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ idSubasta: idSubasta, monto: montoSiguiente })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mensajeDiv.innerHTML = `<div class="alert alert-success py-2">${data.mensaje}</div>`;
+
+                    Swal.fire({
+                        title: '¡Puja registrada!',
+                        text: data.mensaje,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
+
+                    // Actualizar líder localmente
+                    document.getElementById("montoLider").innerHTML = formatearMonto(data.montoLider);
+                    document.getElementById("nombreLider").textContent = data.nombreLider;
+                    montoLiderActual = data.montoLider;
+                    actualizarMontoModal();
+                    // Actualizar monto siguiente
+                    if (data.montoSiguiente) {
+                        actualizarMontoSiguiente(data.montoSiguiente);
+                    }
+
+                    // Actualizar historial
+                    const sinPujas = document.getElementById("sinPujas");
+                    if (sinPujas) sinPujas.remove();
+
+                    const historial = document.getElementById("historialPujas");
+                    historial.insertAdjacentHTML("afterbegin", `
+                        <tr>
+                            <td>${data.nombrePostor}</td>
+                            <td>${formatearMonto(data.monto)}</td>
+                            <td>${data.fechaHora}</td>
+                        </tr>`);
+                } else {
+                    mensajeDiv.innerHTML = `<div class="alert alert-danger py-2">${data.mensaje}</div>`;
+
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.mensaje,
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+
+                this.disabled = false;
+            });
+        }
+
+        // ═══════ PAGO ═══════
+        let pagoIdActual = @idPago;
+
         document.getElementById("btnRegistrarPago")?.addEventListener("click", async function () {
             this.disabled = true;
             const mensajeDiv = document.getElementById("pagoMensaje");
@@ -612,33 +581,22 @@
 
             if (data.success) {
                 pagoIdActual = data.idPago;
-                mensajeDiv.innerHTML = `<div class="alert alert-success py-2">
-                    ${data.mensaje}</div>`;
+                mensajeDiv.innerHTML = `<div class="alert alert-success py-2">${data.mensaje}</div>`;
 
-                // Actualizar badge
                 const badge = document.getElementById("estadoPagoBadge");
                 badge.className = "badge text-bg-warning";
                 badge.textContent = data.estado;
 
-                // Ocultar registrar, mostrar confirmar
                 this.style.display = "none";
                 document.getElementById("btnConfirmarPago").style.display = "";
 
-                Swal.fire({
-                    title: 'Pago registrado',
-                    text: data.mensaje,
-                    icon: 'success',
-                    timer: 2000,
-                    showConfirmButton: true
-                });
+                Swal.fire({ title: 'Pago registrado', text: data.mensaje, icon: 'success', timer: 2000, showConfirmButton: true });
             } else {
-                mensajeDiv.innerHTML = `<div class="alert alert-danger py-2">
-                    ${data.mensaje}</div>`;
+                mensajeDiv.innerHTML = `<div class="alert alert-danger py-2">${data.mensaje}</div>`;
                 this.disabled = false;
             }
         });
 
-        // ── Confirmar Pago ──
         document.getElementById("btnConfirmarPago")?.addEventListener("click", async function () {
             this.disabled = true;
             const mensajeDiv = document.getElementById("pagoMensaje");
@@ -652,8 +610,7 @@
             const data = await response.json();
 
             if (data.success) {
-                mensajeDiv.innerHTML = `<div class="alert alert-success py-2">
-                    ${data.mensaje}</div>`;
+                mensajeDiv.innerHTML = `<div class="alert alert-success py-2">${data.mensaje}</div>`;
 
                 const badge = document.getElementById("estadoPagoBadge");
                 badge.className = "badge text-bg-success";
@@ -661,18 +618,17 @@
 
                 this.style.display = "none";
 
-                Swal.fire({
-                    title: '¡Pago confirmado!',
-                    text: data.mensaje,
-                    icon: 'success',
-                    confirmButtonText: 'Aceptar'
-                });
+                Swal.fire({ title: '¡Pago confirmado!', text: data.mensaje, icon: 'success', confirmButtonText: 'Aceptar' });
             } else {
-                mensajeDiv.innerHTML = `<div class="alert alert-danger py-2">
-                    ${data.mensaje}</div>`;
+                mensajeDiv.innerHTML = `<div class="alert alert-danger py-2">${data.mensaje}</div>`;
                 this.disabled = false;
             }
         });
-        
+
+                function actualizarMontoModal() {
+            const el = document.getElementById("pagoMonto");
+            if (el) el.textContent = formatearMonto(montoLiderActual);
+        }
+        actualizarMontoModal();
     </script>
 }

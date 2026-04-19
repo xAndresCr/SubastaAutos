@@ -19,7 +19,7 @@ namespace SubastaAutos.Web.Controllers
 
         private const int VendedorSimuladoId = 1;
 
-        private static readonly int[] UsuariosCompradores = { 2, 3 };
+        private static readonly int[] UsuariosCompradores = {2, 3, 6};
         private static int _contadorUsuario = -1;
 
         public SubastaController(
@@ -110,38 +110,25 @@ namespace SubastaAutos.Web.Controllers
             {
                 await _servicePuja.AddAsync(dto, GetUsuarioActualId());
 
-                // Obtener la nueva puja líder para devolver al cliente
                 var lider = await _servicePuja.GetPujaLiderAsync(dto.IdSubasta);
+                var subasta = await _serviceSubasta.FindByIdAsync(dto.IdSubasta);
 
-                //Verificar qué usuarios tienen pujas en esta subasta
-                //este método si está medio porro, pero es para notificarles a los
-                //maes que fueron superados en pujas
+                decimal montoSiguiente = (lider?.Monto ?? subasta!.PrecioBase) + subasta!.IncrementoMinimo;
+
+                // Notificar a todos los que están viendo esta subasta
                 await _hubContext.Clients
-                        .Group($"subasta-{dto.IdSubasta}")
-                        .SendAsync("NuevaPuja", new
-                        {
-                            montoLider = lider?.Monto,
-                            nombreLider = lider?.NombrePostor,
-                            fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
-                            nombrePostor = lider?.NombrePostor,
-                            monto = dto.Monto,
-                            idUsuarioLider = lider?.IdUsuario,
-                            idUsuarioQuePujo = GetUsuarioActualId()
-                        });
-
-                //// Notificar a todos los que están viendo esta subasta
-                //await _hubContext.Clients
-                //    .Group($"subasta-{dto.IdSubasta}")
-                //    .SendAsync("NuevaPuja", new
-                //    {
-                //        montoLider = lider?.Monto,
-                //        nombreLider = lider?.NombrePostor,
-                //        fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
-                //        nombrePostor = lider?.NombrePostor,
-                //        monto = dto.Monto
-                //    });
-
-                //Devolver datos completos al cliente que pujó
+                    .Group($"subasta-{dto.IdSubasta}")
+                    .SendAsync("NuevaPuja", new
+                    {
+                        montoLider = lider?.Monto,
+                        nombreLider = lider?.NombrePostor,
+                        fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
+                        nombrePostor = lider?.NombrePostor,
+                        monto = dto.Monto,
+                        idUsuarioLider = lider?.IdUsuario,
+                        idUsuarioQuePujo = GetUsuarioActualId(),
+                        montoSiguiente
+                    });
 
                 return Json(new
                 {
@@ -151,7 +138,8 @@ namespace SubastaAutos.Web.Controllers
                     nombreLider = lider?.NombrePostor,
                     nombrePostor = lider?.NombrePostor,
                     fechaHora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss"),
-                    monto = dto.Monto
+                    monto = dto.Monto,
+                    montoSiguiente
                 });
             }
             catch (InvalidOperationException ex)
@@ -202,14 +190,22 @@ namespace SubastaAutos.Web.Controllers
                 ViewBag.PujaFueSuperada = await _servicePuja
                     .PujaFueSuperadaAsync(id, usuarioActualId);
                 ViewBag.UsuarioActualId = usuarioActualId;
+                ViewBag.EsVendedor = (usuarioActualId == dto.IdVendedor);
 
-                // Determinar si el usuario actual es el ganador
+                // ── Monto siguiente puja (SIEMPRE se calcula) ──
+                var pujaMax = dto.Pujas.OrderByDescending(p => p.Monto).FirstOrDefault();
+                ViewBag.MontoSiguientePuja = pujaMax != null
+                    ? pujaMax.Monto + dto.IncrementoMinimo
+                    : dto.PrecioBase + dto.IncrementoMinimo;
+
+                // ── Pago (solo aplica si está finalizada) ──
                 ViewBag.EsGanador = false;
                 ViewBag.PagoRegistrado = false;
                 ViewBag.PagoConfirmado = false;
                 ViewBag.IdPago = 0;
+                ViewBag.EstadoPagoNombre = "Sin registrar";
 
-                if (dto.IdEstadoSubasta == 2) // Finalizada
+                if (dto.IdEstadoSubasta == 2)
                 {
                     var pujaGanadora = dto.Pujas
                         .OrderByDescending(p => p.Monto)
@@ -218,8 +214,6 @@ namespace SubastaAutos.Web.Controllers
                     if (pujaGanadora != null && pujaGanadora.IdUsuario == usuarioActualId)
                     {
                         ViewBag.EsGanador = true;
-
-                        // Verificar si ya existe un pago
                         try
                         {
                             var pago = await _servicePago.GetBySubastaAsync(id);
@@ -231,10 +225,7 @@ namespace SubastaAutos.Web.Controllers
                                 ViewBag.EstadoPagoNombre = pago.EstadoPago;
                             }
                         }
-                        catch
-                        {
-                            // No existe pago aún — es válido
-                        }
+                        catch { }
                     }
                 }
 
@@ -289,6 +280,7 @@ namespace SubastaAutos.Web.Controllers
         }
 
         [HttpPost]
+        [HttpPost]
         public async Task<IActionResult> CerrarSubasta(int id)
         {
             try
@@ -301,10 +293,13 @@ namespace SubastaAutos.Web.Controllers
                     .Group($"subasta-{id}")
                     .SendAsync("SubastaCerrada", new
                     {
-                        mensaje = "La subasta ha finalizado.",
-                        ganador = lider?.NombrePostor ?? "Sin ganador",
+                        mensaje = lider != null
+                            ? "La subasta ha finalizado."
+                            : "La subasta ha finalizado sin ofertas.",
+                        ganador = lider?.NombrePostor ?? "",
                         montoFinal = lider?.Monto ?? 0,
-                        idUsuarioGanador = lider?.IdUsuario ?? 0
+                        idUsuarioGanador = lider?.IdUsuario ?? 0,
+                        huboPujas = lider != null
                     });
 
                 return Json(new { success = true, mensaje = "Subasta cerrada exitosamente." });
