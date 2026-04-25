@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace SubastaAutos.Infraestructure.Models;
+﻿namespace SubastaAutos.Infraestructure.Models;
 
 public partial class Auto
 {

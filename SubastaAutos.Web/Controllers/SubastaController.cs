@@ -19,7 +19,7 @@ namespace SubastaAutos.Web.Controllers
 
         private const int VendedorSimuladoId = 1;
 
-        private static readonly int[] UsuariosCompradores = {2, 3, 6};
+        private static readonly int[] UsuariosCompradores = {2, 3};
         private static int _contadorUsuario = -1;
 
         public SubastaController(

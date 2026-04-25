@@ -1,0 +1,142 @@
+﻿@{
+    ViewData["Title"] = "Actividad del sistema por periodo";
+}
+
+<nav class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Inicio</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Reporte — Actividad por periodo</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1"><i class="bi bi-activity me-2"></i>Actividad del sistema por periodo</h1>
+        <p class="text-muted mb-0">Resumen de subastas creadas, pujas realizadas y subastas finalizadas en el rango seleccionado.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+        <form id="frmFiltro" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Desde</label>
+                <input type="date" id="desde" class="form-control" value="@ViewBag.Desde" required />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Hasta</label>
+                <input type="date" id="hasta" class="form-control" value="@ViewBag.Hasta" required />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1"></i>Aplicar filtro
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-primary border-4 h-100">
+            <div class="card-body">
+                <h6 class="text-muted mb-1"><i class="bi bi-plus-circle me-1"></i>Subastas creadas</h6>
+                <h2 class="text-primary mb-0" id="kpiCreadas">0</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-warning border-4 h-100">
+            <div class="card-body">
+                <h6 class="text-muted mb-1"><i class="bi bi-cash-coin me-1"></i>Pujas realizadas</h6>
+                <h2 class="text-warning mb-0" id="kpiPujas">0</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-success border-4 h-100">
+            <div class="card-body">
+                <h6 class="text-muted mb-1"><i class="bi bi-check-circle me-1"></i>Subastas finalizadas</h6>
+                <h2 class="text-success mb-0" id="kpiFinalizadas">0</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-header bg-body"><span class="fw-semibold">Actividad diaria</span></div>
+    <div class="card-body">
+        <div style="position: relative; height: 380px;">
+            <canvas id="chartActividad"></canvas>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            let chart = null;
+
+            async function cargar() {
+                const desde = document.getElementById('desde').value;
+                const hasta = document.getElementById('hasta').value;
+                const url = `@Url.Action("ActividadPorPeriodoData")?desde=${desde}&hasta=${hasta}`;
+
+                const resp = await fetch(url);
+                const json = await resp.json();
+                if (!json.success) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: json.mensaje || 'No se pudo cargar.' });
+                    return;
+                }
+                pintarKpis(json.data);
+                pintarGrafico(json.data.serieDiaria);
+            }
+
+            function pintarKpis(data) {
+                document.getElementById('kpiCreadas').textContent = data.totalSubastasCreadas;
+                document.getElementById('kpiPujas').textContent = data.totalPujas;
+                document.getElementById('kpiFinalizadas').textContent = data.totalSubastasFinalizadas;
+            }
+
+            function pintarGrafico(serie) {
+                const labels = serie.map(p => new Date(p.fecha).toLocaleDateString('es-CR',
+                    { day: '2-digit', month: '2-digit' }));
+                const creadas = serie.map(p => p.creadas);
+                const pujas = serie.map(p => p.pujas);
+                const finalizadas = serie.map(p => p.finalizadas);
+
+                if (chart) chart.destroy();
+                const ctx = document.getElementById('chartActividad').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Creadas',     data: creadas,     backgroundColor: 'rgba(13, 110, 253, 0.7)' },
+                            { label: 'Pujas',       data: pujas,       backgroundColor: 'rgba(255, 193, 7, 0.7)'  },
+                            { label: 'Finalizadas', data: finalizadas, backgroundColor: 'rgba(25, 135, 84, 0.7)'  }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: { stacked: false },
+                            y: { beginAtZero: true, ticks: { precision: 0 } }
+                        }
+                    }
+                });
+            }
+
+            document.getElementById('frmFiltro').addEventListener('submit', e => {
+                e.preventDefault();
+                cargar();
+            });
+
+            cargar();
+        })();
+    </script>
+}

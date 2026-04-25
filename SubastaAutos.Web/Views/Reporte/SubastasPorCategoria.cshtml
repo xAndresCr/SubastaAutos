@@ -1,0 +1,159 @@
+﻿@{
+    ViewData["Title"] = "Subastas por categoría";
+}
+
+<nav class="mb-3">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Inicio</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">Reporte — Subastas por categoría</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="h3 mb-1"><i class="bi bi-bar-chart-fill me-2"></i>Subastas por categoría</h1>
+        <p class="text-muted mb-0">Distribución de subastas realizadas y finalizadas por categoría del vehículo.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body">
+        <form id="frmFiltro" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Desde</label>
+                <input type="date" id="desde" class="form-control" value="@ViewBag.Desde" required />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Hasta</label>
+                <input type="date" id="hasta" class="form-control" value="@ViewBag.Hasta" required />
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1"></i>Aplicar filtro
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-body"><span class="fw-semibold">Distribución por categoría</span></div>
+            <div class="card-body">
+                <div style="position: relative; height: 360px;">
+                    <canvas id="chartCategorias"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-body"><span class="fw-semibold">Detalle</span></div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3">Categoría</th>
+                                <th class="text-end">Subastas realizadas</th>
+                                <th class="text-end pe-3">Finalizadas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblDetalle">
+                            <tr><td colspan="3" class="text-center text-muted p-3">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-3 border-top small text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Una subasta se contabiliza una vez por cada categoría asignada al auto.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            let chart = null;
+
+            async function cargar() {
+                const desde = document.getElementById('desde').value;
+                const hasta = document.getElementById('hasta').value;
+                const url = `@Url.Action("SubastasPorCategoriaData")?desde=${desde}&hasta=${hasta}`;
+
+                const resp = await fetch(url);
+                const json = await resp.json();
+                if (!json.success) {
+                    Swal.fire({ icon: 'error', title: 'Error', text: json.mensaje || 'No se pudo cargar.' });
+                    return;
+                }
+                pintarTabla(json.items);
+                pintarGrafico(json.items);
+            }
+
+            function pintarTabla(items) {
+                const tbody = document.getElementById('tblDetalle');
+                if (!items || items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted p-3">Sin datos para el rango.</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = items.map(i => `
+                    <tr>
+                        <td class="ps-3">${i.nombre}</td>
+                        <td class="text-end">${i.totalSubastas}</td>
+                        <td class="text-end pe-3">${i.totalFinalizadas}</td>
+                    </tr>
+                `).join('');
+            }
+
+            function pintarGrafico(items) {
+                const labels = items.map(i => i.nombre);
+                const totales = items.map(i => i.totalSubastas);
+                const finalizadas = items.map(i => i.totalFinalizadas);
+
+                if (chart) chart.destroy();
+                const ctx = document.getElementById('chartCategorias').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Subastas realizadas',
+                                data: totales,
+                                backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                                borderColor: 'rgba(13, 110, 253, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Finalizadas',
+                                data: finalizadas,
+                                backgroundColor: 'rgba(25, 135, 84, 0.7)',
+                                borderColor: 'rgba(25, 135, 84, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                    }
+                });
+            }
+
+            document.getElementById('frmFiltro').addEventListener('submit', e => {
+                e.preventDefault();
+                cargar();
+            });
+
+            cargar();
+        })();
+    </script>
+}
