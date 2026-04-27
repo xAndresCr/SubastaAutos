@@ -14,5 +14,9 @@ namespace SubastaAutos.Application.Services.Interfaces
         Task CancelarAsync(int id);
         Task<bool> PuedeEditarAsync(int id);
         Task CerrarAsync(int id);
+
+        Task<ICollection<SubastaDTO>> ListSubastasGanadasAsync(int idUsuario);
+
+        Task<ICollection<SubastaDTO>> ListByVendedorAsync(int idVendedor);
     }
 }

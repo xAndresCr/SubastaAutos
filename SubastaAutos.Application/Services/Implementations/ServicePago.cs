@@ -33,7 +33,7 @@ namespace SubastaAutos.Application.Services.Implementations
         {
             var entity = await _repositoryPago.GetBySubastaAsync(idSubasta);
             if (entity == null)
-                throw new Exception("No se encontró el pago para la subasta especificada.");
+                return null; // retornar null en lugar de lanzar excepción
             return _mapper.Map<PagoDTO>(entity);
         }
 
@@ -52,6 +52,10 @@ namespace SubastaAutos.Application.Services.Implementations
             if (subasta.ResultadoSubasta == null)
                 throw new InvalidOperationException(
                     "Esta subasta no tiene ganador, no se puede registrar el pago.");
+
+            if (subasta.FechaCierre.AddHours(24) < DateTime.Now)
+                throw new InvalidOperationException(
+                    "El plazo para registrar el pago ha expirado (24 horas).");
 
             //Si ya existe un pago registrado para esta subasta, no se puede registrar otro
             bool existePago = await _repositoryPago.ExistePagoParaSubastaAsync(idSubasta);

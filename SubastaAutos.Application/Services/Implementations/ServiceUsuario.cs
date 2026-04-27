@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Options;
+using SubastaAutos.Application.Config;
 using SubastaAutos.Application.DTOs;
 using SubastaAutos.Application.Services.Interfaces;
 using SubastaAutos.Infraestructure.Models;
@@ -9,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace SubastaAutos.Application.Services.Implementations
 {
@@ -18,6 +21,8 @@ namespace SubastaAutos.Application.Services.Implementations
 
         //AutoMapper que se crea para el mapeo entre el profile y el DTO hacia las entidades
         private readonly IMapper _mapper;
+
+
 
         public ServiceUsuario(IRepositoryUsuario repositoryUsuario, IMapper mapper)
         {
@@ -29,6 +34,8 @@ namespace SubastaAutos.Application.Services.Implementations
         {
             return await repositoryUsuario.ExisteCorreoAsync(correo);
         }
+
+      
 
 
         //Metodo que mapea el DTO hacia la entidad usuario por medio del AutoMappper cuando se agrega un nuevo usuario
@@ -54,7 +61,7 @@ namespace SubastaAutos.Application.Services.Implementations
         //Metodo que retorna la coleccion de usuarios mapeada hacia el DTO por medio del AutoMapper
         public async Task<ICollection<UsuarioDTO>> ListAsync()
         {
-           
+
             var list = await repositoryUsuario.ListAsync();
             var collection = _mapper.Map<ICollection<UsuarioDTO>>(list);
             return collection;
@@ -66,16 +73,18 @@ namespace SubastaAutos.Application.Services.Implementations
             if (entity == null)
                 throw new Exception("Usuario no encontrado.");
 
-            // Validar que al menos algo haya cambiado
             bool correoIgual = entity.Correo.ToLower() == dto.Correo.ToLower();
             bool nombreIgual = entity.NombreCompleto.ToLower() == dto.NombreCompleto.ToLower();
             bool estadoIgual = entity.EstadoUsuario == dto.EstadoUsuario;
 
-            if (correoIgual && nombreIgual && estadoIgual)
+            //  Verificar si la contraseña cambió
+            string nuevoHash = (dto.PasswordHash);
+            bool passwordIgual = entity.PasswordHash == nuevoHash;
+
+            if (correoIgual && nombreIgual && estadoIgual && passwordIgual)
                 throw new InvalidOperationException(
                     "No se realizaron cambios, los datos son idénticos a los actuales.");
 
-            // Validar correo duplicado solo si cambió
             if (!correoIgual)
             {
                 bool correoExiste = await repositoryUsuario.ExisteCorreoAsync(dto.Correo);
@@ -87,10 +96,15 @@ namespace SubastaAutos.Application.Services.Implementations
             entity.NombreCompleto = dto.NombreCompleto;
             entity.Correo = dto.Correo;
             entity.EstadoUsuario = dto.EstadoUsuario;
+
+            // Solo actualizar contraseña si cambió
+            if (!passwordIgual)
+                entity.PasswordHash = nuevoHash;
+
             await repositoryUsuario.UpdateAsync(entity);
         }
 
-       
+
         public async Task ToggleEstadoAsync(int id)
         {
             await repositoryUsuario.ToggleEstadoAsync(id);
@@ -105,5 +119,15 @@ namespace SubastaAutos.Application.Services.Implementations
             entity.EstadoUsuario = nuevoEstado;
             await repositoryUsuario.UpdateAsync(entity);
         }
+        public async Task<UsuarioDTO?> LoginAsync(string correo, string password)
+        {
+        
+            var usuario = await repositoryUsuario.LoginAsync(correo, password);
+            if (usuario == null) return null;
+            return _mapper.Map<UsuarioDTO>(usuario);
+        }
+
+
+
     }
 }

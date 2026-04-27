@@ -1,0 +1,222 @@
+﻿@model IEnumerable<SubastaAutos.Application.DTOs.SubastaDTO>
+@{
+    ViewData["Title"] = "Mis Subastas";
+    var total = Model?.Count() ?? 0;
+    var pagosExpirados = ViewBag.PagosExpirados as HashSet<int> ?? new HashSet<int>();
+    var pagosSinRegistrar = ViewBag.PagosSinRegistrar as HashSet<int> ?? new HashSet<int>();
+    var pagosConfirmados = ViewBag.PagosConfirmados as HashSet<int> ?? new HashSet<int>();
+
+    var culture = new System.Globalization.CultureInfo("es-CR");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h3 mb-1">
+            <i class="bi bi-trophy-fill text-warning me-2"></i>Mis Subastas Ganadas
+        </h1>
+        <p class="text-muted mb-0">
+            Subastas que has ganado. Total: <strong>@total</strong>
+        </p>
+    </div>
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        No has ganado ninguna subasta aún.
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        @foreach (var item in Model)
+        {
+            var estaExpirado = pagosExpirados.Contains(item.IdSubasta);
+            var estaSinRegistrar = pagosSinRegistrar.Contains(item.IdSubasta);
+            var estaConfirmado = pagosConfirmados.Contains(item.IdSubasta);
+
+            <div class="col">
+                <article class="card h-100 shadow-sm border-0">
+                    <div class="overflow-hidden bg-body-tertiary rounded-top"
+                         style="height:200px;">
+                        @if (!string.IsNullOrWhiteSpace(item.ImagenPrincipalAuto))
+                        {
+                            <img class="w-100 h-100 object-fit-cover"
+                                 src="@item.ImagenPrincipalAuto"
+                                 alt="@item.NombreAuto"
+                                 loading="lazy" />
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column justify-content-center
+                                                    align-items-center h-100 text-muted">
+                                <i class="bi bi-car-front fs-1"></i>
+                                <span class="small">Sin imagen</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card-body">
+                        <h2 class="h6 fw-semibold mb-2 text-truncate"
+                            title="@item.NombreAuto">
+                            @item.NombreAuto
+                        </h2>
+
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge text-bg-success">
+                                <i class="bi bi-trophy-fill me-1"></i>Ganada
+                            </span>
+                            @if (estaConfirmado)
+                            {
+                                <span class="badge text-bg-success">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Pago confirmado
+                                </span>
+                            }
+                            else if (estaExpirado)
+                            {
+                                <span class="badge text-bg-danger">
+                                    <i class="bi bi-clock me-1"></i>Pago expirado
+                                </span>
+                            }
+                            else if (estaSinRegistrar)
+                            {
+                                <span class="badge text-bg-warning">
+                                    <i class="bi bi-cash-stack me-1"></i>Pago sin registrar
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-info">
+                                    <i class="bi bi-hourglass-split me-1"></i>Pago pendiente
+                                </span>
+                            }
+                        </div>
+
+                        <small class="text-muted d-block">
+                            <i class="bi bi-calendar-check me-1"></i>
+                            Cerró: @item.FechaCierre.ToString("dd/MM/yyyy HH:mm")
+                        </small>
+                    </div>
+
+                    <div class="card-footer bg-body border-0 pb-3">
+                        <div class="d-grid gap-2">
+                            <a asp-action="Pujar" asp-route-id="@item.IdSubasta"
+                               class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-eye me-1"></i>Ver detalle
+                            </a>
+                            @if (!estaExpirado)
+                            {
+                                <button class="btn btn-primary btn-sm btnIrAlPago"
+                                        data-id-subasta="@item.IdSubasta"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalPago">
+                                    <i class="bi bi-credit-card me-1"></i>
+                                    @(estaSinRegistrar ? "Registrar Pago" : "Ir al Pago")
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}
+
+@* ── Modal de Pago ── *@
+<div class="modal fade" id="modalPago" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="modalPagoContenido">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary"></div>
+                <p class="mt-2">Cargando...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ── Cargar modal al hacer click en Ir al Pago ──
+        document.querySelectorAll(".btnIrAlPago").forEach(btn => {
+            btn.addEventListener("click", async function () {
+                const idSubasta = this.dataset.idSubasta;
+
+                document.getElementById("modalPagoContenido").innerHTML = `
+                    <div class="modal-body text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-2">Cargando...</p>
+                    </div>`;
+
+                const response = await fetch(`/Pago/DetalleParcial?idSubasta=${idSubasta}`);
+                document.getElementById("modalPagoContenido").innerHTML = await response.text();
+            });
+        });
+
+        // ── Delegación de eventos en el modal ──
+        // Funciona aunque el contenido sea dinámico
+        document.getElementById("modalPago").addEventListener("click", async function (e) {
+
+            // Registrar Pago
+            if (e.target.closest("#btnRegistrarPago")) {
+                const btn = e.target.closest("#btnRegistrarPago");
+                btn.disabled = true;
+                const idSubasta = btn.dataset.idSubasta;
+
+                const response = await fetch("/Pago/Registrar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(parseInt(idSubasta))
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: 'Pago registrado',
+                        text: data.mensaje,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: true
+                    });
+                    const res = await fetch(`/Pago/DetalleParcial?idSubasta=${idSubasta}`);
+                    document.getElementById("modalPagoContenido").innerHTML = await res.text();
+                } else {
+                    Swal.fire({ title: 'Error', text: data.mensaje, icon: 'error' });
+                    btn.disabled = false;
+                }
+            }
+
+            // Confirmar Pago
+            if (e.target.closest("#btnConfirmarPago")) {
+                const btn = e.target.closest("#btnConfirmarPago");
+                btn.disabled = true;
+                const idPago = btn.dataset.idPago;
+                const idSubasta = btn.dataset.idSubasta;
+
+                const response = await fetch("/Pago/Confirmar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(parseInt(idPago))
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        title: '¡Pago confirmado!',
+                        text: data.mensaje,
+                        icon: 'success',
+                        confirmButtonText: 'Aceptar'
+                    }).then(async () => {
+                        const res = await fetch(`/Pago/DetalleParcial?idSubasta=${idSubasta}`);
+                        document.getElementById("modalPagoContenido").innerHTML = await res.text();
+                        // Recargar la página para actualizar los badges
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({ title: 'Error', text: data.mensaje, icon: 'error' });
+                    btn.disabled = false;
+                }
+            }
+        });
+    </script>
+}

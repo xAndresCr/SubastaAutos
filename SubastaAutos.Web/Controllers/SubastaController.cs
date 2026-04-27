@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.SignalR;
 using SubastaAutos.Application.DTOs;
-using SubastaAutos.Application.Services.Implementations;
 using SubastaAutos.Application.Services.Interfaces;
 using SubastaAutos.Web.Hubs;
 
@@ -16,11 +15,6 @@ namespace SubastaAutos.Web.Controllers
         private readonly IServiceAuto _serviceAuto;
         private readonly IHubContext<SubastaHub> _hubContext;
         private readonly IServicePago _servicePago;
-
-        private const int VendedorSimuladoId = 1;
-
-        private static readonly int[] UsuariosCompradores = {2, 3};
-        private static int _contadorUsuario = -1;
 
         public SubastaController(
             IServiceSubasta serviceSubasta,
@@ -36,28 +30,36 @@ namespace SubastaAutos.Web.Controllers
             _hubContext = hubContext;
         }
 
-        // ── LISTADO PÚBLICO: Activas 
+        // ← Leer usuario real de la sesión
+        private int GetUsuarioActualId()
+        {
+            return HttpContext.Session.GetInt32("UsuarioId") ?? 0;
+        }
+
+        // ── LISTADO PÚBLICO: Activas
         public async Task<IActionResult> Index()
         {
+            
             var collection = await _serviceSubasta.ListActivasAsync();
             return View(collection);
         }
 
-        // ── LISTADO PÚBLICO: Finalizadas 
+        // ── LISTADO PÚBLICO: Finalizadas
         public async Task<IActionResult> Finalizadas()
         {
             var collection = await _serviceSubasta.ListFinalizadasAsync();
             return View(collection);
         }
 
-        // ── LISTADO ADMIN: Todas 
+        // ── LISTADO ADMIN: Todas
         public async Task<IActionResult> IndexAdmin()
         {
-            var collection = await _serviceSubasta.ListAsync();
+            var usuarioId = GetUsuarioActualId();
+            var collection = await _serviceSubasta.ListByVendedorAsync(usuarioId);
             return View(collection);
         }
 
-        // ── DETALLE 
+        // ── DETALLE
         public async Task<IActionResult> Details(int? id)
         {
             try
@@ -69,10 +71,11 @@ namespace SubastaAutos.Web.Controllers
                 if (dto == null)
                     throw new Exception("Subasta no encontrada.");
 
-                //Mensahe de notificación si la puja fue superada
+                var usuarioActualId = GetUsuarioActualId(); // ← sesión real
+
                 ViewBag.PujaFueSuperada = await _servicePuja
-                .PujaFueSuperadaAsync(id.Value, VendedorSimuladoId);
-                ViewBag.UsuarioActualId = VendedorSimuladoId;
+                    .PujaFueSuperadaAsync(id.Value, usuarioActualId);
+                ViewBag.UsuarioActualId = usuarioActualId;
 
                 return View(dto);
             }
@@ -84,7 +87,45 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // PUJAS (historial) 
+        // ── MIS SUBASTAS
+        public async Task<IActionResult> MisSubastas()
+        {
+            var usuarioId = GetUsuarioActualId();
+            if (usuarioId == 0)
+                return RedirectToAction("LogIn", "Login");
+
+            var subastas = await _serviceSubasta.ListSubastasGanadasAsync(usuarioId);
+
+            ViewBag.PagosExpirados = new HashSet<int>();
+            ViewBag.PagosSinRegistrar = new HashSet<int>();
+            ViewBag.PagosConfirmados = new HashSet<int>();
+
+            foreach (var subasta in subastas)
+            {
+                var pago = await _servicePago.GetBySubastaAsync(subasta.IdSubasta);
+                if (pago == null)
+                {
+                    if (subasta.FechaCierre.AddHours(24) < DateTime.Now)
+                        ((HashSet<int>)ViewBag.PagosExpirados).Add(subasta.IdSubasta);
+                    else
+                        ((HashSet<int>)ViewBag.PagosSinRegistrar).Add(subasta.IdSubasta);
+                }
+                else if (pago.IdEstadoPago == 2)
+                {
+                    ((HashSet<int>)ViewBag.PagosConfirmados).Add(subasta.IdSubasta);
+                }
+                else if (pago.EstadoPago == "Pendiente" &&
+                         pago.FechaRegistro.HasValue &&
+                         pago.FechaRegistro.Value.AddHours(24) < DateTime.Now)
+                {
+                    ((HashSet<int>)ViewBag.PagosExpirados).Add(subasta.IdSubasta);
+                }
+            }
+
+            return View(subastas);
+        }
+
+        // ── PUJAS (historial)
         public async Task<IActionResult> Pujas(int? id)
         {
             try
@@ -98,11 +139,13 @@ namespace SubastaAutos.Web.Controllers
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Error", ex.Message, SweetAlertMessageType.error);
+                return RedirectToAction(nameof(Index));
             }
         }
 
-        //AJAX: REGISTRAR PUJA
+        // ── AJAX: REGISTRAR PUJA
         [HttpPost]
         public async Task<IActionResult> Pujar([FromBody] PujaDTO dto)
         {
@@ -112,10 +155,8 @@ namespace SubastaAutos.Web.Controllers
 
                 var lider = await _servicePuja.GetPujaLiderAsync(dto.IdSubasta);
                 var subasta = await _serviceSubasta.FindByIdAsync(dto.IdSubasta);
-
                 decimal montoSiguiente = (lider?.Monto ?? subasta!.PrecioBase) + subasta!.IncrementoMinimo;
 
-                // Notificar a todos los que están viendo esta subasta
                 await _hubContext.Clients
                     .Group($"subasta-{dto.IdSubasta}")
                     .SendAsync("NuevaPuja", new
@@ -151,31 +192,8 @@ namespace SubastaAutos.Web.Controllers
                 return Json(new { success = false, mensaje = ex.Message });
             }
         }
-        //Para la sesión
-        private int GetUsuarioActualId()
-        {
-            // Si ya tiene usuario en sesión, lo retorna
-            var idSesion = HttpContext.Session.GetInt32("UsuarioSimulado");
-            if (idSesion.HasValue)
-                return idSesion.Value;
 
-            // Si no tiene, asigna el default y lo guarda en sesión
-            var idx = Interlocked.Increment(ref _contadorUsuario) % UsuariosCompradores.Length;
-            var idUsuario = UsuariosCompradores[idx];
-            HttpContext.Session.SetInt32("UsuarioSimulado", idUsuario);
-            
-            return idUsuario;
-        }
-
-        // Solo para pruebas se accede via URL: /Subasta/SimularUsuario/3
-        [HttpGet]
-        public IActionResult SimularUsuario(int id)
-        {
-            HttpContext.Session.SetInt32("UsuarioSimulado", id);
-            return Json(new { success = true, mensaje = $"Usuario simulado cambiado a {id}" });
-        }
-
-        // ── VISTA DE PUJAS (GET) ─────────────────────────────────────
+        // ── VISTA DE PUJAS (GET)
         [HttpGet]
         public async Task<IActionResult> Pujar(int id)
         {
@@ -192,13 +210,11 @@ namespace SubastaAutos.Web.Controllers
                 ViewBag.UsuarioActualId = usuarioActualId;
                 ViewBag.EsVendedor = (usuarioActualId == dto.IdVendedor);
 
-                // ── Monto siguiente puja (SIEMPRE se calcula) ──
                 var pujaMax = dto.Pujas.OrderByDescending(p => p.Monto).FirstOrDefault();
                 ViewBag.MontoSiguientePuja = pujaMax != null
                     ? pujaMax.Monto + dto.IncrementoMinimo
                     : dto.PrecioBase + dto.IncrementoMinimo;
 
-                // ── Pago (solo aplica si está finalizada) ──
                 ViewBag.EsGanador = false;
                 ViewBag.PagoRegistrado = false;
                 ViewBag.PagoConfirmado = false;
@@ -238,6 +254,7 @@ namespace SubastaAutos.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
         [HttpGet]
         public async Task<IActionResult> EstadoSubasta(int id)
         {
@@ -251,7 +268,6 @@ namespace SubastaAutos.Web.Controllers
                 bool pujaFueSuperada = await _servicePuja
                     .PujaFueSuperadaAsync(id, GetUsuarioActualId());
 
-                // Notificar a todos los clientes del grupo el estado actual
                 await _hubContext.Clients
                     .Group($"subasta-{id}")
                     .SendAsync("EstadoActualizado", new
@@ -279,7 +295,6 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> CerrarSubasta(int id)
         {
@@ -309,18 +324,19 @@ namespace SubastaAutos.Web.Controllers
                 return Json(new { success = false, mensaje = ex.Message });
             }
         }
+
+        // ── COMBOS
         private async Task LoadCombosAsync(int? selectedAutoId = null)
         {
+            var usuarioActualId = GetUsuarioActualId(); // ← sesión real
             var autos = await _serviceAuto.ListAsync();
             var subastas = await _serviceSubasta.ListAsync();
 
-            // Autos con subasta activa o borrador (no disponibles)
             var autosConSubastaPendiente = subastas
                 .Where(s => s.EstadoSubasta == "Activa" || s.EstadoSubasta == "Borrador")
                 .Select(s => s.IdAuto)
                 .ToHashSet();
 
-            // Autos vendidos: subasta finalizada CON pujas
             var autosVendidos = subastas
                 .Where(s => s.EstadoSubasta == "Finalizada" && s.CantidadPujas > 0)
                 .Select(s => s.IdAuto)
@@ -342,46 +358,45 @@ namespace SubastaAutos.Web.Controllers
                 "Descripcion",
                 selectedAutoId);
 
-            var autoVendedor = autos.FirstOrDefault(a => a.IdVendedor == VendedorSimuladoId);
-            ViewBag.VendedorNombre = autoVendedor?.Propietario ?? "Usuario #1";
+            // ← Nombre del vendedor desde sesión real
+            var autoVendedor = autos.FirstOrDefault(a => a.IdVendedor == usuarioActualId);
+            ViewBag.VendedorNombre = autoVendedor?.Propietario
+                ?? HttpContext.Session.GetString("UsuarioNombre")
+                ?? "Usuario";
         }
-        // CREATE GET 
+
+        // ── CREATE GET
         public async Task<IActionResult> Create()
         {
             await LoadCombosAsync();
             return View(new SubastaDTO
             {
-                IdVendedor = GetUsuarioActualId(),
-                IdEstadoSubasta = 4, // Borrador
+                IdVendedor = GetUsuarioActualId(), // ← sesión real
+                IdEstadoSubasta = 4,
                 FechaCreacion = DateTime.Now,
                 FechaInicio = DateTime.Now.AddDays(1),
                 FechaCierre = DateTime.Now.AddDays(8)
             });
         }
 
-        // CREATE POST 
+        // ── CREATE POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SubastaDTO dto)
         {
-
-            // Forzar valores internos
-            dto.IdVendedor = VendedorSimuladoId;
-            dto.IdEstadoSubasta = 4; // Borrador
+            dto.IdVendedor = GetUsuarioActualId(); // ← sesión real
+            dto.IdEstadoSubasta = 4;
             dto.FechaCreacion = DateTime.Now;
 
-            // Quitar validaciones de campos calculados
             ModelState.Remove("NombreAuto");
             ModelState.Remove("ImagenPrincipalAuto");
             ModelState.Remove("Vendedor");
             ModelState.Remove("EstadoSubasta");
 
-            // Validación: fecha inicio debe ser futura
             if (dto.FechaInicio <= DateTime.Now)
                 ModelState.AddModelError("FechaInicio",
                     "La fecha de inicio debe ser posterior al momento actual.");
 
-            // Validación: fecha cierre > fecha inicio
             if (dto.FechaCierre <= dto.FechaInicio)
                 ModelState.AddModelError("FechaCierre",
                     "La fecha de cierre debe ser posterior a la fecha de inicio.");
@@ -417,7 +432,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // EDIT GET 
+        // ── EDIT GET
         public async Task<IActionResult> Edit(int id)
         {
             try
@@ -447,7 +462,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // EDIT POST
+        // ── EDIT POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, SubastaDTO dto)
@@ -459,7 +474,6 @@ namespace SubastaAutos.Web.Controllers
             ModelState.Remove("IdAuto");
             ModelState.Remove("FechaCreacion");
 
-            // Validación: fecha inicio debe ser futura
             if (dto.FechaInicio <= DateTime.Now)
                 ModelState.AddModelError("FechaInicio",
                     "La fecha de inicio debe ser posterior al momento actual.");
@@ -498,7 +512,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        //PUBLICAR
+        // ── PUBLICAR
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Publicar(int id)
@@ -519,7 +533,7 @@ namespace SubastaAutos.Web.Controllers
             return RedirectToAction(nameof(IndexAdmin));
         }
 
-        //CANCELAR 
+        // ── CANCELAR
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancelar(int id)

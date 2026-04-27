@@ -61,7 +61,7 @@ namespace SubastaAutos.Application.DTOs
         [DisplayName("Pujas")]
         public int CantidadPujas { get; set; }
 
-        // ── Sublista ────────────────────────────────────────────
+        public decimal MontoFinal { get; set; }
 
         [DisplayName("Historial de Pujas")]
         public List<PujaDTO> Pujas { get; set; } = new();

@@ -19,5 +19,7 @@ namespace SubastaAutos.Infraestructure.Repository.Interfaces
         Task UpdateAsync(Usuario entity);
         Task ToggleEstadoAsync(int id);
 
+        Task<Usuario?> LoginAsync(string correo, string password);
+
     }
 }

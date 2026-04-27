@@ -58,6 +58,40 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
                 .ToListAsync();
         }
 
+        //Para el usuario ganador
+        public async Task<ICollection<Subasta>> ListSubastasGanadasAsync(int idUsuario)
+        {
+            return await _context.Set<Subasta>()
+                .Include(s => s.IdAutoNavigation)
+                    .ThenInclude(a => a.AutoImagen)
+                .Include(s => s.IdVendedorNavigation)
+                .Include(s => s.IdEstadoSubastaNavigation)
+                .Include(s => s.Puja)
+                .Include(s => s.ResultadoSubasta)
+                .Include(s => s.Pago)
+                .Where(s => s.IdEstadoSubasta == 2 // Finalizada
+                    && s.ResultadoSubasta != null
+                    && s.ResultadoSubasta.IdUsuarioGanador == idUsuario)
+                .OrderByDescending(s => s.FechaCierre)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        //Para el vendedor
+        public async Task<ICollection<Subasta>> ListByVendedorAsync(int idVendedor)
+        {
+            return await _context.Set<Subasta>()
+                .Include(s => s.IdAutoNavigation)
+                    .ThenInclude(a => a.AutoImagen)
+                .Include(s => s.IdVendedorNavigation)
+                .Include(s => s.IdEstadoSubastaNavigation)
+                .Include(s => s.Puja)
+                .Where(s => s.IdVendedor == idVendedor)
+                .OrderByDescending(s => s.FechaCreacion)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
         // DETALLE 
         public async Task<Subasta?> FindByIdAsync(int id)
         {

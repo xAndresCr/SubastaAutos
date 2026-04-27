@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration.UserSecrets;
 using SubastaAutos.Application.DTOs;
 using SubastaAutos.Application.Services.Implementations;
 using SubastaAutos.Application.Services.Interfaces;
+using SubastaAutos.Infraestructure.Repository.Implementations;
 using System;
 using System.Threading.Tasks;
 
@@ -160,6 +161,8 @@ namespace SubastaAutos.Web.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+       
 
     }
 }

@@ -20,5 +20,8 @@ namespace SubastaAutos.Application.Services.Interfaces
 
         Task UpdateAsync(int id, UsuarioDTO dto);
         Task ToggleEstadoAsync(int id);
+        Task<UsuarioDTO?> LoginAsync(string correo, string password);
+
+       
     }
 }

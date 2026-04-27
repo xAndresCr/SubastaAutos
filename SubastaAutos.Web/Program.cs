@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SubastaAutos.Application.Config;
 using SubastaAutos.Application.Profiles;
 using SubastaAutos.Application.Services.Implementations;
 using SubastaAutos.Application.Services.Interfaces;
@@ -26,6 +27,8 @@ builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
 });
+
+builder.Services.Configure<AppConfig>(builder.Configuration);
 
 // Repositories
 builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();
@@ -91,6 +94,10 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Login}/{action=LogIn}/{id?}")
+    .WithStaticAssets();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

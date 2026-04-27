@@ -15,5 +15,8 @@ namespace SubastaAutos.Infraestructure.Repository.Interfaces
         Task<bool> HaIniciadoAsync(int id);
         Task<bool> ExisteSubastaActivaParaAutoAsync(int idAuto, int? excluirSubastaId = null);
         Task GuardarResultadoAsync(ResultadoSubasta resultado);
+        Task<ICollection<Subasta>> ListSubastasGanadasAsync(int idUsuario);
+
+        Task<ICollection<Subasta>> ListByVendedorAsync(int idVendedor);
     }
 }

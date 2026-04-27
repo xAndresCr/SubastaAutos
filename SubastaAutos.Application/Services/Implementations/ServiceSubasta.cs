@@ -156,5 +156,16 @@ namespace SubastaAutos.Application.Services.Implementations
                 await _repository.GuardarResultadoAsync(resultado);
             }
         }
+        public async Task<ICollection<SubastaDTO>> ListSubastasGanadasAsync(int idUsuario)
+        {
+            var list = await _repository.ListSubastasGanadasAsync(idUsuario);
+            return _mapper.Map<ICollection<SubastaDTO>>(list);
+        }
+
+        public async Task<ICollection<SubastaDTO>> ListByVendedorAsync(int idVendedor)
+        {
+            var list = await _repository.ListByVendedorAsync(idVendedor);
+            return _mapper.Map<ICollection<SubastaDTO>>(list);
+        }
     }
 }

@@ -1,7 +1,7 @@
 @model IEnumerable<SubastaAutos.Application.DTOs.SubastaDTO>
 
 @{
-    ViewData["Title"] = "Administración de Subastas";
+    ViewData["Title"] = "Mis Subastas";
     var total = Model?.Count() ?? 0;
 }
 
@@ -10,17 +10,21 @@
         <li class="breadcrumb-item">
             <a asp-controller="Home" asp-action="Index" class="text-decoration-none">Inicio</a>
         </li>
-        <li class="breadcrumb-item active" aria-current="page">Gestión de Subastas</li>
+        <li class="breadcrumb-item active" aria-current="page">Mis Subastas</li>
     </ol>
 </nav>
 
 <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
     <div>
-        <h1 class="h3 mb-1">Subastas</h1>
-        <p class="text-muted mb-0">Gestión administrativa de subastas. Total: <strong>@total</strong>.</p>
+        <h1 class="h3 mb-1">
+            <i class="bi bi-hammer me-2"></i>Mis Subastas
+        </h1>
+        <p class="text-muted mb-0">
+            Subastas creadas por ti. Total: <strong>@total</strong>
+        </p>
     </div>
     <a asp-action="Create" class="btn btn-primary">
-        <i class="bi bi-plus-lg me-1"></i> Nueva Subasta
+        <i class="bi bi-plus-lg me-1"></i>Nueva Subasta
     </a>
 </div>
 
@@ -33,9 +37,9 @@
         {
             <div class="p-4 text-center">
                 <i class="bi bi-inbox display-6 mb-2"></i>
-                <h2 class="h5">No hay subastas registradas</h2>
+                <h2 class="h5">No tienes subastas registradas</h2>
                 <a asp-action="Create" class="btn btn-primary mt-2">
-                    <i class="bi bi-plus-lg me-1"></i> Crear subasta
+                    <i class="bi bi-plus-lg me-1"></i>Crear subasta
                 </a>
             </div>
         }
@@ -48,7 +52,6 @@
                             <th class="ps-3" style="width:60px;">ID</th>
                             <th style="width:70px;"></th>
                             <th>Auto</th>
-                            <th>Vendedor</th>
                             <th class="text-end">Precio Base</th>
                             <th class="text-center">Pujas</th>
                             <th class="text-center">Estado</th>
@@ -74,7 +77,6 @@
                                     }
                                 </td>
                                 <td class="fw-semibold">@item.NombreAuto</td>
-                                <td>@item.Vendedor</td>
                                 <td class="text-end">@item.PrecioBase.ToString("₡#,##0.00")</td>
                                 <td class="text-center">
                                     <span class="badge text-bg-primary">@item.CantidadPujas</span>
@@ -101,10 +103,10 @@
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="btn-group" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.IdSubasta"
+                                        <a asp-action="Pujar" asp-route-id="@item.IdSubasta"
                                            class="btn btn-outline-secondary btn-sm">
                                             <i class="bi bi-eye"></i>
-                                            <span class="d-none d-lg-inline ms-1">Detalle</span>
+                                            <span class="d-none d-lg-inline ms-1">Ver</span>
                                         </a>
 
                                         @if (item.EstadoSubasta == "Borrador")
@@ -118,8 +120,7 @@
                                             <form asp-action="Publicar" asp-route-id="@item.IdSubasta"
                                                   method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-outline-success btn-sm"
-                                                        title="Publicar">
+                                                <button type="submit" class="btn btn-outline-success btn-sm">
                                                     <i class="bi bi-megaphone"></i>
                                                     <span class="d-none d-lg-inline ms-1">Publicar</span>
                                                 </button>
@@ -156,6 +157,7 @@
         }
     </div>
 </div>
+
 @section Scripts {
     <script>
         document.querySelectorAll('.btn-cancelar').forEach(function (btn) {

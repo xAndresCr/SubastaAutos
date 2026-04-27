@@ -63,7 +63,7 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
         {
             _context.Entry(entity).Property(u => u.NombreCompleto).IsModified = true;
             _context.Entry(entity).Property(u => u.Correo).IsModified = true;
-            _context.Entry(entity).Property(u => u.EstadoUsuario).IsModified = true; 
+            _context.Entry(entity).Property(u => u.EstadoUsuario).IsModified = true;
             await _context.SaveChangesAsync();
         }
 
@@ -78,6 +78,14 @@ namespace SubastaAutos.Infraestructure.Repository.Implementations
 
             entity.EstadoUsuario = !entity.EstadoUsuario;
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Usuario?> LoginAsync(string correo, string password)
+        {
+            return await _context.Usuario
+                .Include(u => u.IdRolNavigation)
+                .FirstOrDefaultAsync(u =>
+                    u.Correo.ToLower() == correo.ToLower() && u.PasswordHash == password);
         }
     }
 }

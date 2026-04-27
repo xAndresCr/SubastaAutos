@@ -10,19 +10,20 @@ namespace SubastaAutos.Web.Controllers
         private readonly IServiceSubasta _serviceSubasta;
 
         public PagoController(
-         IServicePago servicePago,
-         IServiceSubasta serviceSubasta)
+            IServicePago servicePago,
+            IServiceSubasta serviceSubasta)
         {
             _servicePago = servicePago;
             _serviceSubasta = serviceSubasta;
         }
-        //Solo para validar usuario en la sesion mirey
+
+        // ← Leer usuario del login real
         private int GetUsuarioActualId()
         {
-            return HttpContext.Session.GetInt32("UsuarioSimulado") ?? 1;
+            return HttpContext.Session.GetInt32("UsuarioId") ?? 0;
         }
 
-        //Ver el pago de la subasta
+        // Ver el pago de la subasta
         [HttpGet]
         public async Task<IActionResult> Detalle(int idSubasta)
         {
@@ -30,14 +31,12 @@ namespace SubastaAutos.Web.Controllers
             {
                 var subasta = await _serviceSubasta.FindByIdAsync(idSubasta);
                 if (subasta == null)
-                    throw new Exception("Subasta no encontrada");
+                    throw new Exception("Subasta no encontrada.");
 
-                // Obtener el ganador
                 var ganador = subasta.Pujas
                     .OrderByDescending(p => p.Monto)
                     .FirstOrDefault();
 
-                // ← Verificar que el usuario actual es el ganador
                 if (ganador == null || ganador.IdUsuario != GetUsuarioActualId())
                 {
                     TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
@@ -47,21 +46,62 @@ namespace SubastaAutos.Web.Controllers
                     return RedirectToAction("Index", "Subasta");
                 }
 
-                // Si llegó aquí, es el ganador
-                var pago = await _servicePago.GetBySubastaAsync(idSubasta);
+                // ← Validar que no han pasado más de 24 horas
+                if (subasta.FechaCierre.AddHours(24) < DateTime.Now)
+                {
+                    var pago = await _servicePago.GetBySubastaAsync(idSubasta);
+                    // Si no hay pago confirmado, redirigir
+                    if (pago == null || pago.IdEstadoPago != 2)
+                    {
+                        TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                            "Pago expirado",
+                            "El plazo para realizar el pago ha expirado (24 horas).",
+                            SweetAlertMessageType.warning);
+                        return RedirectToAction("MisSubastas", "Subasta");
+                    }
+                }
+
+                var pagoDetalle = await _servicePago.GetBySubastaAsync(idSubasta);
                 ViewBag.IdSubasta = idSubasta;
-                return View(pago);
+                return View(pagoDetalle);
             }
             catch (Exception ex)
             {
                 TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
-                "Error", ex.Message, SweetAlertMessageType.error);
+                    "Error", ex.Message, SweetAlertMessageType.error);
                 return RedirectToAction("Index", "Subasta");
             }
-
         }
 
-        //Reistrar pago AJAX
+        [HttpGet]
+        public async Task<IActionResult> DetalleParcial(int idSubasta)
+        {
+            try
+            {
+                var subasta = await _serviceSubasta.FindByIdAsync(idSubasta);
+                if (subasta == null)
+                    return PartialView("_PagoDetalle", null);
+
+                // ← Pasar estado de expiración al ViewBag
+                ViewBag.IdSubasta = idSubasta;
+                ViewBag.PagoExpirado = subasta.FechaCierre.AddHours(24) < DateTime.Now;
+
+                var pago = await _servicePago.GetBySubastaAsync(idSubasta);
+
+                // Si expiró y no está confirmado, no mostrar pago
+                if (ViewBag.PagoExpirado && (pago == null || pago.IdEstadoPago != 2))
+                    return PartialView("_PagoDetalle", null);
+
+                return PartialView("_PagoDetalle", pago);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = ex.Message;
+                return PartialView("_PagoDetalle", null);
+            }
+        }
+
+        // Registrar pago AJAX
         [HttpPost]
         public async Task<IActionResult> Registrar([FromBody] int idSubasta)
         {
@@ -69,7 +109,6 @@ namespace SubastaAutos.Web.Controllers
             {
                 await _servicePago.RegistrarPagoAsync(idSubasta);
                 var pago = await _servicePago.GetBySubastaAsync(idSubasta);
-
                 return Json(new
                 {
                     success = true,
@@ -89,17 +128,15 @@ namespace SubastaAutos.Web.Controllers
                 return Json(new { success = false, mensaje = ex.Message });
             }
         }
-        //Confirmar pago AJAX
-        [HttpPost]
-        [HttpPost]
-        [HttpPost]
+
+        // Confirmar pago AJAX
+        [HttpPost] // ← Solo un [HttpPost]
         public async Task<IActionResult> Confirmar([FromBody] int idPago)
         {
             try
             {
                 await _servicePago.ConfirmarPagoAsync(idPago);
                 var pago = await _servicePago.GetByIdAsync(idPago);
-
                 return Json(new
                 {
                     success = true,

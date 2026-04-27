@@ -1,0 +1,92 @@
+﻿@model SubastaAutos.Application.DTOs.PagoDTO
+@{
+    var culture = new System.Globalization.CultureInfo("es-CR");
+    var idSubasta = (int)(ViewBag.IdSubasta ?? 0);
+    var pagoExpirado = (bool)(ViewBag.PagoExpirado ?? false);
+    var error = (string)(ViewBag.Error ?? "");
+}
+
+<div class="modal-header bg-primary text-white">
+    <h5 class="modal-title">
+        <i class="bi bi-credit-card me-2"></i>Pago de Subasta
+    </h5>
+    <button type="button" class="btn-close btn-close-white"
+            data-bs-dismiss="modal"></button>
+</div>
+<div class="modal-body">
+
+    @* ── Error ── *@
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@error
+        </div>
+    }
+
+    @* ── Pago expirado ── *@
+    else if (pagoExpirado)
+    {
+        <div class="alert alert-danger mb-0">
+            <i class="bi bi-clock me-2"></i>
+            <strong>Pago expirado.</strong><br />
+            El plazo para realizar el pago ha vencido (24 horas).
+        </div>
+    }
+
+    @* ── Sin pago registrado ── *@
+    else if (Model == null)
+    {
+        <div class="alert alert-warning mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            No existe un pago registrado aún.
+        </div>
+        <button class="btn btn-primary w-100" id="btnRegistrarPago"
+                data-id-subasta="@idSubasta">
+            <i class="bi bi-receipt me-1"></i> Registrar Pago
+        </button>
+    }
+
+    @* ── Pago existente ── *@
+    else
+    {
+        <dl class="row mb-3">
+            <dt class="col-5 text-muted">Monto</dt>
+            <dd class="col-7 fw-bold text-success">
+                @Model.Monto.ToString("C", culture)
+            </dd>
+
+            <dt class="col-5 text-muted">Fecha Registro</dt>
+            <dd class="col-7">
+                @Model.FechaRegistro?.ToString("dd/MM/yyyy HH:mm")
+            </dd>
+
+            <dt class="col-5 text-muted">Estado</dt>
+            <dd class="col-7">
+                @if (Model.IdEstadoPago == 1)
+                {
+                    <span class="badge text-bg-warning">@Model.EstadoPago</span>
+                }
+                else
+                {
+                    <span class="badge text-bg-success">@Model.EstadoPago</span>
+                }
+            </dd>
+        </dl>
+
+        @if (Model.EstadoPago == "Pendiente")
+        {
+            <button class="btn btn-success w-100" id="btnConfirmarPago"
+                    data-id-pago="@Model.IdPago"
+                    data-id-subasta="@idSubasta">
+                <i class="bi bi-check-circle me-1"></i> Confirmar Pago
+            </button>
+        }
+        else
+        {
+            <div class="alert alert-success mb-0">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <strong>Pago confirmado exitosamente.</strong>
+            </div>
+        }
+    }
+</div>
