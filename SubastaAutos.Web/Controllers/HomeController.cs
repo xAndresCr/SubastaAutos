@@ -13,6 +13,10 @@ namespace SubastaAutos.Web.Controllers
             _logger = logger;
         }
 
+        public IActionResult Denegado()
+        {
+            return View();
+        }
         public IActionResult Index()
         {
             return View();

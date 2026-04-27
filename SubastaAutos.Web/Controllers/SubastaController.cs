@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using SubastaAutos.Application.DTOs;
 using SubastaAutos.Application.Services.Interfaces;
 using SubastaAutos.Web.Hubs;
+using SubastaAutos.Web.Filters;
 
 namespace SubastaAutos.Web.Controllers
 {
@@ -44,6 +45,7 @@ namespace SubastaAutos.Web.Controllers
             return View(collection);
         }
 
+        [RolAutorizado(1)]
         // ── LISTADO PÚBLICO: Finalizadas
         public async Task<IActionResult> Finalizadas()
         {
@@ -51,6 +53,7 @@ namespace SubastaAutos.Web.Controllers
             return View(collection);
         }
 
+        [RolAutorizado(1 , 3)]
         // ── LISTADO ADMIN: Todas
         public async Task<IActionResult> IndexAdmin()
         {
@@ -59,6 +62,7 @@ namespace SubastaAutos.Web.Controllers
             return View(collection);
         }
 
+        [RolAutorizado(1)]
         // ── DETALLE
         public async Task<IActionResult> Details(int? id)
         {
@@ -87,6 +91,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
+        [RolAutorizado(2)]
         // ── MIS SUBASTAS
         public async Task<IActionResult> MisSubastas()
         {
@@ -125,6 +130,7 @@ namespace SubastaAutos.Web.Controllers
             return View(subastas);
         }
 
+        [RolAutorizado(1, 3)]
         // ── PUJAS (historial)
         public async Task<IActionResult> Pujas(int? id)
         {
@@ -204,6 +210,18 @@ namespace SubastaAutos.Web.Controllers
                     throw new Exception("Subasta no encontrada.");
 
                 var usuarioActualId = GetUsuarioActualId();
+
+                var rolUsuario = HttpContext.Session.GetInt32("UsuarioRol") ?? 0;
+
+                // ← Vendedor solo puede ver sus propias subastas
+                if (rolUsuario == 3 && dto.IdVendedor != usuarioActualId)
+                {
+                    TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                        "Acceso denegado",
+                        "Solo puedes ver las subastas que tú creaste.",
+                        SweetAlertMessageType.warning);
+                    return RedirectToAction(nameof(IndexAdmin));
+                }
 
                 ViewBag.PujaFueSuperada = await _servicePuja
                     .PujaFueSuperadaAsync(id, usuarioActualId);

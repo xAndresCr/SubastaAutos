@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SubastaAutos.Application.Services.Interfaces;
+using SubastaAutos.Web.Filters;
 
 namespace SubastaAutos.Web.Controllers
 {
@@ -23,7 +24,7 @@ namespace SubastaAutos.Web.Controllers
             ViewBag.Hasta = hasta.ToString("yyyy-MM-dd");
             return View();
         }
-
+        [RolAutorizado(1)]
         [HttpGet]
         public async Task<IActionResult> SubastasPorCategoriaData(DateTime? desde, DateTime? hasta)
         {
@@ -44,7 +45,7 @@ namespace SubastaAutos.Web.Controllers
                 return Json(new { success = false, mensaje = ex.Message });
             }
         }
-
+        [RolAutorizado(1)]
         // ── REPORTE 4: Actividad del Sistema por Periodo ──
         public IActionResult ActividadPorPeriodo()
         {
@@ -53,7 +54,7 @@ namespace SubastaAutos.Web.Controllers
             ViewBag.Hasta = hasta.ToString("yyyy-MM-dd");
             return View();
         }
-
+        [RolAutorizado(1)]
         [HttpGet]
         public async Task<IActionResult> ActividadPorPeriodoData(DateTime? desde, DateTime? hasta)
         {
