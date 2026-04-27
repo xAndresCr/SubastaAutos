@@ -156,6 +156,14 @@
                         <span class="d-none d-sm-inline">@nombreUsuario</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        @* ← Nuevo botón de perfil *@
+                        <li>
+                            <a class="dropdown-item" asp-controller="Usuario" asp-action="MiPerfil">
+                                <i class="bi bi-person-gear me-1"></i>Mi Perfil
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
                         <li>
                             <form asp-controller="Login" asp-action="LogIn" method="post">
                                 <button type="submit" class="dropdown-item">

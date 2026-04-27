@@ -7,6 +7,7 @@ using SubastaAutos.Application.DTOs;
 using SubastaAutos.Application.Services.Implementations;
 using SubastaAutos.Application.Services.Interfaces;
 using SubastaAutos.Infraestructure.Repository.Implementations;
+using SubastaAutos.Web.Filters;
 using System;
 using System.Threading.Tasks;
 
@@ -24,6 +25,8 @@ namespace SubastaAutos.Web.Controllers
             _rolUsuarioService = rolUsuarioService;
         }
 
+
+        [RolAutorizado(1)]
         //Metodo controlador para mostrar los usuarios en la vista
         public async Task<IActionResult> Index()
         {
@@ -31,6 +34,7 @@ namespace SubastaAutos.Web.Controllers
             return View(objeto);
         }
 
+        [RolAutorizado(1)]
         //Metodo controlador para mostrar los detalles de un usuario (metodo original usado para el detalle mirey)
         public async Task<ActionResult> Details(int id)
         {
@@ -78,7 +82,7 @@ namespace SubastaAutos.Web.Controllers
             return View(new UsuarioDTO());
         }
 
-        
+        [RolAutorizado(1)]
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -102,7 +106,7 @@ namespace SubastaAutos.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
-
+        [RolAutorizado(1)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UsuarioDTO dto)
@@ -132,6 +136,66 @@ namespace SubastaAutos.Web.Controllers
                     $"El usuario {dto.NombreCompleto} fue modificado exitosamente.",
                     SweetAlertMessageType.success);
                 return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Error", ex.Message, SweetAlertMessageType.error);
+                return View(dto);
+            }
+        }
+        // ── MI PERFIL ──
+        [RolAutorizado]
+        [HttpGet]
+        public async Task<IActionResult> MiPerfil()
+        {
+            var usuarioId = HttpContext.Session.GetInt32("UsuarioId") ?? 0;
+            var dto = await _servicioUsuario.GetByIdAsync(usuarioId);
+            if (dto == null)
+                return RedirectToAction("LogIn", "Login");
+            return View(dto);
+        }
+
+        [RolAutorizado]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MiPerfil(int id, UsuarioDTO dto)
+        {
+            ModelState.Remove("IdRol");
+            ModelState.Remove("FechaRegistro");
+            ModelState.Remove("IdRolNavigation");
+            ModelState.Remove("IdRolNavigation.Nombre");
+            ModelState.Remove("RolUsuario");
+            ModelState.Remove("PasswordHash");
+
+            if (!ModelState.IsValid)
+            {
+                var errores = string.Join("<br>",
+                    ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
+                    "Errores de validación",
+                    $"El formulario contiene errores:<br>{errores}",
+                    SweetAlertMessageType.warning);
+                return View(dto);
+            }
+
+            try
+            {
+                var usuarioId = HttpContext.Session.GetInt32("UsuarioId") ?? 0;
+
+                if (string.IsNullOrWhiteSpace(dto.PasswordHash))
+                    dto = dto with { PasswordHash = string.Empty };
+
+                await _servicioUsuario.UpdateAsync(usuarioId, dto);
+
+                // Actualizar nombre en sesión si cambió
+                HttpContext.Session.SetString("UsuarioNombre", dto.NombreCompleto);
+
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Perfil actualizado",
+                    "Tu información fue actualizada exitosamente.",
+                    SweetAlertMessageType.success);
+                return RedirectToAction(nameof(MiPerfil));
             }
             catch (Exception ex)
             {

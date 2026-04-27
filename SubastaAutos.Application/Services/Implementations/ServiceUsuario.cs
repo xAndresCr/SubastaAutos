@@ -76,10 +76,15 @@ namespace SubastaAutos.Application.Services.Implementations
             bool correoIgual = entity.Correo.ToLower() == dto.Correo.ToLower();
             bool nombreIgual = entity.NombreCompleto.ToLower() == dto.NombreCompleto.ToLower();
             bool estadoIgual = entity.EstadoUsuario == dto.EstadoUsuario;
+            bool passwordIgual = true; // por defecto no cambió
 
-            //  Verificar si la contraseña cambió
-            string nuevoHash = (dto.PasswordHash);
-            bool passwordIgual = entity.PasswordHash == nuevoHash;
+            // Solo procesar contraseña si el usuario escribió algo
+            if (!string.IsNullOrWhiteSpace(dto.PasswordHash))
+            {
+                passwordIgual = entity.PasswordHash == dto.PasswordHash;
+                if (!passwordIgual)
+                    entity.PasswordHash = dto.PasswordHash;
+            }
 
             if (correoIgual && nombreIgual && estadoIgual && passwordIgual)
                 throw new InvalidOperationException(
@@ -96,10 +101,6 @@ namespace SubastaAutos.Application.Services.Implementations
             entity.NombreCompleto = dto.NombreCompleto;
             entity.Correo = dto.Correo;
             entity.EstadoUsuario = dto.EstadoUsuario;
-
-            // Solo actualizar contraseña si cambió
-            if (!passwordIgual)
-                entity.PasswordHash = nuevoHash;
 
             await repositoryUsuario.UpdateAsync(entity);
         }
