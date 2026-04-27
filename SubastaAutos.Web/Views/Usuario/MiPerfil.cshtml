@@ -97,6 +97,24 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
 
+                // Toggle contraseña - Nueva
+        document.getElementById("togglePass").addEventListener("click", function () {
+            const input = document.getElementById("PasswordHash");
+            const icon = this.querySelector("i");
+            const esPassword = input.type === "password";
+            input.type = esPassword ? "text" : "password";
+            icon.className = esPassword ? "bi bi-eye-slash" : "bi bi-eye";
+        });
+
+        // Toggle contraseña - Confirmar
+        document.getElementById("toggleConfirm").addEventListener("click", function () {
+            const input = document.getElementById("confirmarPassword");
+            const icon = this.querySelector("i");
+            const esPassword = input.type === "password";
+            input.type = esPassword ? "text" : "password";
+            icon.className = esPassword ? "bi bi-eye-slash" : "bi bi-eye";
+        });
+
         // Validación en tiempo real
         document.getElementById("confirmarPassword").addEventListener("input", function () {
             const nueva = document.getElementById("PasswordHash").value;
