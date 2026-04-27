@@ -74,6 +74,7 @@ namespace SubastaAutos.Web.Controllers
             );
         }
 
+        [RolAutorizado(1)]
         // GET: Usuario/Create
         //Carga los combos de roles para el formulario si no se cae ese serote
         public async Task<IActionResult> Create()
@@ -144,7 +145,99 @@ namespace SubastaAutos.Web.Controllers
                 return View(dto);
             }
         }
-        // ── MI PERFIL ──
+
+        [RolAutorizado(1)]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(UsuarioDTO dto)
+        {
+            ModelState.Remove("IdRolNavigation");
+            ModelState.Remove("IdRolNavigation.Nombre");
+            ModelState.Remove("FechaRegistro");
+            ModelState.Remove("RolUsuario");
+
+            if (!ModelState.IsValid)
+            {
+                var errores = string.Join("<br>",
+                    ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+                ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
+                    "Errores de validación",
+                    $"El formulario contiene errores:<br>{errores}",
+                    SweetAlertMessageType.warning);
+                await LoadCombosAsync(dto.IdRol);
+                return View(dto);
+            }
+
+            // Validar que seleccionó un rol
+            if (dto.IdRol == 0)
+            {
+                ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
+                    "Rol requerido",
+                    "Debe seleccionar un rol para el usuario.",
+                    SweetAlertMessageType.warning);
+                await LoadCombosAsync();
+                return View(dto);
+            }
+
+            // Validar contraseña no vacía
+            if (string.IsNullOrWhiteSpace(dto.PasswordHash))
+            {
+                ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
+                    "Contraseña requerida",
+                    "Debe ingresar una contraseña para el usuario.",
+                    SweetAlertMessageType.warning);
+                await LoadCombosAsync(dto.IdRol);
+                return View(dto);
+            }
+
+            // Validar longitud mínima de contraseña
+            if (dto.PasswordHash.Length < 6)
+            {
+                ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
+                    "Contraseña muy corta",
+                    "La contraseña debe tener al menos 6 caracteres.",
+                    SweetAlertMessageType.warning);
+                await LoadCombosAsync(dto.IdRol);
+                return View(dto);
+            }
+
+            try
+            {
+                // Validar correo duplicado
+                bool correoExiste = await _servicioUsuario.ExisteCorreoAsync(dto.Correo);
+                if (correoExiste)
+                {
+                    ViewBag.Notificacion = SweetAlertHelper.CrearNotificacion(
+                        "Correo duplicado",
+                        "El correo ingresado ya está registrado en el sistema.",
+                        SweetAlertMessageType.warning);
+                    await LoadCombosAsync(dto.IdRol);
+                    return View(dto);
+                }
+
+                dto.EstadoUsuario = true;
+                dto.FechaRegistro = DateTime.Now;
+
+                await _servicioUsuario.AddAsync(dto);
+
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Usuario registrado",
+                    $"El usuario {dto.NombreCompleto} fue creado exitosamente.",
+                    SweetAlertMessageType.success);
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
+                    "Error", ex.Message, SweetAlertMessageType.error);
+                await LoadCombosAsync(dto.IdRol);
+                return View(dto);
+            }
+        }
+
+
+        // MI PERFIL 
         [RolAutorizado]
         [HttpGet]
         public async Task<IActionResult> MiPerfil()
@@ -205,7 +298,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        // ── BLOQUEAR / ACTIVAR ─
+        //  BLOQUEAR / ACTIVAR
         [HttpGet]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleEstado(int id)

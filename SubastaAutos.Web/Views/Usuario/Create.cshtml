@@ -1,0 +1,207 @@
+﻿@model SubastaAutos.Application.DTOs.UsuarioDTO
+@{
+    ViewData["Title"] = "Crear Usuario";
+}
+
+<header class="mb-3">
+    <h1 class="h3 mb-0">
+        <i class="bi bi-person-plus-fill me-2"></i>Crear Usuario
+    </h1>
+    <p class="text-muted mb-0">Registro de un nuevo usuario en el sistema</p>
+</header>
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-secondary text-white">
+                <span class="fw-semibold">Datos del usuario</span>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" class="row g-3" novalidate>
+
+                    <input type="hidden" asp-for="FechaRegistro" />
+                    <input type="hidden" asp-for="EstadoUsuario" />
+
+                    <div class="col-12">
+                        <label asp-for="NombreCompleto" class="form-label fw-semibold"></label>
+                        <input asp-for="NombreCompleto" class="form-control"
+                               placeholder="Nombre completo del usuario" />
+                        <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Correo" class="form-label fw-semibold"></label>
+                        <input asp-for="Correo" class="form-control"
+                               type="email"
+                               placeholder="correo@ejemplo.com" />
+                        <span asp-validation-for="Correo" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Contraseña</label>
+                        <div class="input-group">
+                            <input asp-for="PasswordHash"
+                                   id="PasswordHash"
+                                   class="form-control"
+                                   type="password"
+                                   placeholder="Mínimo 6 caracteres" />
+                            <button class="btn btn-outline-secondary"
+                                    type="button" id="togglePass">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Confirmar contraseña</label>
+                        <div class="input-group">
+                            <input type="password"
+                                   id="confirmarPassword"
+                                   class="form-control"
+                                   placeholder="Repita la contraseña" />
+                            <button class="btn btn-outline-secondary"
+                                    type="button" id="toggleConfirm">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div id="mensajePassword" class="form-text"></div>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="IdRol" class="form-label fw-semibold">Rol</label>
+                        <select asp-for="IdRol" class="form-select" asp-items="ViewBag.Roles">
+                            <option value="0">-- Seleccione un rol --</option>
+                        </select>
+                        <span asp-validation-for="IdRol" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check2-circle me-1"></i>Guardar
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear,
+        input[type="password"]::-webkit-credentials-auto-fill-button {
+            display: none !important;
+            visibility: hidden;
+            pointer-events: none;
+        }
+    </style>
+    <script>
+        // Validación de contraseñas en tiempo real
+        function validarContrasenas() {
+            const nueva = document.getElementById("PasswordHash").value;
+            const confirmar = document.getElementById("confirmarPassword").value;
+            const mensaje = document.getElementById("mensajePassword");
+
+            if (!nueva && !confirmar) {
+                mensaje.innerHTML = '';
+                return;
+            }
+
+            if (nueva && !confirmar) {
+                mensaje.innerHTML = '';
+                return;
+            }
+
+            if (!nueva && confirmar) {
+                mensaje.innerHTML = `<span class="text-danger">
+                    <i class="bi bi-x-circle me-1"></i>Debes ingresar la contraseña.
+                </span>`;
+                return;
+            }
+
+            if (nueva === confirmar) {
+                mensaje.innerHTML = `<span class="text-success">
+                    <i class="bi bi-check-circle me-1"></i>Las contraseñas coinciden.
+                </span>`;
+            } else {
+                mensaje.innerHTML = `<span class="text-danger">
+                    <i class="bi bi-x-circle me-1"></i>Las contraseñas no coinciden.
+                </span>`;
+            }
+        }
+
+        document.getElementById("PasswordHash").addEventListener("input", validarContrasenas);
+        document.getElementById("confirmarPassword").addEventListener("input", validarContrasenas);
+
+        //Toggle ver contraseña
+        document.getElementById("togglePass").addEventListener("click", function () {
+            const input = document.getElementById("PasswordHash");
+            const icon = this.querySelector("i");
+            const esPassword = input.type === "password";
+            input.type = esPassword ? "text" : "password";
+            icon.className = esPassword ? "bi bi-eye-slash" : "bi bi-eye";
+        });
+
+        document.getElementById("toggleConfirm").addEventListener("click", function () {
+            const input = document.getElementById("confirmarPassword");
+            const icon = this.querySelector("i");
+            const esPassword = input.type === "password";
+            input.type = esPassword ? "text" : "password";
+            icon.className = esPassword ? "bi bi-eye-slash" : "bi bi-eye";
+        });
+
+        //  Validación al enviar
+        document.querySelector("form").addEventListener("submit", function (e) {
+            const nueva = document.getElementById("PasswordHash").value;
+            const confirmar = document.getElementById("confirmarPassword").value;
+
+            if (!nueva) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Contraseña requerida',
+                    text: 'Debes ingresar una contraseña.',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+
+            if (nueva.length < 6) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Contraseña muy corta',
+                    text: 'La contraseña debe tener al menos 6 caracteres.',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+
+            if (!confirmar) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Confirma tu contraseña',
+                    text: 'Debes confirmar la contraseña.',
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                return;
+            }
+
+            if (nueva !== confirmar) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Contraseñas no coinciden',
+                    text: 'La contraseña y la confirmación deben ser iguales.',
+                    icon: 'error',
+                    confirmButtonText: 'Intentar de nuevo'
+                });
+                return;
+            }
+        });
+    </script>
+}

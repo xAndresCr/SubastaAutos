@@ -44,6 +44,8 @@ namespace SubastaAutos.Application.Services.Implementations
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
             // Asignar fecha actual automáticamente
             usuario.FechaRegistro = DateTime.Now;
+            //El profile lo ignora y llega null a la DB, la vara es que tiene que hacerse así por el update que evita que se manden cambios innecesarios
+            usuario.PasswordHash = usuarioDTO.PasswordHash;
 
             usuario = await repositoryUsuario.AddAsync(usuario);
             return _mapper.Map<UsuarioDTO>(usuario);
