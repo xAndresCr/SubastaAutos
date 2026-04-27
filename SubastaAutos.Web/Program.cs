@@ -28,7 +28,8 @@ builder.Services.AddSignalR(options =>
     options.EnableDetailedErrors = true;
 });
 
-builder.Services.Configure<AppConfig>(builder.Configuration);
+builder.Services.Configure<AppConfig>(
+    builder.Configuration.GetSection("AppConfig"));
 
 // Repositories
 builder.Services.AddTransient<IRepositoryRolUsuario, RepositoryRolUsuario>();

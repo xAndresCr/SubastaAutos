@@ -1,6 +1,7 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using SubastaAutos.Web.Filters;
 using SubastaAutos.Web.Models;
+using System.Diagnostics;
 
 namespace SubastaAutos.Web.Controllers
 {
@@ -13,15 +14,19 @@ namespace SubastaAutos.Web.Controllers
             _logger = logger;
         }
 
+        [RolAutorizado]
+
         public IActionResult Denegado()
         {
             return View();
         }
+        [RolAutorizado]
         public IActionResult Index()
         {
             return View();
         }
 
+        [RolAutorizado]
         public IActionResult Privacy()
         {
             return View();

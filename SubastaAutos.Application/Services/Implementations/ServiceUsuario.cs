@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Security.Cryptography;
+using SubastaAutos.Web.Util;
 
 namespace SubastaAutos.Application.Services.Implementations
 {
@@ -21,13 +22,15 @@ namespace SubastaAutos.Application.Services.Implementations
 
         //AutoMapper que se crea para el mapeo entre el profile y el DTO hacia las entidades
         private readonly IMapper _mapper;
+        private readonly AppConfig _appConfig;
 
 
 
-        public ServiceUsuario(IRepositoryUsuario repositoryUsuario, IMapper mapper)
+        public ServiceUsuario(IRepositoryUsuario repositoryUsuario, IMapper mapper, IOptions<AppConfig> appConfig)
         {
             this.repositoryUsuario = repositoryUsuario;
             _mapper = mapper;
+            _appConfig = appConfig.Value;   
         }
 
         public async Task<bool> ExisteCorreoAsync(string correo)
@@ -44,8 +47,12 @@ namespace SubastaAutos.Application.Services.Implementations
             var usuario = _mapper.Map<Usuario>(usuarioDTO);
             // Asignar fecha actual automáticamente
             usuario.FechaRegistro = DateTime.Now;
-            //El profile lo ignora y llega null a la DB, la vara es que tiene que hacerse así por el update que evita que se manden cambios innecesarios
-            usuario.PasswordHash = usuarioDTO.PasswordHash;
+         
+
+            //Hash de la contraseña utilizando el helper, se le pasa la contraseña y el secret del appsettings para generar el hash
+            usuario.PasswordHash = CryptoHelper.HashPassword(
+           usuarioDTO.PasswordHash,
+           _appConfig.Crypto.Secret);
 
             usuario = await repositoryUsuario.AddAsync(usuario);
             return _mapper.Map<UsuarioDTO>(usuario);
@@ -78,14 +85,17 @@ namespace SubastaAutos.Application.Services.Implementations
             bool correoIgual = entity.Correo.ToLower() == dto.Correo.ToLower();
             bool nombreIgual = entity.NombreCompleto.ToLower() == dto.NombreCompleto.ToLower();
             bool estadoIgual = entity.EstadoUsuario == dto.EstadoUsuario;
-            bool passwordIgual = true; // por defecto no cambió
+            bool passwordIgual = true;
 
-            // Solo procesar contraseña si el usuario escribió algo
             if (!string.IsNullOrWhiteSpace(dto.PasswordHash))
             {
-                passwordIgual = entity.PasswordHash == dto.PasswordHash;
+                var nuevaHasheada = CryptoHelper.HashPassword(
+                    dto.PasswordHash,
+                    _appConfig.Crypto.Secret);
+
+                passwordIgual = entity.PasswordHash == nuevaHasheada; // fix
                 if (!passwordIgual)
-                    entity.PasswordHash = dto.PasswordHash;
+                    entity.PasswordHash = nuevaHasheada; // fix
             }
 
             if (correoIgual && nombreIgual && estadoIgual && passwordIgual)
@@ -124,8 +134,13 @@ namespace SubastaAutos.Application.Services.Implementations
         }
         public async Task<UsuarioDTO?> LoginAsync(string correo, string password)
         {
-        
-            var usuario = await repositoryUsuario.LoginAsync(correo, password);
+
+            //Hash de la contraseña utilizando el helper, antes de iniciar sesión
+            var passwordHasheada = CryptoHelper.HashPassword(
+            password,
+            _appConfig.Crypto.Secret);
+
+            var usuario = await repositoryUsuario.LoginAsync(correo, passwordHasheada);
             if (usuario == null) return null;
             return _mapper.Map<UsuarioDTO>(usuario);
         }

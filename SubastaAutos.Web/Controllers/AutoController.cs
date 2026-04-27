@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using SubastaAutos.Application.DTOs;
 using SubastaAutos.Application.Services.Interfaces;
+using SubastaAutos.Web.Filters;
 
 namespace SubastaAutos.Web.Controllers
 {
@@ -27,22 +28,23 @@ namespace SubastaAutos.Web.Controllers
             _serviceCondicion = serviceCondicion;
             _serviceEstado = serviceEstado;
         }
-
-        // ── LISTADO PÚBLICO (cards, del avance 2) ──────────────
+        [RolAutorizado(3)]
+        //  LISTADO PÚBLICO (cards, del avance 2) 
         public async Task<IActionResult> Index()
         {
             var collection = await _serviceAuto.ListAsync();
             return View(collection);
         }
 
-        // ── LISTADO ADMIN (tabla con acciones CRUD) ─────────────
+        [RolAutorizado(3)]
+        // LISTADO ADMIN (tabla con acciones CRUD)
         public async Task<IActionResult> IndexAdmin()
         {
             var collection = await _serviceAuto.ListAsync();
             return View(collection);
         }
-
-        // ── DETALLE ─────────────────────────────────────────────
+        [RolAutorizado(3)]
+        //  DETALLE 
         public async Task<IActionResult> Details(int? id)
         {
             try
@@ -64,7 +66,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-  
+        [RolAutorizado(3)]
         private async Task LoadCombosAsync(IEnumerable<string>? selectedCategoriaIds = null)
         {
             var condiciones = await _serviceCondicion.ListAsync();
@@ -83,7 +85,7 @@ namespace SubastaAutos.Web.Controllers
             // (se obtiene de la BD en un sistema real, aquí simplificamos)
             ViewBag.VendedorNombre = "Vendedor asignado automáticamente";
         }
-
+        [RolAutorizado(3)]
         private async Task CargarNombreVendedorAsync()
         {
             // Buscar nombre real del vendedor simulado para mostrarlo en la UI
@@ -91,6 +93,7 @@ namespace SubastaAutos.Web.Controllers
             var auto = autos.FirstOrDefault(a => a.IdVendedor == VendedorSimuladoId);
             ViewBag.VendedorNombre = auto?.Propietario ?? "Usuario #1";
         }
+        [RolAutorizado(3)]
 
         //  CREATE GET 
         public async Task<IActionResult> Create()
@@ -165,7 +168,7 @@ namespace SubastaAutos.Web.Controllers
 
             return RedirectToAction(nameof(IndexAdmin));
         }
-
+        [RolAutorizado(3)]
         // EDIT GET 
         public async Task<IActionResult> Edit(int id)
         {
@@ -211,7 +214,7 @@ namespace SubastaAutos.Web.Controllers
                 return RedirectToAction(nameof(IndexAdmin));
             }
         }
-
+        [RolAutorizado(3)]
         // EDIT POST 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -276,7 +279,7 @@ namespace SubastaAutos.Web.Controllers
 
             return RedirectToAction(nameof(IndexAdmin));
         }
-
+        [RolAutorizado(3)]
         //ACTIVAR / DESACTIVAR 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -297,7 +300,7 @@ namespace SubastaAutos.Web.Controllers
             }
             return RedirectToAction(nameof(IndexAdmin));
         }
-
+        [RolAutorizado(3)]
         //  ELIMINACIÓN LÓGICA
         [HttpPost]
         [ValidateAntiForgeryToken]

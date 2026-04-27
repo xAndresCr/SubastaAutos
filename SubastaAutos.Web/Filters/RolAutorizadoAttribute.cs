@@ -18,14 +18,15 @@ namespace SubastaAutos.Web.Filters
             var usuarioId = session.GetInt32("UsuarioId");
             var rolUsuario = session.GetInt32("UsuarioRol");
 
-            if (usuarioId == null)
+            //este redirige porque sino cualquier vivaso se pasa el login
+            if(usuarioId == null || usuarioId == 0)
             {
                 context.Result = new RedirectToActionResult("LogIn", "Login", null);
                 return;
             }
 
-            if (_rolesPermitidos.Length > 0 &&
-                !_rolesPermitidos.Contains(rolUsuario ?? 0))
+            //Con sesión pero sin rol permitido → acceso denegado
+            if (_rolesPermitidos.Length > 0 && !_rolesPermitidos.Contains(rolUsuario ?? 0))
             {
                 context.Result = new RedirectToActionResult("Denegado", "Home", null);
                 return;

@@ -23,7 +23,6 @@ namespace SubastaAutos.Application.Profiles
             // ← Solo un CreateMap<UsuarioDTO, Usuario>
             CreateMap<UsuarioDTO, Usuario>()
                 .ForMember(d => d.IdRolNavigation, o => o.Ignore())
-                .ForMember(d => d.PasswordHash, o => o.Ignore())
                 .ForMember(d => d.Auto, o => o.Ignore())
                 .ForMember(d => d.Puja, o => o.Ignore())
                 .ForMember(d => d.Subasta, o => o.Ignore())
