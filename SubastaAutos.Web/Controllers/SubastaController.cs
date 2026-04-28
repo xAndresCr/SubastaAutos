@@ -37,6 +37,7 @@ namespace SubastaAutos.Web.Controllers
             return HttpContext.Session.GetInt32("UsuarioId") ?? 0;
         }
 
+        [RolAutorizado(2)]
         // ── LISTADO PÚBLICO: Activas
         public async Task<IActionResult> Index()
         {

@@ -59,6 +59,14 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult LogOut()
+        {
+            HttpContext.Session.Clear(); // ← limpia toda la sesión
+            return RedirectToAction("LogIn", "Login");
+        }
+
     }
 
 }

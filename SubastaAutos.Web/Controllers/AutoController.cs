@@ -7,15 +7,13 @@ using SubastaAutos.Web.Filters;
 
 namespace SubastaAutos.Web.Controllers
 {
+    [RolAutorizado(3)]
     public class AutoController : Controller
     {
         private readonly IServiceAuto _serviceAuto;
         private readonly IServiceCategoria _serviceCategoria;
         private readonly IServiceCondicionAuto _serviceCondicion;
         private readonly IServiceEstadoAuto _serviceEstado;
-
-        // Vendedor simulado (variable lógica, no editable en UI)
-        private const int VendedorSimuladoId = 1;
 
         public AutoController(
             IServiceAuto serviceAuto,
@@ -28,23 +26,32 @@ namespace SubastaAutos.Web.Controllers
             _serviceCondicion = serviceCondicion;
             _serviceEstado = serviceEstado;
         }
-        [RolAutorizado(3)]
-        //  LISTADO PÚBLICO (cards, del avance 2) 
+
+        private int GetUsuarioActualId()
+        {
+            return HttpContext.Session.GetInt32("UsuarioId") ?? 0;
+        }
+
+        private string GetUsuarioNombre()
+        {
+            return HttpContext.Session.GetString("UsuarioNombre") ?? "Vendedor";
+        }
+
+        // ── LISTADO PÚBLICO ──────────────────────────────────────
         public async Task<IActionResult> Index()
         {
             var collection = await _serviceAuto.ListAsync();
             return View(collection);
         }
 
-        [RolAutorizado(3)]
-        // LISTADO ADMIN (tabla con acciones CRUD)
+        // ── LISTADO ADMIN ────────────────────────────────────────
         public async Task<IActionResult> IndexAdmin()
         {
             var collection = await _serviceAuto.ListAsync();
             return View(collection);
         }
-        [RolAutorizado(3)]
-        //  DETALLE 
+
+        // ── DETALLE ──────────────────────────────────────────────
         public async Task<IActionResult> Details(int? id)
         {
             try
@@ -66,7 +73,7 @@ namespace SubastaAutos.Web.Controllers
             }
         }
 
-        [RolAutorizado(3)]
+        // ── COMBOS ───────────────────────────────────────────────
         private async Task LoadCombosAsync(IEnumerable<string>? selectedCategoriaIds = null)
         {
             var condiciones = await _serviceCondicion.ListAsync();
@@ -81,55 +88,44 @@ namespace SubastaAutos.Web.Controllers
                 dataTextField: nameof(CategoriaDTO.Nombre),
                 selectedValues: selectedCategoriaIds);
 
-            // Nombre del vendedor simulado para mostrar en la vista
-            // (se obtiene de la BD en un sistema real, aquí simplificamos)
-            ViewBag.VendedorNombre = "Vendedor asignado automáticamente";
+            // ← Nombre real desde sesión
+            ViewBag.VendedorNombre = GetUsuarioNombre();
         }
-        [RolAutorizado(3)]
-        private async Task CargarNombreVendedorAsync()
-        {
-            // Buscar nombre real del vendedor simulado para mostrarlo en la UI
-            var autos = await _serviceAuto.ListAsync();
-            var auto = autos.FirstOrDefault(a => a.IdVendedor == VendedorSimuladoId);
-            ViewBag.VendedorNombre = auto?.Propietario ?? "Usuario #1";
-        }
-        [RolAutorizado(3)]
 
-        //  CREATE GET 
+        // ── CREATE GET ───────────────────────────────────────────
         public async Task<IActionResult> Create()
         {
             await LoadCombosAsync();
-            await CargarNombreVendedorAsync();
-            return View(new AutoDTO { IdEstadoAuto = 1, IdVendedor = VendedorSimuladoId });
+            return View(new AutoDTO
+            {
+                IdEstadoAuto = 1,
+                IdVendedor = GetUsuarioActualId() // ← sesión real
+            });
         }
 
-        // CREATE POST 
+        // ── CREATE POST ──────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AutoDTO dto, List<IFormFile> imageFiles, string[] selectedCategorias)
         {
             selectedCategorias ??= Array.Empty<string>();
 
-            // Forzar vendedor simulado y estado activo
-            dto.IdVendedor = VendedorSimuladoId;
-            dto.IdEstadoAuto = 1; // Activo
+            // ← Sesión real
+            dto.IdVendedor = GetUsuarioActualId();
+            dto.IdEstadoAuto = 1;
 
-            // Validación: al menos una categoría
             if (selectedCategorias.Length == 0)
                 ModelState.AddModelError("selectedCategorias",
                     "Debe seleccionar al menos una categoría.");
 
-            // Validación: al menos una imagen
             if (imageFiles == null || imageFiles.Count == 0)
                 ModelState.AddModelError("imageFiles",
                     "Debe seleccionar al menos una imagen.");
 
-            // Validación: VIN único
             bool vinExiste = await _serviceAuto.ExisteVinAsync(dto.Vin);
             if (vinExiste)
                 ModelState.AddModelError("Vin", "Ya existe un vehículo con ese número de VIN.");
 
-            // Quitar validaciones de campos calculados (solo lectura)
             ModelState.Remove("NombreAuto");
             ModelState.Remove("Propietario");
             ModelState.Remove("Condicion");
@@ -146,11 +142,9 @@ namespace SubastaAutos.Web.Controllers
                     SweetAlertMessageType.warning);
 
                 await LoadCombosAsync(selectedCategorias);
-                await CargarNombreVendedorAsync();
                 return View(dto);
             }
 
-            // Convertir imágenes a byte
             var imagenes = new List<byte[]>();
             foreach (var file in imageFiles)
             {
@@ -168,13 +162,12 @@ namespace SubastaAutos.Web.Controllers
 
             return RedirectToAction(nameof(IndexAdmin));
         }
-        [RolAutorizado(3)]
-        // EDIT GET 
+
+        // ── EDIT GET ─────────────────────────────────────────────
         public async Task<IActionResult> Edit(int id)
         {
             try
             {
-                // Validar: no puede editar si tiene subasta activa o ya fue vendido
                 bool tieneActiva = await _serviceAuto.TieneSubastaActivaAsync(id);
                 if (tieneActiva)
                 {
@@ -190,7 +183,7 @@ namespace SubastaAutos.Web.Controllers
                 {
                     TempData["Notificacion"] = SweetAlertHelper.CrearNotificacion(
                         "Acción no permitida",
-                        "No se puede editar un auto que ya fue vendido (subasta finalizada).",
+                        "No se puede editar un auto que ya fue vendido.",
                         SweetAlertMessageType.warning);
                     return RedirectToAction(nameof(IndexAdmin));
                 }
@@ -204,7 +197,6 @@ namespace SubastaAutos.Web.Controllers
                     .ToList();
 
                 await LoadCombosAsync(selected);
-                await CargarNombreVendedorAsync();
                 return View(dto);
             }
             catch (Exception ex)
@@ -214,28 +206,25 @@ namespace SubastaAutos.Web.Controllers
                 return RedirectToAction(nameof(IndexAdmin));
             }
         }
-        [RolAutorizado(3)]
-        // EDIT POST 
+
+        // ── EDIT POST ────────────────────────────────────────────
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, AutoDTO dto, List<IFormFile>? imageFiles, string[] selectedCategorias)
         {
             selectedCategorias ??= Array.Empty<string>();
 
-            // Forzar vendedor simulado (no editable)
-            dto.IdVendedor = VendedorSimuladoId;
+            // ← Sesión real
+            dto.IdVendedor = GetUsuarioActualId();
 
-            // Validación: al menos una categoría
             if (selectedCategorias.Length == 0)
                 ModelState.AddModelError("selectedCategorias",
                     "Debe seleccionar al menos una categoría.");
 
-            // Validación: VIN único 
             bool vinExiste = await _serviceAuto.ExisteVinAsync(dto.Vin, id);
             if (vinExiste)
                 ModelState.AddModelError("Vin", "Ya existe otro vehículo con ese número de VIN.");
 
-            // Quitar validaciones de campos calculados
             ModelState.Remove("NombreAuto");
             ModelState.Remove("Propietario");
             ModelState.Remove("Condicion");
@@ -253,11 +242,9 @@ namespace SubastaAutos.Web.Controllers
                     SweetAlertMessageType.warning);
 
                 await LoadCombosAsync(selectedCategorias);
-                await CargarNombreVendedorAsync();
                 return View(dto);
             }
 
-            // Convertir imágenes nuevas 
             List<byte[]>? nuevasImagenes = null;
             if (imageFiles != null && imageFiles.Count > 0)
             {
@@ -279,8 +266,8 @@ namespace SubastaAutos.Web.Controllers
 
             return RedirectToAction(nameof(IndexAdmin));
         }
-        [RolAutorizado(3)]
-        //ACTIVAR / DESACTIVAR 
+
+        // ACTIVAR / DESACTIVAR 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ActivarDesactivar(int id)
@@ -300,8 +287,8 @@ namespace SubastaAutos.Web.Controllers
             }
             return RedirectToAction(nameof(IndexAdmin));
         }
-        [RolAutorizado(3)]
-        //  ELIMINACIÓN LÓGICA
+
+        // LIMINACIÓN LÓGICA 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EliminarLogico(int id)
